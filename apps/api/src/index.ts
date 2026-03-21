@@ -11,6 +11,7 @@ import { registerUpload } from "./plugins/upload.js";
 import { registerStatic } from "./plugins/static.js";
 import { startCleanupCron } from "./lib/cleanup.js";
 import { fileRoutes } from "./routes/files.js";
+import { registerToolRoutes } from "./routes/tools/index.js";
 
 // Run before anything else
 runMigrations();
@@ -58,6 +59,9 @@ await authRoutes(app);
 
 // File upload/download routes
 await fileRoutes(app);
+
+// Tool routes (generic factory-based)
+await registerToolRoutes(app);
 
 // Health check
 app.get("/api/v1/health", async () => ({
