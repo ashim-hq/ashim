@@ -52,12 +52,12 @@ docker run -d -p 1349:1349 -v ./data:/data stirlingtools/stirling-image:latest
 | **UI Components** | shadcn/ui + Tailwind CSS 4 | AI models generate excellent code; composable; accessible (Radix primitives) |
 | **Backend** | Fastify | 30-40% faster than Express; built-in JSON validation; 30-50MB memory baseline |
 | **Image Engine** | Sharp (libvips) + ImageMagick | Sharp: 4-8x faster than ImageMagick, handles 95% of operations. IM: fallback for edge cases |
-| **AI/ML** | Node.js ONNX Runtime | @imgly/background-removal-node + UpscalerJS. No Python required. Models cached in Docker volume |
+| **AI/ML** | Node.js ONNX Runtime | @imgly/background-removal-node for BG removal. Real-ESRGAN ONNX model with custom onnxruntime-node wrapper for upscaling (NOT UpscalerJS which uses TensorFlow.js). Models cached in Docker volume |
 | **Database** | SQLite + Drizzle ORM | Zero config for self-hosters; Drizzle: 7.4KB runtime, faster than Prisma with SQLite |
 | **Job Queue** | Worker threads + p-queue | In-process concurrency. No Redis container needed. Configurable concurrency limit |
 | **Authentication** | Better-Auth | TypeScript-native; built-in 2FA, rate limiting, password policies; works with SQLite + Drizzle |
 | **Monorepo** | Turborepo + pnpm | Efficient builds, shared packages, cache |
-| **Deployment** | Docker (single container) | Multi-stage Alpine build. Target: 400-500MB image |
+| **Deployment** | Docker (single container) | Multi-stage Debian slim build. Target: 700MB-1GB image (includes libheif, libraw, ImageMagick, Tesseract, ONNX Runtime) |
 | **Storage** | Adapter pattern | `STORAGE_MODE=local` (default) or `STORAGE_MODE=s3` (future SaaS) |
 
 ### 4.2 Monorepo Structure
@@ -156,10 +156,11 @@ services:
 
 **Dockerfile strategy:**
 - Multi-stage build (builder → production)
-- Base: `node:22-alpine`
-- Install: Sharp (with libheif/libde265 for HEIC), ImageMagick, Tesseract (for OCR)
+- Base: `node:22-slim` (Debian slim, NOT Alpine — Alpine lacks prebuilt libheif/libraw/libjxl)
+- Install: Sharp (compile libvips from source with libheif/libde265 for HEIC support), ImageMagick, Tesseract (for OCR), libraw (for RAW formats)
 - AI models NOT baked in - downloaded on first use, cached in `/models` volume
-- Target image size: 400-500MB
+- Target image size: 700MB-1GB (realistic with all native dependencies)
+- Production: Fastify serves both API routes and the Vite-built SPA as static files
 
 ### 4.4 SQLite Configuration
 
@@ -211,8 +212,8 @@ Database file stored at `/data/stirling.db` (Docker volume mounted).
 | # | Tool | Description | Controls |
 |---|------|-------------|----------|
 | AI-01 | **Background Removal** | AI-powered subject isolation | One-click process, output: transparent PNG. Option to replace background with solid color or image. Batch support |
-| AI-02 | **Image Upscaling** | AI super-resolution enhancement | Scale factor (2x, 4x), model quality (fast/balanced/quality), before/after slider preview |
-| AI-03 | **Object Eraser** | Paint over unwanted elements, AI fills the gap | Brush tool with adjustable size, paint-to-erase interface, inpainting preview |
+| AI-02 | **Image Upscaling** | AI super-resolution enhancement (Real-ESRGAN ONNX model with custom onnxruntime-node wrapper) | Scale factor (2x, 4x), model quality (fast/balanced/quality), before/after slider preview |
+| AI-03 | **Object Eraser** | Paint over unwanted elements, AI fills the gap (LaMa ONNX model with custom onnxruntime-node wrapper). **Experimental/Alpha** - limited Node.js ecosystem maturity | Brush tool with adjustable size, paint-to-erase interface, inpainting preview |
 | AI-04 | **OCR / Text Extraction** | Extract text from images | Language selection, output format (plain text / structured), copy-to-clipboard, download as .txt |
 | AI-05 | **Face / PII Blur** | Auto-detect and blur faces, license plates, text | Detection sensitivity slider, blur intensity slider, manual region selection for additional blurring |
 | AI-06 | **Smart Crop** | AI detects subject and crops optimally | Target aspect ratio, subject detection preview, manual adjustment |
@@ -232,7 +233,7 @@ Database file stored at `/data/stirling.db` (Docker volume mounted).
 |---|------|-------------|----------|
 | U-01 | **Image Info / Inspector** | Show all metadata and image properties | Display: dimensions, DPI, color space, file size, format, bit depth. EXIF data (camera, GPS, date). Color histogram |
 | U-02 | **Image Compare** | Side-by-side comparison of two images | Upload two images, side-by-side view, overlay slider (before/after style), difference highlight |
-| U-03 | **Find Duplicates** | Detect duplicate/near-duplicate images | Batch upload, similarity threshold slider (80-100%), grouped results with side-by-side preview, keep best/keep all/manual select |
+| U-03 | **Find Duplicates** | Detect duplicate/near-duplicate images using **dHash** (difference hash) perceptual hashing for speed + accuracy balance | Batch upload, similarity threshold slider (80-100%), grouped results with side-by-side preview, keep best/keep all/manual select |
 | U-04 | **Color Palette Extraction** | Extract dominant colors from image | Number of colors (3-10), display HEX/RGB/HSL values, export as CSS variables, JSON, or Tailwind config |
 | U-05 | **QR Code Generator** | Generate QR code images from text/URL | Text/URL input, size, error correction level, foreground/background color, download as PNG/SVG |
 | U-06 | **Barcode Reader** | Read QR codes and barcodes from images | Upload image with barcode, auto-detect and display decoded text, copy to clipboard |
@@ -250,14 +251,14 @@ Database file stored at `/data/stirling.db` (Docker volume mounted).
 | # | Tool | Description | Controls |
 |---|------|-------------|----------|
 | F-01 | **SVG to Raster** | Convert SVG to PNG/JPG at custom resolution | Output resolution (width/height or scale factor), background color (transparent for PNG), output format |
-| F-02 | **Image to SVG** | Vectorize raster images using tracing | Color mode (B&W / Color), detail level slider, smoothing, preview, download SVG |
+| F-02 | **Image to SVG** | Vectorize raster images using algorithmic tracing (potrace/vtracer, NOT AI/ONNX) | Color mode (B&W / Color), detail level slider, smoothing, preview, download SVG |
 | F-03 | **GIF Tools** | Resize/crop/convert animated GIFs preserving animation | All standard operations with animation preservation, frame count display, optimize GIF file size |
 
 ### 5.9 Category: Automation
 
 | # | Tool | Description | Controls |
 |---|------|-------------|----------|
-| P-01 | **Pipeline Builder** | Chain multiple tools into a workflow | Linear stack: Add Step dropdown → configure each step → reorder → process. Save as template |
+| P-01 | **Pipeline Builder** | Chain multiple tools into a workflow. **Validated before execution:** tools that output non-image data (OCR→text) cannot be followed by image-processing tools. Validation error shown inline. | Linear stack: Add Step dropdown → configure each step → reorder → process. Save as template |
 | P-02 | **Saved Automations** | Save and reuse pipelines | Name, description, list of saved pipelines, suggested templates |
 | P-03 | **Batch Processing** | Apply any tool to multiple images at once | Multi-file upload, progress bar per file, download all as zip, parallel processing |
 
@@ -288,9 +289,9 @@ Database file stored at `/data/stirling.db` (Docker volume mounted).
 | GIF | .gif | Animated GIF support (all frames processed) |
 | SVG | .svg | Rasterized on input via Sharp |
 | HEIC/HEIF | .heic, .heif | iPhone photos (requires libheif in Docker) |
-| JPEG XL | .jxl | Emerging format |
+| JPEG XL | .jxl | Emerging format. **Requires custom libvips build with libjxl** - may be deferred if build complexity is too high |
 | ICO | .ico | Favicon input |
-| RAW | .cr2, .nef, .arw, .dng, .orf, .rw2 | Camera RAW (via dcraw/libraw) |
+| RAW | .cr2, .nef, .arw, .dng, .orf, .rw2 | Camera RAW. **Requires libraw** as explicit Docker dependency. Pre-processing step converts RAW → TIFF before Sharp processing |
 
 ### 6.2 Output Formats
 
@@ -302,7 +303,7 @@ Database file stored at `/data/stirling.db` (Docker volume mounted).
 | AVIF | .avif | 50 | Best compression ratio |
 | TIFF | .tif | Lossless | Professional use |
 | GIF | .gif | N/A | Animated output supported |
-| JPEG XL | .jxl | 75 | Next-gen |
+| JPEG XL | .jxl | 75 | Next-gen. Requires custom libvips build |
 | SVG | .svg | N/A | Only via vectorization tool |
 | ICO | .ico | N/A | Only via favicon generator |
 | PDF | .pdf | N/A | Only via Image-to-PDF tool |
@@ -390,8 +391,11 @@ Every tool supports all of these:
 1. **Drag and Drop** - onto the dropzone area
 2. **File picker** - "Upload from computer" button
 3. **Clipboard paste** - Ctrl/Cmd+V a screenshot or copied image
-4. **URL input** - paste an image URL to fetch
+4. **URL input** - paste an image URL to fetch (with SSRF protections: HTTPS only, blocked private/localhost IPs, 100MB max fetch size, 30s timeout)
 5. **Multi-file upload** - for batch-capable tools
+
+**Exceptions to standard tool page layout:**
+- **QR Code Generator** (U-05) does not accept image upload - it generates images from text input. Uses a text input field instead of a dropzone.
 
 ### 7.5 Before/After Preview
 
@@ -457,7 +461,7 @@ Modeled after Stirling-PDF's 17-section settings dialog:
 
 | Section | Settings |
 |---------|----------|
-| **General** | User info + logout, software update check, default tool picker mode (sidebar/fullscreen), auto-unzip settings, hide unavailable tools toggle |
+| **General** | User info + logout, software update check (**opt-in only** — disabled by default to respect "no external API calls" philosophy; checks GitHub releases when enabled), default tool picker mode (sidebar/fullscreen), auto-unzip settings, hide unavailable tools toggle |
 | **Keyboard Shortcuts** | Per-tool customizable keyboard shortcuts. Defaults: Cmd/Ctrl+Alt+1 through Cmd/Ctrl+Alt+8 for top tools. Search bar to find tools |
 
 **WORKSPACE**
@@ -515,7 +519,7 @@ Modeled after Stirling-PDF's 17-section settings dialog:
 
 ### 10.2 Security Features
 
-- Login attempt rate limiting (default: 5 attempts, 120-minute lockout)
+- Login attempt rate limiting (default: 5 attempts, 15-minute lockout)
 - CSRF protection (enabled by default)
 - JWT key rotation
 - Secure cookie option
@@ -540,8 +544,34 @@ Modeled after Stirling-PDF's 17-section settings dialog:
 - API key authentication (generated in Settings)
 - All endpoints under `/api/v1/`
 - Auto-generated Swagger UI at `/api/docs`
+- Per-IP rate limiting applies regardless of auth state (default: 100 req/min per IP)
+- Max image dimensions enforced: `MAX_MEGAPIXELS=100` (configurable, prevents OOM on decompression bombs)
 
-### 11.2 API Patterns
+### 11.2 API Error Response Schema
+
+All errors return a consistent JSON envelope:
+
+```json
+{
+  "error": "Human-readable error message",
+  "code": "UNSUPPORTED_FORMAT",
+  "details": { "format": "psd", "supported": ["jpg", "png", "webp"] }
+}
+```
+
+| HTTP Status | Code | Meaning |
+|-------------|------|---------|
+| 400 | `INVALID_INPUT` | Bad request (missing file, invalid params) |
+| 400 | `UNSUPPORTED_FORMAT` | File format not supported |
+| 400 | `FILE_TOO_LARGE` | Exceeds MAX_UPLOAD_SIZE_MB |
+| 400 | `IMAGE_TOO_LARGE` | Exceeds MAX_MEGAPIXELS |
+| 400 | `INVALID_PIPELINE` | Pipeline validation failed (incompatible tool chain) |
+| 401 | `UNAUTHORIZED` | Missing or invalid API key / session |
+| 429 | `RATE_LIMITED` | Too many requests |
+| 500 | `PROCESSING_ERROR` | Image processing failed |
+| 503 | `QUEUE_FULL` | Job queue at capacity, retry later |
+
+### 11.3 API Patterns
 
 **Single file processing:**
 ```
@@ -580,7 +610,7 @@ Response: processed file download
 | POST | `/api/v1/tools/convert` | Format Convert |
 | POST | `/api/v1/tools/compress` | Compress |
 | POST | `/api/v1/tools/strip-metadata` | Strip Metadata |
-| POST | `/api/v1/tools/rename` | Bulk Rename |
+| POST | `/api/v1/tools/rename` | Bulk Rename (accepts multiple files, returns zip with renamed files using pattern) |
 | POST | `/api/v1/tools/image-to-pdf` | Image to PDF |
 | POST | `/api/v1/tools/favicon` | Favicon Generator |
 | POST | `/api/v1/tools/brightness-contrast` | Brightness & Contrast |
@@ -599,7 +629,7 @@ Response: processed file download
 | POST | `/api/v1/tools/text-overlay` | Text Overlay |
 | POST | `/api/v1/tools/compose` | Image Composition |
 | POST | `/api/v1/tools/info` | Image Info |
-| POST | `/api/v1/tools/compare` | Image Compare |
+| POST | `/api/v1/tools/compare` | Image Compare (accepts 2 files, returns JSON: { similarity: number, diffImage: base64 }) |
 | POST | `/api/v1/tools/find-duplicates` | Find Duplicates |
 | POST | `/api/v1/tools/color-palette` | Color Palette |
 | POST | `/api/v1/tools/qr-generate` | QR Code Generator |
@@ -663,8 +693,8 @@ Response: processed file download
 
 ```typescript
 interface StorageAdapter {
-  upload(file: Buffer, path: string): Promise<string>;
-  download(path: string): Promise<Buffer>;
+  upload(file: Readable, path: string): Promise<string>;    // Streams, NOT Buffer (prevents OOM on large files)
+  download(path: string): Promise<Readable>;                 // Returns stream
   delete(path: string): Promise<void>;
   exists(path: string): Promise<boolean>;
   listFiles(directory: string): Promise<string[]>;
@@ -674,6 +704,8 @@ interface StorageAdapter {
 // - LocalStorageAdapter (default) - uses filesystem
 // - S3StorageAdapter - uses AWS S3 / Cloudflare R2 (future)
 ```
+
+**Why streams:** A 100MB upload with 200-file batch would require 20GB of memory with Buffer-based I/O. Streams keep memory usage constant regardless of file size.
 
 ---
 
@@ -742,8 +774,41 @@ User Upload
 - `CONCURRENT_JOBS` env var (default: 3) - max simultaneous image processing jobs
 - Additional jobs wait in queue (FIFO)
 - Frontend shows queue position for waiting jobs
-- Progress reporting via Server-Sent Events (SSE) or WebSocket
 - Timeout: 5 minutes per job (configurable)
+
+### 15.3 Progress Reporting (Server-Sent Events)
+
+Uses **SSE** (not WebSocket) for simplicity - works with HTTP/1.1, no connection upgrade needed, simpler CORS.
+
+```
+GET /api/v1/jobs/{jobId}/progress
+Accept: text/event-stream
+
+Events:
+data: { "jobId": "abc123", "status": "processing", "progress": 45, "currentFile": "photo_3.jpg", "totalFiles": 10 }
+data: { "jobId": "abc123", "status": "completed", "progress": 100, "downloadUrl": "/api/v1/jobs/abc123/download" }
+data: { "jobId": "abc123", "status": "failed", "error": "Unsupported format", "failedFile": "photo_7.psd" }
+```
+
+### 15.4 SQLite Write Concurrency
+
+All database writes go through a **single shared connection** (not a pool) to avoid SQLite write contention:
+- Worker threads communicate job status to the main thread via `parentPort.postMessage()`
+- Main thread handles all DB writes sequentially
+- Reads can use separate connections (WAL mode allows concurrent reads)
+- Uses `better-sqlite3` (synchronous, faster than async alternatives for SQLite)
+
+### 15.5 CORS & Static File Serving
+
+**Production:** Fastify serves both the API (`/api/v1/*`) and the Vite-built SPA (static files from `apps/web/dist/`). No CORS needed — same origin.
+
+**Development:** Vite dev server (port 5173) proxies API calls to Fastify (port 1349). Vite config includes proxy rule:
+```typescript
+// apps/web/vite.config.ts
+server: {
+  proxy: { '/api': 'http://localhost:1349' }
+}
+```
 
 ### 15.3 Batch Processing
 
@@ -784,6 +849,9 @@ User Upload
 | `S3_ACCESS_KEY` | - | S3 access key |
 | `S3_SECRET_KEY` | - | S3 secret key |
 | `S3_ENDPOINT` | - | S3-compatible endpoint (for R2, MinIO) |
+| `MAX_MEGAPIXELS` | `100` | Max image dimensions (prevents OOM) |
+| `RATE_LIMIT_PER_MIN` | `100` | Per-IP rate limit (applies even with AUTH_ENABLED=false) |
+| `LOGIN_LOCKOUT_MINUTES` | `15` | Lockout duration after failed login attempts |
 
 ### 16.2 Docker Volumes
 
@@ -879,17 +947,17 @@ The README must prove ease-of-use in 5 seconds:
 - Color Palette Extraction
 - QR Code Generator + Barcode Reader
 - Favicon Generator
+- Image-to-SVG Vectorization (algorithmic tracing, not AI)
 
 ### Phase 4: AI Tools (Weeks 12-15)
 - ONNX Runtime integration
 - Background Removal
-- Image Upscaling (2x, 4x)
+- Image Upscaling (2x, 4x) - Real-ESRGAN ONNX with custom wrapper
 - OCR / Text Extraction
 - Face / PII Blur
 - Smart Crop
-- Object Eraser
-- Image-to-SVG Vectorization
-- Find Duplicates (perceptual hashing)
+- Object Eraser (experimental/alpha - LaMa ONNX)
+- Find Duplicates (dHash perceptual hashing)
 - Image Compare (side-by-side + slider)
 
 ### Phase 5: Automation & Polish (Weeks 16-18)
