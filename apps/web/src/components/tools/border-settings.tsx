@@ -1,0 +1,88 @@
+import { useState } from "react";
+import { useFileStore } from "@/stores/file-store";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { Download, Loader2 } from "lucide-react";
+
+export function BorderSettings() {
+  const { files } = useFileStore();
+  const { processFiles, processing, error, downloadUrl, originalSize, processedSize } =
+    useToolProcessor("border");
+
+  const [borderWidth, setBorderWidth] = useState(10);
+  const [borderColor, setBorderColor] = useState("#000000");
+  const [cornerRadius, setCornerRadius] = useState(0);
+  const [padding, setPadding] = useState(0);
+  const [shadowBlur, setShadowBlur] = useState(0);
+
+  const handleProcess = () => {
+    processFiles(files, { borderWidth, borderColor, cornerRadius, padding, shadowBlur });
+  };
+
+  const hasFile = files.length > 0;
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <div className="flex justify-between items-center">
+          <label className="text-xs text-muted-foreground">Border Width</label>
+          <span className="text-xs font-mono text-foreground">{borderWidth}px</span>
+        </div>
+        <input type="range" min={0} max={100} value={borderWidth} onChange={(e) => setBorderWidth(Number(e.target.value))} className="w-full mt-1" />
+      </div>
+
+      <div>
+        <label className="text-xs text-muted-foreground">Border Color</label>
+        <input type="color" value={borderColor} onChange={(e) => setBorderColor(e.target.value)} className="w-full mt-0.5 h-8 rounded border border-border" />
+      </div>
+
+      <div>
+        <div className="flex justify-between items-center">
+          <label className="text-xs text-muted-foreground">Corner Radius</label>
+          <span className="text-xs font-mono text-foreground">{cornerRadius}px</span>
+        </div>
+        <input type="range" min={0} max={200} value={cornerRadius} onChange={(e) => setCornerRadius(Number(e.target.value))} className="w-full mt-1" />
+      </div>
+
+      <div>
+        <div className="flex justify-between items-center">
+          <label className="text-xs text-muted-foreground">Padding</label>
+          <span className="text-xs font-mono text-foreground">{padding}px</span>
+        </div>
+        <input type="range" min={0} max={100} value={padding} onChange={(e) => setPadding(Number(e.target.value))} className="w-full mt-1" />
+      </div>
+
+      <div>
+        <div className="flex justify-between items-center">
+          <label className="text-xs text-muted-foreground">Shadow</label>
+          <span className="text-xs font-mono text-foreground">{shadowBlur}px</span>
+        </div>
+        <input type="range" min={0} max={50} value={shadowBlur} onChange={(e) => setShadowBlur(Number(e.target.value))} className="w-full mt-1" />
+      </div>
+
+      {error && <p className="text-xs text-red-500">{error}</p>}
+
+      {originalSize != null && processedSize != null && (
+        <div className="text-xs text-muted-foreground space-y-0.5">
+          <p>Original: {(originalSize / 1024).toFixed(1)} KB</p>
+          <p>Processed: {(processedSize / 1024).toFixed(1)} KB</p>
+        </div>
+      )}
+
+      <button
+        onClick={handleProcess}
+        disabled={!hasFile || processing}
+        className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      >
+        {processing && <Loader2 className="h-4 w-4 animate-spin" />}
+        {processing ? "Processing..." : "Apply Border"}
+      </button>
+
+      {downloadUrl && (
+        <a href={downloadUrl} download className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5">
+          <Download className="h-4 w-4" />
+          Download
+        </a>
+      )}
+    </div>
+  );
+}
