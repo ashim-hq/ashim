@@ -38,6 +38,13 @@ import { FaviconSettings } from "@/components/tools/favicon-settings";
 import { ImageToPdfSettings } from "@/components/tools/image-to-pdf-settings";
 // Phase 3: Adjustments extra
 import { ReplaceColorSettings } from "@/components/tools/replace-color-settings";
+// Phase 4: AI Tools
+import { RemoveBgSettings } from "@/components/tools/remove-bg-settings";
+import { UpscaleSettings } from "@/components/tools/upscale-settings";
+import { OcrSettings } from "@/components/tools/ocr-settings";
+import { BlurFacesSettings } from "@/components/tools/blur-faces-settings";
+import { EraseObjectSettings } from "@/components/tools/erase-object-settings";
+import { SmartCropSettings } from "@/components/tools/smart-crop-settings";
 import * as icons from "lucide-react";
 
 const COLOR_TOOL_IDS = new Set([
@@ -85,6 +92,13 @@ function ToolSettingsPanel({ toolId }: { toolId: string }) {
   if (toolId === "image-to-pdf") return <ImageToPdfSettings />;
   // Phase 3: Adjustments extra
   if (toolId === "replace-color") return <ReplaceColorSettings />;
+  // Phase 4: AI Tools
+  if (toolId === "remove-background") return <RemoveBgSettings />;
+  if (toolId === "upscale") return <UpscaleSettings />;
+  if (toolId === "ocr") return <OcrSettings />;
+  if (toolId === "blur-faces") return <BlurFacesSettings />;
+  if (toolId === "erase-object") return <EraseObjectSettings />;
+  if (toolId === "smart-crop") return <SmartCropSettings />;
 
   return (
     <p className="text-xs text-muted-foreground italic">

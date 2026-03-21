@@ -32,6 +32,13 @@ import { registerFavicon } from "./favicon.js";
 import { registerImageToPdf } from "./image-to-pdf.js";
 // Phase 3: Adjustments extra
 import { registerReplaceColor } from "./replace-color.js";
+// Phase 4: AI Tools
+import { registerRemoveBackground } from "./remove-background.js";
+import { registerUpscale } from "./upscale.js";
+import { registerOcr } from "./ocr.js";
+import { registerBlurFaces } from "./blur-faces.js";
+import { registerEraseObject } from "./erase-object.js";
+import { registerSmartCrop } from "./smart-crop.js";
 
 /**
  * Registry that imports and registers all tool routes.
@@ -79,5 +86,13 @@ export async function registerToolRoutes(app: FastifyInstance): Promise<void> {
   // Phase 3: Adjustments extra
   registerReplaceColor(app);
 
-  app.log.info("Tool routes registered (26 tools, 29 endpoints)");
+  // Phase 4: AI Tools
+  registerRemoveBackground(app);
+  registerUpscale(app);
+  registerOcr(app);
+  registerBlurFaces(app);
+  registerEraseObject(app);
+  registerSmartCrop(app);
+
+  app.log.info("Tool routes registered (32 tools, 35 endpoints)");
 }

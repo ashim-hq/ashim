@@ -35,6 +35,9 @@ importers:
       '@fastify/swagger-ui':
         specifier: ^5.2.0
         version: 5.2.5
+      '@stirling-image/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@stirling-image/image-engine':
         specifier: workspace:*
         version: link:../../packages/image-engine
@@ -160,7 +163,13 @@ importers:
       '@stirling-image/shared':
         specifier: workspace:*
         version: link:../shared
+      sharp:
+        specifier: ^0.33.0
+        version: 0.33.5
     devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.15
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
