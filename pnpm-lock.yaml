@@ -15,6 +15,32 @@ importers:
         specifier: ^5.7.0
         version: 5.9.3
 
+  packages/ai:
+    dependencies:
+      '@stirling-image/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+
+  packages/image-engine:
+    dependencies:
+      '@stirling-image/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+
 packages:
 
   '@turbo/darwin-64@2.8.20':
