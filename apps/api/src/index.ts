@@ -3,6 +3,11 @@ import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import { env } from "./config.js";
 import { APP_VERSION } from "@stirling-image/shared";
+import { runMigrations } from "./db/migrate.js";
+
+// Run before anything else
+runMigrations();
+console.log("Database initialized");
 
 const app = Fastify({
   logger: true,
