@@ -3,12 +3,18 @@ import sys
 import json
 
 
+def emit_progress(percent, stage):
+    """Emit structured progress to stderr for bridge.ts to capture."""
+    print(json.dumps({"progress": percent, "stage": stage}), file=sys.stderr, flush=True)
+
+
 def main():
     input_path = sys.argv[1]
     mask_path = sys.argv[2]
     output_path = sys.argv[3]
 
     try:
+        emit_progress(10, "Loading inpainting model")
         from PIL import Image
 
         try:
@@ -16,10 +22,13 @@ def main():
             from lama_cleaner.model_manager import ModelManager
             from lama_cleaner.schema import Config
 
+            emit_progress(20, "Model loaded")
+
             img = Image.open(input_path).convert("RGB")
             mask = Image.open(mask_path).convert("L")
 
             # Resize mask to match image if needed
+            emit_progress(25, "Analyzing mask")
             if mask.size != img.size:
                 mask = mask.resize(img.size, Image.NEAREST)
 
@@ -37,7 +46,10 @@ def main():
                 hd_strategy_crop_trigger_size=800,
                 hd_strategy_resize_limit=800,
             )
+            emit_progress(40, "Inpainting region")
             result = model_manager(img_array, mask_array, config)
+            emit_progress(85, "Refining edges")
+            emit_progress(95, "Saving result")
             Image.fromarray(result).save(output_path)
             method = "lama"
 

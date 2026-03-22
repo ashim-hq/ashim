@@ -3,6 +3,11 @@ import sys
 import json
 
 
+def emit_progress(percent, stage):
+    """Emit structured progress to stderr for bridge.ts to capture."""
+    print(json.dumps({"progress": percent, "stage": stage}), file=sys.stderr, flush=True)
+
+
 def main():
     input_path = sys.argv[1]
     output_path = sys.argv[2]
@@ -11,6 +16,7 @@ def main():
     scale = settings.get("scale", 2)
 
     try:
+        emit_progress(10, "Loading upscale model")
         from PIL import Image
 
         img = Image.open(input_path)
@@ -36,14 +42,20 @@ def main():
                 model=model,
                 half=False,
             )
+            emit_progress(20, "Model ready")
             img_array = np.array(img.convert("RGB"))
+            emit_progress(25, "Upscaling image")
             output, _ = upsampler.enhance(img_array, outscale=scale)
+            emit_progress(90, "Upscaling complete")
             result = Image.fromarray(output)
+            emit_progress(95, "Saving result")
             result.save(output_path)
             method = "realesrgan"
         except (ImportError, Exception):
             # Fallback to Lanczos upscaling
+            emit_progress(50, "Upscaling with Lanczos")
             img_upscaled = img.resize(new_size, Image.LANCZOS)
+            emit_progress(95, "Saving result")
             img_upscaled.save(output_path)
             method = "lanczos"
 

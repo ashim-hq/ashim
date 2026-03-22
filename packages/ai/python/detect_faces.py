@@ -3,6 +3,11 @@ import sys
 import json
 
 
+def emit_progress(percent, stage):
+    """Emit structured progress to stderr for bridge.ts to capture."""
+    print(json.dumps({"progress": percent, "stage": stage}), file=sys.stderr, flush=True)
+
+
 def main():
     input_path = sys.argv[1]
     output_path = sys.argv[2]
@@ -12,6 +17,7 @@ def main():
     sensitivity = settings.get("sensitivity", 0.5)
 
     try:
+        emit_progress(10, "Loading face detection model")
         from PIL import Image, ImageFilter
 
         img = Image.open(input_path).convert("RGB")
@@ -20,17 +26,21 @@ def main():
             import mediapipe as mp
             import numpy as np
 
+            emit_progress(20, "Model ready")
+
             mp_face = mp.solutions.face_detection
 
             with mp_face.FaceDetection(
                 min_detection_confidence=sensitivity
             ) as detector:
                 img_array = np.array(img)
+                emit_progress(25, "Scanning for faces")
                 results = detector.process(img_array)
 
                 faces = []
+                emit_progress(50, f"Found {len(results.detections or [])} faces")
                 if results.detections:
-                    for detection in results.detections:
+                    for i, detection in enumerate(results.detections):
                         bbox = detection.location_data.relative_bounding_box
                         x = int(bbox.xmin * img.width)
                         y = int(bbox.ymin * img.height)
@@ -50,7 +60,9 @@ def main():
                         )
                         img.paste(blurred, (x1, y1))
                         faces.append({"x": x, "y": y, "w": w, "h": h})
+                        emit_progress(50 + int((i + 1) / max(len(results.detections), 1) * 40), f"Blurring face {i + 1} of {len(results.detections)}")
 
+                emit_progress(95, "Saving result")
                 img.save(output_path)
                 print(
                     json.dumps(
