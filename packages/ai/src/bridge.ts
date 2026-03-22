@@ -10,7 +10,7 @@ const PYTHON_DIR = resolve(__dirname, "../python");
 
 /** Try venv first, then system python. */
 function getPythonPath(): string {
-  const venvPath = process.env.PYTHON_VENV_PATH || "/opt/venv";
+  const venvPath = process.env.PYTHON_VENV_PATH || resolve(__dirname, "../../../.venv");
   return `${venvPath}/bin/python3`;
 }
 
