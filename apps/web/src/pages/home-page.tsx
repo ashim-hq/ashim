@@ -1,87 +1,143 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/app-layout";
+import { ImageViewer } from "@/components/common/image-viewer";
 import { useFileStore } from "@/stores/file-store";
-import {
-  Maximize2,
-  Minimize2,
-  FileOutput,
-  Eraser,
-  X,
-} from "lucide-react";
+import { TOOLS, CATEGORIES } from "@stirling-image/shared";
+import * as icons from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const QUICK_ACTIONS = [
-  { id: "resize", name: "Resize", icon: Maximize2, route: "/resize" },
-  { id: "compress", name: "Compress", icon: Minimize2, route: "/compress" },
-  { id: "convert", name: "Convert", icon: FileOutput, route: "/convert" },
-  { id: "remove-background", name: "Remove Background", icon: Eraser, route: "/remove-background" },
-] as const;
+// Tools shown prominently as "quick actions" at the top
+const QUICK_ACTION_IDS = ["resize", "compress", "convert", "remove-background"];
 
 export function HomePage() {
-  const { setFiles, files, reset } = useFileStore();
+  const { setFiles, files, reset, originalBlobUrl, selectedFileName, selectedFileSize } = useFileStore();
   const navigate = useNavigate();
-  const [showActions, setShowActions] = useState(false);
 
   const handleFiles = useCallback(
     (newFiles: File[]) => {
       reset();
       setFiles(newFiles);
-      setShowActions(true);
     },
     [setFiles, reset],
   );
 
-  const handleAction = (route: string) => {
-    setShowActions(false);
+  const handleToolClick = (route: string) => {
+    // Files are already in the store — just navigate
     navigate(route);
   };
 
-  const handleDismiss = () => {
-    setShowActions(false);
-    reset();
-  };
+  const hasFile = files.length > 0;
 
+  // If no file uploaded, show default layout (tool panel + dropzone)
+  if (!hasFile) {
+    return <AppLayout onFiles={handleFiles} />;
+  }
+
+  // File uploaded — show tool selector on left, image preview on right
   return (
-    <AppLayout onFiles={handleFiles}>
-      {/* Quick-action overlay */}
-      {showActions && files.length > 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-background rounded-2xl shadow-2xl border border-border p-6 max-w-md w-full mx-4 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-foreground">
-                What would you like to do?
-              </h2>
-              <button
-                onClick={handleDismiss}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
+    <AppLayout showToolPanel={false} onFiles={handleFiles}>
+      <div className="flex h-full w-full">
+        {/* Left panel: Tool selector */}
+        <div className="w-80 border-r border-border overflow-y-auto shrink-0">
+          {/* File info */}
+          <div className="p-4 border-b border-border">
+            <div className="flex items-center gap-2 text-sm">
+              <icons.CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+              <span className="truncate font-medium text-foreground">
+                {selectedFileName ?? files[0].name}
+              </span>
             </div>
-
-            <p className="text-sm text-muted-foreground mb-4">
-              <span className="font-medium text-foreground">{files[0].name}</span>
-              {" "}({(files[0].size / 1024).toFixed(1)} KB)
-              {files.length > 1 && ` +${files.length - 1} more`}
+            <p className="text-xs text-muted-foreground mt-1">
+              {selectedFileSize ? `${(selectedFileSize / 1024).toFixed(1)} KB` : ""}
+              {files.length > 1 && ` — ${files.length} files`}
             </p>
+            <button
+              onClick={reset}
+              className="text-xs text-muted-foreground hover:text-foreground mt-2"
+            >
+              Change file
+            </button>
+          </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              {QUICK_ACTIONS.map(({ id, name, icon: Icon, route }) => (
-                <button
-                  key={id}
-                  onClick={() => handleAction(route)}
-                  className="flex items-center gap-3 p-3 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-colors text-left"
-                >
-                  <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <span className="text-sm font-medium text-foreground">{name}</span>
-                </button>
-              ))}
+          {/* Quick actions */}
+          <div className="p-4 border-b border-border">
+            <h3 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-3">
+              Quick Actions
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {QUICK_ACTION_IDS.map((id) => {
+                const tool = TOOLS.find((t) => t.id === id);
+                if (!tool) return null;
+                const Icon = (icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[tool.icon] || icons.FileImage;
+                return (
+                  <button
+                    key={id}
+                    onClick={() => handleToolClick(tool.route)}
+                    className="flex items-center gap-2 p-3 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-colors text-left"
+                  >
+                    <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <span className="text-xs font-medium text-foreground">{tool.name}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
+
+          {/* All tools by category */}
+          <div className="p-4">
+            <h3 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-3">
+              All Tools
+            </h3>
+            {CATEGORIES.map((category) => {
+              const categoryTools = TOOLS.filter((t) => t.category === category.id);
+              if (categoryTools.length === 0) return null;
+              return (
+                <div key={category.id} className="mb-4">
+                  <p className="text-xs font-medium text-muted-foreground mb-1.5" style={{ color: category.color }}>
+                    {category.name}
+                  </p>
+                  <div className="space-y-0.5">
+                    {categoryTools.map((tool) => {
+                      const Icon = (icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[tool.icon] || icons.FileImage;
+                      return (
+                        <button
+                          key={tool.id}
+                          onClick={() => handleToolClick(tool.route)}
+                          className={cn(
+                            "flex items-center gap-2.5 w-full py-1.5 px-2 rounded-lg text-left transition-colors",
+                            "hover:bg-muted text-foreground"
+                          )}
+                        >
+                          <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <span className="text-sm">{tool.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      )}
+
+        {/* Right panel: Image preview */}
+        <div className="flex-1 flex items-center justify-center p-6">
+          {originalBlobUrl ? (
+            <ImageViewer
+              src={originalBlobUrl}
+              filename={selectedFileName ?? files[0].name}
+              fileSize={selectedFileSize ?? files[0].size}
+            />
+          ) : (
+            <div className="text-center text-muted-foreground">
+              <p>Loading preview...</p>
+            </div>
+          )}
+        </div>
+      </div>
     </AppLayout>
   );
 }
