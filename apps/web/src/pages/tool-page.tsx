@@ -3,9 +3,12 @@ import { useMemo, useCallback, useState } from "react";
 import { TOOLS } from "@stirling-image/shared";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Dropzone } from "@/components/common/dropzone";
+import { ImageViewer } from "@/components/common/image-viewer";
 import { BeforeAfterSlider } from "@/components/common/before-after-slider";
+import { ReviewPanel } from "@/components/common/review-panel";
 import { useFileStore } from "@/stores/file-store";
 import { useMobile } from "@/hooks/use-mobile";
+import { formatFileSize } from "@/lib/download";
 import { ResizeSettings } from "@/components/tools/resize-settings";
 import { CropSettings } from "@/components/tools/crop-settings";
 import { RotateSettings } from "@/components/tools/rotate-settings";
@@ -47,7 +50,7 @@ import { BlurFacesSettings } from "@/components/tools/blur-faces-settings";
 import { EraseObjectSettings } from "@/components/tools/erase-object-settings";
 import { SmartCropSettings } from "@/components/tools/smart-crop-settings";
 import * as icons from "lucide-react";
-import { cn } from "@/lib/utils";
+import { CheckCircle2 } from "lucide-react";
 
 const COLOR_TOOL_IDS = new Set([
   "brightness-contrast",
@@ -109,10 +112,67 @@ function ToolSettingsPanel({ toolId }: { toolId: string }) {
   );
 }
 
+/** File selection indicator shown in left panel */
+function FileSelectionInfo({
+  files,
+  selectedFileName,
+  selectedFileSize,
+  onClear,
+}: {
+  files: File[];
+  selectedFileName: string | null;
+  selectedFileSize: number | null;
+  onClear: () => void;
+}) {
+  if (files.length === 0) {
+    return (
+      <p className="text-xs text-muted-foreground italic">
+        Drop or upload an image to get started
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center gap-1.5 text-xs text-foreground bg-muted rounded px-2 py-1.5">
+        <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />
+        <span className="truncate flex-1">
+          Selected: {selectedFileName ?? files[0].name}
+        </span>
+        <span className="text-muted-foreground shrink-0 ml-1">
+          {formatFileSize(selectedFileSize ?? files[0].size)}
+        </span>
+      </div>
+      {files.length > 1 && (
+        <p className="text-xs text-muted-foreground px-1">
+          +{files.length - 1} more file{files.length > 2 ? "s" : ""}
+        </p>
+      )}
+      <button
+        onClick={onClear}
+        className="text-xs text-muted-foreground hover:text-foreground"
+      >
+        Clear
+      </button>
+    </div>
+  );
+}
+
 export function ToolPage() {
   const { toolId } = useParams<{ toolId: string }>();
   const tool = useMemo(() => TOOLS.find((t) => t.id === toolId), [toolId]);
-  const { files, setFiles, reset, processedUrl, originalBlobUrl, originalSize, processedSize } = useFileStore();
+  const {
+    files,
+    setFiles,
+    reset,
+    processedUrl,
+    originalBlobUrl,
+    originalSize,
+    processedSize,
+    selectedFileName,
+    selectedFileSize,
+    undoProcessing,
+  } = useFileStore();
   const isMobile = useMobile();
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(true);
 
@@ -123,6 +183,10 @@ export function ToolPage() {
     },
     [setFiles, reset],
   );
+
+  const handleUndo = useCallback(() => {
+    undoProcessing();
+  }, [undoProcessing]);
 
   if (!tool) {
     return (
@@ -143,7 +207,16 @@ export function ToolPage() {
     )[tool.icon] || icons.FileImage;
 
   const hasFile = files.length > 0;
+  const hasProcessed = !!processedUrl;
   const isNoDropzone = NO_DROPZONE_TOOLS.has(tool.id);
+
+  // Derive processed file info from context
+  const processedFileName = selectedFileName
+    ? `processed-${selectedFileName}`
+    : "processed-image";
+  const processedFileType = selectedFileName
+    ? selectedFileName.split(".").pop()?.toUpperCase() || "IMAGE"
+    : "IMAGE";
 
   // Mobile layout: settings above dropzone (stacked)
   if (isMobile) {
@@ -170,43 +243,62 @@ export function ToolPage() {
           {mobileSettingsOpen && (
             <div className="p-4 border-b border-border space-y-3 shrink-0 max-h-[40vh] overflow-y-auto">
               {/* File info */}
-              {!isNoDropzone && hasFile && (
-                <div className="space-y-1">
-                  {files.map((f, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between text-xs text-foreground bg-muted rounded px-2 py-1"
-                    >
-                      <span className="truncate">{f.name}</span>
-                      <span className="text-muted-foreground shrink-0 ml-2">
-                        {(f.size / 1024).toFixed(0)} KB
-                      </span>
-                    </div>
-                  ))}
-                  <button
-                    onClick={() => reset()}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    Clear
-                  </button>
+              {!isNoDropzone && (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-muted-foreground">
+                    Files
+                  </h3>
+                  <FileSelectionInfo
+                    files={files}
+                    selectedFileName={selectedFileName}
+                    selectedFileSize={selectedFileSize}
+                    onClear={reset}
+                  />
                 </div>
               )}
-              <ToolSettingsPanel toolId={tool.id} />
+
+              <div className="border-t border-border" />
+
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  Settings
+                </h3>
+                <ToolSettingsPanel toolId={tool.id} />
+              </div>
+
+              {/* Review panel (mobile) */}
+              {hasProcessed && processedSize != null && (
+                <ReviewPanel
+                  filename={processedFileName}
+                  fileSize={processedSize}
+                  fileType={processedFileType}
+                  downloadUrl={processedUrl}
+                  previewUrl={processedUrl}
+                  onUndo={handleUndo}
+                  currentToolId={tool.id}
+                />
+              )}
             </div>
           )}
 
-          {/* Dropzone / Preview */}
+          {/* Main area: Dropzone / Image Viewer / Before-After */}
           <div className="flex-1 flex items-center justify-center p-4">
             {isNoDropzone ? (
               <div className="text-center text-muted-foreground">
                 <p className="text-sm">Configure settings and generate.</p>
               </div>
-            ) : processedUrl && originalBlobUrl ? (
+            ) : hasProcessed && originalBlobUrl ? (
               <BeforeAfterSlider
                 beforeSrc={originalBlobUrl}
                 afterSrc={processedUrl}
                 beforeSize={originalSize ?? undefined}
                 afterSize={processedSize ?? undefined}
+              />
+            ) : hasFile && originalBlobUrl ? (
+              <ImageViewer
+                src={originalBlobUrl}
+                filename={selectedFileName ?? files[0].name}
+                fileSize={selectedFileSize ?? files[0].size}
               />
             ) : (
               <Dropzone
@@ -243,31 +335,12 @@ export function ToolPage() {
               <h3 className="text-sm font-medium text-muted-foreground">
                 Files
               </h3>
-              {hasFile ? (
-                <div className="space-y-1">
-                  {files.map((f, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between text-xs text-foreground bg-muted rounded px-2 py-1"
-                    >
-                      <span className="truncate">{f.name}</span>
-                      <span className="text-muted-foreground shrink-0 ml-2">
-                        {(f.size / 1024).toFixed(0)} KB
-                      </span>
-                    </div>
-                  ))}
-                  <button
-                    onClick={() => reset()}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    Clear
-                  </button>
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground italic">
-                  Drop or upload an image to get started
-                </p>
-              )}
+              <FileSelectionInfo
+                files={files}
+                selectedFileName={selectedFileName}
+                selectedFileSize={selectedFileSize}
+                onClear={reset}
+              />
             </div>
           )}
 
@@ -280,20 +353,41 @@ export function ToolPage() {
             </h3>
             <ToolSettingsPanel toolId={tool.id} />
           </div>
+
+          {/* Review panel (desktop - below settings) */}
+          {hasProcessed && processedSize != null && (
+            <ReviewPanel
+              filename={processedFileName}
+              fileSize={processedSize}
+              fileType={processedFileType}
+              downloadUrl={processedUrl}
+              previewUrl={processedUrl}
+              onUndo={handleUndo}
+              currentToolId={tool.id}
+            />
+          )}
         </div>
 
-        {/* Dropzone / Preview */}
+        {/* Main area: Dropzone / Image Viewer / Before-After */}
         <div className="flex-1 flex items-center justify-center p-6">
           {isNoDropzone ? (
             <div className="text-center text-muted-foreground">
-              <p className="text-sm">Configure settings in the panel and generate.</p>
+              <p className="text-sm">
+                Configure settings in the panel and generate.
+              </p>
             </div>
-          ) : processedUrl && originalBlobUrl ? (
+          ) : hasProcessed && originalBlobUrl ? (
             <BeforeAfterSlider
               beforeSrc={originalBlobUrl}
               afterSrc={processedUrl}
               beforeSize={originalSize ?? undefined}
               afterSize={processedSize ?? undefined}
+            />
+          ) : hasFile && originalBlobUrl ? (
+            <ImageViewer
+              src={originalBlobUrl}
+              filename={selectedFileName ?? files[0].name}
+              fileSize={selectedFileSize ?? files[0].size}
             />
           ) : (
             <Dropzone

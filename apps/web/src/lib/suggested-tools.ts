@@ -1,0 +1,24 @@
+const TOOL_SUGGESTIONS: Record<string, string[]> = {
+  resize: ["compress", "convert", "watermark-text", "strip-metadata"],
+  crop: ["resize", "compress", "convert"],
+  rotate: ["crop", "resize", "compress"],
+  convert: ["compress", "strip-metadata", "watermark-text"],
+  compress: ["convert", "strip-metadata", "watermark-text"],
+  "strip-metadata": ["compress", "convert"],
+  "brightness-contrast": ["compress", "convert", "resize"],
+  saturation: ["compress", "convert", "resize"],
+  "color-channels": ["compress", "convert"],
+  "color-effects": ["compress", "convert", "resize"],
+  "replace-color": ["compress", "convert"],
+  "remove-background": ["resize", "compress", "convert"],
+  upscale: ["compress", "convert"],
+  "smart-crop": ["resize", "compress"],
+  "watermark-text": ["compress", "convert"],
+  "watermark-image": ["compress", "convert"],
+  "text-overlay": ["compress", "convert"],
+  border: ["compress", "convert", "resize"],
+};
+
+export function getSuggestedTools(currentToolId: string): string[] {
+  return TOOL_SUGGESTIONS[currentToolId] || ["resize", "compress", "convert"];
+}
