@@ -1,3 +1,10 @@
+## [0.3.1](https://github.com/siddharthksah/Stirling-Image/compare/v0.3.0...v0.3.1) (2026-03-23)
+
+
+### Bug Fixes
+
+* resolve tsx not found in AI docs updater workflow ([dfbef8d](https://github.com/siddharthksah/Stirling-Image/commit/dfbef8d723dcc2960187db36676107f708707e33))
+
 # [0.3.0](https://github.com/siddharthksah/Stirling-Image/compare/v0.2.1...v0.3.0) (2026-03-23)
 
 
