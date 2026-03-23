@@ -19,7 +19,7 @@ const platforms = [...new Set(SOCIAL_MEDIA_PRESETS.map((p) => p.platform))];
 
 export function ResizeSettings() {
   const { files } = useFileStore();
-  const { processFiles, processing, error, downloadUrl, progress } =
+  const { processFiles, processAllFiles, processing, error, downloadUrl, progress } =
     useToolProcessor("resize");
 
   const [tab, setTab] = useState<ResizeTab>("presets");
@@ -56,7 +56,11 @@ export function ResizeSettings() {
       settings.withoutEnlargement = withoutEnlargement;
     }
 
-    processFiles(files, settings);
+    if (files.length > 1) {
+      processAllFiles(files, settings);
+    } else {
+      processFiles(files, settings);
+    }
   };
 
   const hasFile = files.length > 0;
@@ -252,7 +256,7 @@ export function ResizeSettings() {
           disabled={!canProcess}
           className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          Resize
+          {files.length > 1 ? `Resize (${files.length} files)` : "Resize"}
         </button>
       )}
 

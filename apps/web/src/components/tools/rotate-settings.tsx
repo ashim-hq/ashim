@@ -22,7 +22,7 @@ interface RotateSettingsProps {
 
 export function RotateSettings({ onPreviewTransform }: RotateSettingsProps) {
   const { files } = useFileStore();
-  const { processFiles, processing, error, downloadUrl, progress } =
+  const { processFiles, processAllFiles, processing, error, downloadUrl, progress } =
     useToolProcessor("rotate");
 
   const [angle, setAngle] = useState(0);
@@ -38,11 +38,16 @@ export function RotateSettings({ onPreviewTransform }: RotateSettingsProps) {
   const rotateRight = () => setAngle((a) => (a + 90) % 360);
 
   const handleProcess = () => {
-    processFiles(files, {
+    const settings = {
       angle,
       horizontal: flipH,
       vertical: flipV,
-    });
+    };
+    if (files.length > 1) {
+      processAllFiles(files, settings);
+    } else {
+      processFiles(files, settings);
+    }
   };
 
   const hasFile = files.length > 0;
@@ -144,7 +149,7 @@ export function RotateSettings({ onPreviewTransform }: RotateSettingsProps) {
           disabled={!hasFile || !hasChanges || processing}
           className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          Apply
+          {files.length > 1 ? `Apply (${files.length} files)` : "Apply"}
         </button>
       )}
 
