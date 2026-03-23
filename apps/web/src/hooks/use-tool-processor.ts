@@ -286,7 +286,7 @@ export function useToolProcessor(toolId: string) {
 
         // Extract files from ZIP using fflate
         const { unzipSync } = await import("fflate");
-        const zipBuffer = new Uint8Array(await zipBlob.arrayBuffer());
+        const zipBuffer = new Uint8Array(await zipBlob.arrayBuffer() as ArrayBuffer);
         const extracted = unzipSync(zipBuffer);
 
         const fileOrder = response.headers.get("X-File-Order")?.split(",") ?? [];
@@ -301,7 +301,7 @@ export function useToolProcessor(toolId: string) {
             zipName = extractedNames.find((n) => n === entries[i].file.name) ?? extractedNames[i];
           }
           if (zipName && extracted[zipName]) {
-            const blob = new Blob([extracted[zipName]]);
+            const blob = new Blob([extracted[zipName] as BlobPart]);
             updateEntry(i, { processedUrl: URL.createObjectURL(blob), processedSize: blob.size, status: "completed" });
           } else {
             updateEntry(i, { status: "failed", error: "File not found in batch results" });
