@@ -1,3 +1,10 @@
+## [0.5.1](https://github.com/siddharthksah/Stirling-Image/compare/v0.5.0...v0.5.1) (2026-03-23)
+
+
+### Bug Fixes
+
+* **crop:** use percentCrop from onChange to fix inflated pixel values ([f238820](https://github.com/siddharthksah/Stirling-Image/commit/f2388206324e4ddc6114b91421ca8bcb634fc340))
+
 # [0.5.0](https://github.com/siddharthksah/Stirling-Image/compare/v0.4.1...v0.5.0) (2026-03-23)
 
 
