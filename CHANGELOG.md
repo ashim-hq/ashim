@@ -1,3 +1,10 @@
+## [0.4.1](https://github.com/siddharthksah/Stirling-Image/compare/v0.4.0...v0.4.1) (2026-03-23)
+
+
+### Bug Fixes
+
+* unify project on port 1349, improve strip-metadata and UI components ([4912ee3](https://github.com/siddharthksah/Stirling-Image/commit/4912ee37e961b9ba9748d7ffa9164d7ca5ae0abb))
+
 # [0.4.0](https://github.com/siddharthksah/Stirling-Image/compare/v0.3.1...v0.4.0) (2026-03-23)
 
 
