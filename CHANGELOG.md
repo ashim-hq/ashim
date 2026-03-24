@@ -1,3 +1,11 @@
+# [0.7.0](https://github.com/siddharthksah/Stirling-Image/compare/v0.6.0...v0.7.0) (2026-03-24)
+
+
+### Features
+
+* harden auth, security headers, SVG sanitization, and pipeline ownership ([beaad1d](https://github.com/siddharthksah/Stirling-Image/commit/beaad1d3044f6b2535aacb6a67541464f736778b))
+* **pipeline:** add inline settings configuration for automation steps ([827eae8](https://github.com/siddharthksah/Stirling-Image/commit/827eae824543ab9cea2a5d3a82acd388736fa424))
+
 # [0.6.0](https://github.com/siddharthksah/Stirling-Image/compare/v0.5.2...v0.6.0) (2026-03-24)
 
 
