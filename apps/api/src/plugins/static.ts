@@ -1,8 +1,8 @@
-import type { FastifyInstance } from "fastify";
-import fastifyStatic from "@fastify/static";
-import { resolve, dirname } from "node:path";
 import { existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import fastifyStatic from "@fastify/static";
+import type { FastifyInstance } from "fastify";
 
 export async function registerStatic(app: FastifyInstance) {
   // Resolve relative to this file's location

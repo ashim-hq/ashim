@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface AuthState {
   loading: boolean;
@@ -15,7 +15,7 @@ export function useAuth(): AuthState {
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [checkAuth]);
 
   async function checkAuth() {
     try {

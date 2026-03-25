@@ -1,4 +1,4 @@
-import { test, expect, uploadTestImage } from "./helpers";
+import { expect, test, uploadTestImage } from "./helpers";
 
 // ---------------------------------------------------------------------------
 // Test that EVERY tool page loads, shows correct name, and has the right UI.
@@ -43,21 +43,15 @@ const TOOLS_WITH_DROPZONE = [
   { id: "gif-tools", name: "GIF" },
 ];
 
-const TOOLS_WITHOUT_DROPZONE = [
-  { id: "qr-generate", name: "QR Code" },
-];
+const TOOLS_WITHOUT_DROPZONE = [{ id: "qr-generate", name: "QR Code" }];
 
 test.describe("All tool pages render", () => {
   for (const tool of TOOLS_WITH_DROPZONE) {
-    test(`${tool.name} (/${tool.id}) loads with dropzone`, async ({
-      loggedInPage: page,
-    }) => {
+    test(`${tool.name} (/${tool.id}) loads with dropzone`, async ({ loggedInPage: page }) => {
       await page.goto(`/${tool.id}`);
 
       // Tool name should be visible
-      await expect(
-        page.getByText(tool.name, { exact: false }).first(),
-      ).toBeVisible();
+      await expect(page.getByText(tool.name, { exact: false }).first()).toBeVisible();
 
       // Should show dropzone
       await expect(page.getByText("Upload from computer")).toBeVisible();
@@ -71,15 +65,11 @@ test.describe("All tool pages render", () => {
   }
 
   for (const tool of TOOLS_WITHOUT_DROPZONE) {
-    test(`${tool.name} (/${tool.id}) loads without dropzone`, async ({
-      loggedInPage: page,
-    }) => {
+    test(`${tool.name} (/${tool.id}) loads without dropzone`, async ({ loggedInPage: page }) => {
       await page.goto(`/${tool.id}`);
 
       // Tool name should be visible
-      await expect(
-        page.getByText(tool.name, { exact: false }).first(),
-      ).toBeVisible();
+      await expect(page.getByText(tool.name, { exact: false }).first()).toBeVisible();
 
       // Should show settings
       await expect(page.getByText("Settings").first()).toBeVisible();
@@ -112,9 +102,7 @@ test.describe("Tool pages accept file upload", () => {
       // After upload, dropzone should be replaced with image viewer
       await expect(page.getByText("Upload from computer")).not.toBeVisible();
       // Should show file info (Selected: or the filename)
-      await expect(
-        page.getByText(/selected|test-image/i).first(),
-      ).toBeVisible();
+      await expect(page.getByText(/selected|test-image/i).first()).toBeVisible();
     });
   }
 });

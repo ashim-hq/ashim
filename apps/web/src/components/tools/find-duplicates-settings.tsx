@@ -1,6 +1,6 @@
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useFileStore } from "@/stores/file-store";
-import { Loader2 } from "lucide-react";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";

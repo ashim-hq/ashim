@@ -1,6 +1,6 @@
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useFileStore } from "@/stores/file-store";
-import { Loader2 } from "lucide-react";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
@@ -93,7 +93,9 @@ export function InfoSettings() {
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-1 text-xs">
             <div className="text-muted-foreground">Dimensions</div>
-            <div className="text-foreground font-mono">{info.width} x {info.height}</div>
+            <div className="text-foreground font-mono">
+              {info.width} x {info.height}
+            </div>
             <div className="text-muted-foreground">Format</div>
             <div className="text-foreground font-mono">{info.format}</div>
             <div className="text-muted-foreground">File Size</div>
@@ -125,7 +127,9 @@ export function InfoSettings() {
               {info.histogram.map((ch) => (
                 <div key={ch.channel} className="space-y-0.5">
                   <div className="flex items-center gap-1.5">
-                    <div className={`w-2 h-2 rounded-full ${channelColors[ch.channel] ?? "bg-gray-400"}`} />
+                    <div
+                      className={`w-2 h-2 rounded-full ${channelColors[ch.channel] ?? "bg-gray-400"}`}
+                    />
                     <span className="text-xs text-foreground capitalize">{ch.channel}</span>
                   </div>
                   <div className="flex gap-2 text-[10px] text-muted-foreground font-mono">

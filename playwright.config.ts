@@ -1,5 +1,5 @@
-import { defineConfig, devices } from "@playwright/test";
 import path from "node:path";
+import { defineConfig, devices } from "@playwright/test";
 
 const authFile = path.join(__dirname, "test-results", ".auth", "user.json");
 
@@ -14,8 +14,7 @@ export default defineConfig({
       caret: "hide",
     },
   },
-  snapshotPathTemplate:
-    "{testDir}/__screenshots__/{testFilePath}/{arg}{ext}",
+  snapshotPathTemplate: "{testDir}/__screenshots__/{testFilePath}/{arg}{ext}",
   fullyParallel: false,
   retries: 0,
   workers: 1,

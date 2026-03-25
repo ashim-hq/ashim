@@ -1,8 +1,8 @@
+import { compress } from "@stirling-image/image-engine";
+import type { FastifyInstance } from "fastify";
+import sharp from "sharp";
 import { z } from "zod";
 import { createToolRoute } from "../tool-factory.js";
-import { compress } from "@stirling-image/image-engine";
-import sharp from "sharp";
-import type { FastifyInstance } from "fastify";
 
 const settingsSchema = z.object({
   mode: z.enum(["quality", "targetSize"]).default("quality"),

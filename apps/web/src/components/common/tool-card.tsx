@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
-import { Star, FileImage } from "lucide-react";
-import * as icons from "lucide-react";
 import type { Tool } from "@stirling-image/shared";
+import * as icons from "lucide-react";
+import { FileImage, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 interface ToolCardProps {
@@ -9,10 +9,7 @@ interface ToolCardProps {
 }
 
 export function ToolCard({ tool }: ToolCardProps) {
-  const iconsMap = icons as unknown as Record<
-    string,
-    React.ComponentType<{ className?: string }>
-  >;
+  const iconsMap = icons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
   const IconComponent = iconsMap[tool.icon] || FileImage;
 
   return (
@@ -28,14 +25,14 @@ export function ToolCard({ tool }: ToolCardProps) {
         className={cn(
           "flex items-center gap-3 py-2 px-3 rounded-lg w-full transition-colors",
           "hover:bg-muted",
-          tool.disabled && "opacity-50 pointer-events-none"
+          tool.disabled && "opacity-50 pointer-events-none",
         )}
       >
         <IconComponent className="h-5 w-5 text-muted-foreground" />
         <span className="text-sm font-medium text-foreground">{tool.name}</span>
-        {tool.alpha && (
+        {tool.experimental && (
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-orange-100 text-orange-600 font-medium">
-            Alpha
+            Experimental
           </span>
         )}
       </Link>

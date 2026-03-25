@@ -20,9 +20,9 @@ export async function getImageInfo(buffer: Buffer): Promise<ImageInfo> {
       isProgressive: metadata.isProgressive,
       hasProfile: metadata.hasProfile,
       orientation: metadata.orientation,
-      exif: metadata.exif ? true : false,
-      icc: metadata.icc ? true : false,
-      xmp: metadata.xmp ? true : false,
+      exif: !!metadata.exif,
+      icc: !!metadata.icc,
+      xmp: !!metadata.xmp,
     },
   };
 }

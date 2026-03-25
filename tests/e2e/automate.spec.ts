@@ -1,4 +1,4 @@
-import { test, expect, getTestImagePath } from "./helpers";
+import { expect, getTestImagePath, test } from "./helpers";
 
 test.describe("Automate Page", () => {
   // Retry flaky tests caused by dev server timing
@@ -36,10 +36,7 @@ test.describe("Automate Page", () => {
   }
 
   /** Wait for pipeline steps to render after a template click. */
-  async function waitForSteps(
-    page: import("@playwright/test").Page,
-    count: number,
-  ) {
+  async function waitForSteps(page: import("@playwright/test").Page, count: number) {
     // Step numbers (1, 2, 3...) appear inside the step cards
     await expect(page.getByTitle("Remove")).toHaveCount(count, {
       timeout: 5_000,
@@ -51,9 +48,7 @@ test.describe("Automate Page", () => {
   /** Upload the test image via file chooser. */
   async function uploadTestFile(page: import("@playwright/test").Page) {
     const fileChooserPromise = page.waitForEvent("filechooser");
-    await page
-      .getByRole("button", { name: /upload image to process/i })
-      .click();
+    await page.getByRole("button", { name: /upload image to process/i }).click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(testImagePath);
     await page.waitForTimeout(500);
@@ -61,18 +56,12 @@ test.describe("Automate Page", () => {
 
   // ─── Page Rendering ───────────────────────────────────────────────────
 
-  test("automate page renders pipeline builder", async ({
-    loggedInPage: page,
-  }) => {
+  test("automate page renders pipeline builder", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
-    await expect(
-      page.getByText(/chain multiple tools/i).first(),
-    ).toBeVisible();
+    await expect(page.getByText(/chain multiple tools/i).first()).toBeVisible();
   });
 
-  test("shows all five pipeline templates", async ({
-    loggedInPage: page,
-  }) => {
+  test("shows all five pipeline templates", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await expect(page.getByText("Social Media Ready")).toBeVisible();
     await expect(page.getByText("Privacy Clean")).toBeVisible();
@@ -83,40 +72,26 @@ test.describe("Automate Page", () => {
 
   test("shows template descriptions", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
-    await expect(
-      page.getByText(/resize 1080x1080/i).first(),
-    ).toBeVisible();
-    await expect(
-      page.getByText(/strip all metadata/i).first(),
-    ).toBeVisible();
+    await expect(page.getByText(/resize 1080x1080/i).first()).toBeVisible();
+    await expect(page.getByText(/strip all metadata/i).first()).toBeVisible();
   });
 
-  test("shows empty state message when no steps", async ({
-    loggedInPage: page,
-  }) => {
+  test("shows empty state message when no steps", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
-    await expect(
-      page.getByText(/add steps to build your automation pipeline/i),
-    ).toBeVisible();
+    await expect(page.getByText(/add steps to build your automation pipeline/i)).toBeVisible();
   });
 
   test("shows upload image button", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
-    await expect(
-      page.getByRole("button", { name: /upload image to process/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /upload image to process/i })).toBeVisible();
   });
 
   test("has Add Step button", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
-    await expect(
-      page.getByRole("button", { name: /add step/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /add step/i })).toBeVisible();
   });
 
-  test("has Process button (disabled when no steps or file)", async ({
-    loggedInPage: page,
-  }) => {
+  test("has Process button (disabled when no steps or file)", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     const processBtn = page.getByRole("button", {
       name: "Process",
@@ -126,9 +101,7 @@ test.describe("Automate Page", () => {
     await expect(processBtn).toBeDisabled();
   });
 
-  test("has Save Pipeline button (disabled when no steps)", async ({
-    loggedInPage: page,
-  }) => {
+  test("has Save Pipeline button (disabled when no steps)", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     const saveBtn = page.getByRole("button", { name: "Save Pipeline" });
     await expect(saveBtn).toBeVisible();
@@ -137,53 +110,39 @@ test.describe("Automate Page", () => {
 
   // ─── Template Loading ─────────────────────────────────────────────────
 
-  test("clicking Social Media Ready template loads 4 steps", async ({
-    loggedInPage: page,
-  }) => {
+  test("clicking Social Media Ready template loads 4 steps", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Social Media Ready").click();
     await waitForSteps(page, 4);
     // Verify empty state is gone
-    await expect(
-      page.getByText(/add steps to build your automation pipeline/i),
-    ).not.toBeVisible();
+    await expect(page.getByText(/add steps to build your automation pipeline/i)).not.toBeVisible();
   });
 
-  test("clicking Privacy Clean template loads 2 steps", async ({
-    loggedInPage: page,
-  }) => {
+  test("clicking Privacy Clean template loads 2 steps", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Privacy Clean").click();
     await waitForSteps(page, 2);
   });
 
-  test("clicking Web Optimization template loads 3 steps", async ({
-    loggedInPage: page,
-  }) => {
+  test("clicking Web Optimization template loads 3 steps", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Web Optimization").click();
     await waitForSteps(page, 3);
   });
 
-  test("clicking Profile Picture template loads 2 steps", async ({
-    loggedInPage: page,
-  }) => {
+  test("clicking Profile Picture template loads 2 steps", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Profile Picture").click();
     await waitForSteps(page, 2);
   });
 
-  test("clicking Watermark Batch template loads 3 steps", async ({
-    loggedInPage: page,
-  }) => {
+  test("clicking Watermark Batch template loads 3 steps", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Watermark Batch").click();
     await waitForSteps(page, 3);
   });
 
-  test("loading a template replaces previous steps", async ({
-    loggedInPage: page,
-  }) => {
+  test("loading a template replaces previous steps", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Social Media Ready").click();
     await waitForSteps(page, 4);
@@ -194,17 +153,13 @@ test.describe("Automate Page", () => {
 
   // ─── Add Step ─────────────────────────────────────────────────────────
 
-  test("clicking Add Step opens tool picker", async ({
-    loggedInPage: page,
-  }) => {
+  test("clicking Add Step opens tool picker", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByRole("button", { name: /add step/i }).click();
     await expect(page.getByText("Add a step")).toBeVisible();
   });
 
-  test("tool picker shows available tools", async ({
-    loggedInPage: page,
-  }) => {
+  test("tool picker shows available tools", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByRole("button", { name: /add step/i }).click();
     const pickerArea = page.locator(".max-h-64.overflow-y-auto");
@@ -212,16 +167,11 @@ test.describe("Automate Page", () => {
     await expect(pickerArea.getByText("Convert").first()).toBeVisible();
   });
 
-  test("selecting a tool from picker adds a step", async ({
-    loggedInPage: page,
-  }) => {
+  test("selecting a tool from picker adds a step", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByRole("button", { name: /add step/i }).click();
     const pickerArea = page.locator(".max-h-64.overflow-y-auto");
-    await pickerArea
-      .getByText("Resize", { exact: false })
-      .first()
-      .click();
+    await pickerArea.getByText("Resize", { exact: false }).first().click();
     await waitForSteps(page, 1);
   });
 
@@ -256,14 +206,10 @@ test.describe("Automate Page", () => {
     await waitForSteps(page, 2);
 
     await page.getByTitle("Settings").first().click();
-    await expect(
-      page.getByText(/default settings will be used/i),
-    ).toBeVisible();
+    await expect(page.getByText(/default settings will be used/i)).toBeVisible();
   });
 
-  test("move up button disabled on first step", async ({
-    loggedInPage: page,
-  }) => {
+  test("move up button disabled on first step", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Social Media Ready").click();
     await waitForSteps(page, 4);
@@ -271,9 +217,7 @@ test.describe("Automate Page", () => {
     await expect(page.getByTitle("Move up").first()).toBeDisabled();
   });
 
-  test("move down button disabled on last step", async ({
-    loggedInPage: page,
-  }) => {
+  test("move down button disabled on last step", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Social Media Ready").click();
     await waitForSteps(page, 4);
@@ -283,9 +227,7 @@ test.describe("Automate Page", () => {
 
   // ─── File Upload ──────────────────────────────────────────────────────
 
-  test("can upload a file via file chooser", async ({
-    loggedInPage: page,
-  }) => {
+  test("can upload a file via file chooser", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await uploadTestFile(page);
 
@@ -305,41 +247,29 @@ test.describe("Automate Page", () => {
     const uploadArea = page.locator("[class*='border-dashed']").first();
     await uploadArea.locator("button").click();
 
-    await expect(
-      page.getByRole("button", { name: /upload image to process/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /upload image to process/i })).toBeVisible();
   });
 
   // ─── Save Pipeline ────────────────────────────────────────────────────
 
-  test("Save Pipeline button enables after adding steps", async ({
-    loggedInPage: page,
-  }) => {
+  test("Save Pipeline button enables after adding steps", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Privacy Clean").click();
     await waitForSteps(page, 2);
 
-    await expect(
-      page.getByRole("button", { name: "Save Pipeline" }),
-    ).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Save Pipeline" })).toBeEnabled();
   });
 
-  test("clicking Save Pipeline shows name input form", async ({
-    loggedInPage: page,
-  }) => {
+  test("clicking Save Pipeline shows name input form", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Privacy Clean").click();
     await waitForSteps(page, 2);
 
     await page.getByRole("button", { name: "Save Pipeline" }).click();
-    await expect(
-      page.getByPlaceholder("Pipeline name"),
-    ).toBeVisible();
+    await expect(page.getByPlaceholder("Pipeline name")).toBeVisible();
   });
 
-  test("Save button disabled when name is empty", async ({
-    loggedInPage: page,
-  }) => {
+  test("Save button disabled when name is empty", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Privacy Clean").click();
     await waitForSteps(page, 2);
@@ -352,9 +282,7 @@ test.describe("Automate Page", () => {
     await expect(saveSubmitBtn).toBeDisabled();
   });
 
-  test("can save a pipeline with name and see it in sidebar", async ({
-    loggedInPage: page,
-  }) => {
+  test("can save a pipeline with name and see it in sidebar", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Privacy Clean").click();
     await waitForSteps(page, 2);
@@ -362,9 +290,7 @@ test.describe("Automate Page", () => {
     const uniqueName = `E2E Pipeline ${Date.now()}`;
     await page.getByRole("button", { name: "Save Pipeline" }).click();
     await page.getByPlaceholder("Pipeline name").fill(uniqueName);
-    await page
-      .getByRole("button", { name: "Save", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Save", exact: true }).click();
 
     // Wait for the pipeline to appear in sidebar
     await expect(page.getByText(uniqueName).first()).toBeVisible({
@@ -372,91 +298,65 @@ test.describe("Automate Page", () => {
     });
   });
 
-  test("can close save form without saving", async ({
-    loggedInPage: page,
-  }) => {
+  test("can close save form without saving", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Privacy Clean").click();
     await waitForSteps(page, 2);
 
     await page.getByRole("button", { name: "Save Pipeline" }).click();
-    await expect(
-      page.getByPlaceholder("Pipeline name"),
-    ).toBeVisible();
+    await expect(page.getByPlaceholder("Pipeline name")).toBeVisible();
 
     // Close the form — the last button in the save form row
     const formRow = page.locator(".flex.items-center.gap-2.flex-1");
     await formRow.locator("button").last().click();
 
-    await expect(
-      page.getByRole("button", { name: "Save Pipeline" }),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Save Pipeline" })).toBeVisible();
   });
 
   // ─── Pipeline Execution ───────────────────────────────────────────────
 
-  test("Process button enables when steps and file are set", async ({
-    loggedInPage: page,
-  }) => {
+  test("Process button enables when steps and file are set", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Privacy Clean").click();
     await waitForSteps(page, 2);
     await uploadTestFile(page);
 
-    await expect(
-      page.getByRole("button", { name: "Process", exact: true }),
-    ).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Process", exact: true })).toBeEnabled();
   });
 
-  test("executing pipeline shows success result", async ({
-    loggedInPage: page,
-  }) => {
+  test("executing pipeline shows success result", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Privacy Clean").click();
     await waitForSteps(page, 2);
     await uploadTestFile(page);
 
-    await page
-      .getByRole("button", { name: "Process", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Process", exact: true }).click();
 
     // Wait for result (pipeline completed text)
-    await expect(
-      page.getByText(/pipeline completed/i),
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/pipeline completed/i)).toBeVisible({ timeout: 30_000 });
 
     // Should show original/processed sizes
     await expect(page.getByText(/original/i)).toBeVisible();
     await expect(page.getByText(/processed/i)).toBeVisible();
 
     // Should show download button
-    await expect(
-      page.getByRole("link", { name: /download result/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: /download result/i })).toBeVisible();
   });
 
-  test("executing Social Media Ready template works", async ({
-    loggedInPage: page,
-  }) => {
+  test("executing Social Media Ready template works", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Social Media Ready").click();
     await waitForSteps(page, 4);
     await uploadTestFile(page);
 
-    await page
-      .getByRole("button", { name: "Process", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Process", exact: true }).click();
 
-    await expect(
-      page.getByText(/pipeline completed/i),
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/pipeline completed/i)).toBeVisible({ timeout: 30_000 });
   });
 
   // ─── Saved Pipeline Interactions ──────────────────────────────────────
 
-  test("can load a saved pipeline into builder", async ({
-    loggedInPage: page,
-  }) => {
+  test("can load a saved pipeline into builder", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
 
     const uniqueName = `Load Pipeline ${Date.now()}`;
@@ -467,9 +367,7 @@ test.describe("Automate Page", () => {
 
     await page.getByRole("button", { name: "Save Pipeline" }).click();
     await page.getByPlaceholder("Pipeline name").fill(uniqueName);
-    await page
-      .getByRole("button", { name: "Save", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Save", exact: true }).click();
     await expect(page.getByText(uniqueName).first()).toBeVisible({
       timeout: 5_000,
     });
@@ -479,10 +377,7 @@ test.describe("Automate Page", () => {
     await waitForSteps(page, 2);
 
     // Click on the saved pipeline to load it
-    await page
-      .getByRole("button", { name: uniqueName })
-      .first()
-      .click();
+    await page.getByRole("button", { name: uniqueName }).first().click();
     await waitForSteps(page, 3);
   });
 
@@ -497,18 +392,13 @@ test.describe("Automate Page", () => {
 
     await page.getByRole("button", { name: "Save Pipeline" }).click();
     await page.getByPlaceholder("Pipeline name").fill(uniqueName);
-    await page
-      .getByRole("button", { name: "Save", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Save", exact: true }).click();
     await expect(page.getByText(uniqueName).first()).toBeVisible({
       timeout: 5_000,
     });
 
     // Hover to reveal delete, then click
-    const pipelineEntry = page
-      .locator(".group")
-      .filter({ hasText: uniqueName })
-      .first();
+    const pipelineEntry = page.locator(".group").filter({ hasText: uniqueName }).first();
     await pipelineEntry.hover();
     await pipelineEntry
       .locator("button")
@@ -521,18 +411,12 @@ test.describe("Automate Page", () => {
 
   // ─── Sidebar ──────────────────────────────────────────────────────────
 
-  test("sidebar Templates section is visible", async ({
-    loggedInPage: page,
-  }) => {
+  test("sidebar Templates section is visible", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
-    await expect(
-      page.getByRole("heading", { name: "Templates" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Templates" })).toBeVisible();
   });
 
-  test("sidebar shows Saved Automations when pipelines exist", async ({
-    loggedInPage: page,
-  }) => {
+  test("sidebar shows Saved Automations when pipelines exist", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await page.getByText("Privacy Clean").click();
     await waitForSteps(page, 2);
@@ -540,9 +424,7 @@ test.describe("Automate Page", () => {
     const uniqueName = `Sidebar Pipeline ${Date.now()}`;
     await page.getByRole("button", { name: "Save Pipeline" }).click();
     await page.getByPlaceholder("Pipeline name").fill(uniqueName);
-    await page
-      .getByRole("button", { name: "Save", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Save", exact: true }).click();
 
     await expect(page.getByText("Saved Automations")).toBeVisible({
       timeout: 5_000,

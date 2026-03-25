@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { writeFile, readFile, stat } from "node:fs/promises";
-import { join, extname } from "node:path";
-import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { createWorkspace, getWorkspacePath } from "../lib/workspace.js";
+import { readFile, stat, writeFile } from "node:fs/promises";
+import { extname, join } from "node:path";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { validateImageBuffer } from "../lib/file-validation.js";
 import { sanitizeFilename } from "../lib/filename.js";
+import { createWorkspace, getWorkspacePath } from "../lib/workspace.js";
 
 /**
  * Guard against path traversal in URL params.
@@ -20,67 +20,64 @@ function isPathTraversal(segment: string): boolean {
 
 export async function fileRoutes(app: FastifyInstance): Promise<void> {
   // ── POST /api/v1/upload ────────────────────────────────────────
-  app.post(
-    "/api/v1/upload",
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const jobId = randomUUID();
-      const workspacePath = await createWorkspace(jobId);
-      const inputDir = join(workspacePath, "input");
+  app.post("/api/v1/upload", async (request: FastifyRequest, reply: FastifyReply) => {
+    const jobId = randomUUID();
+    const workspacePath = await createWorkspace(jobId);
+    const inputDir = join(workspacePath, "input");
 
-      const uploadedFiles: Array<{
-        name: string;
-        size: number;
-        format: string;
-      }> = [];
+    const uploadedFiles: Array<{
+      name: string;
+      size: number;
+      format: string;
+    }> = [];
 
-      const parts = request.parts();
+    const parts = request.parts();
 
-      for await (const part of parts) {
-        // Skip non-file fields
-        if (part.type !== "file") continue;
+    for await (const part of parts) {
+      // Skip non-file fields
+      if (part.type !== "file") continue;
 
-        // Consume buffer from the stream
-        const chunks: Buffer[] = [];
-        for await (const chunk of part.file) {
-          chunks.push(chunk);
-        }
-        const buffer = Buffer.concat(chunks);
+      // Consume buffer from the stream
+      const chunks: Buffer[] = [];
+      for await (const chunk of part.file) {
+        chunks.push(chunk);
+      }
+      const buffer = Buffer.concat(chunks);
 
-        // Skip empty parts (e.g. empty file field)
-        if (buffer.length === 0) continue;
+      // Skip empty parts (e.g. empty file field)
+      if (buffer.length === 0) continue;
 
-        // Validate the image
-        const validation = await validateImageBuffer(buffer);
-        if (!validation.valid) {
-          return reply.status(400).send({
-            error: `Invalid file "${part.filename}": ${validation.reason}`,
-          });
-        }
-
-        // Sanitize filename
-        const safeName = sanitizeFilename(part.filename ?? "upload");
-
-        // Write to workspace input directory
-        const filePath = join(inputDir, safeName);
-        await writeFile(filePath, buffer);
-
-        uploadedFiles.push({
-          name: safeName,
-          size: buffer.length,
-          format: validation.format,
+      // Validate the image
+      const validation = await validateImageBuffer(buffer);
+      if (!validation.valid) {
+        return reply.status(400).send({
+          error: `Invalid file "${part.filename}": ${validation.reason}`,
         });
       }
 
-      if (uploadedFiles.length === 0) {
-        return reply.status(400).send({ error: "No valid files uploaded" });
-      }
+      // Sanitize filename
+      const safeName = sanitizeFilename(part.filename ?? "upload");
 
-      return reply.send({
-        jobId,
-        files: uploadedFiles,
+      // Write to workspace input directory
+      const filePath = join(inputDir, safeName);
+      await writeFile(filePath, buffer);
+
+      uploadedFiles.push({
+        name: safeName,
+        size: buffer.length,
+        format: validation.format,
       });
-    },
-  );
+    }
+
+    if (uploadedFiles.length === 0) {
+      return reply.status(400).send({ error: "No valid files uploaded" });
+    }
+
+    return reply.send({
+      jobId,
+      files: uploadedFiles,
+    });
+  });
 
   // ── GET /api/v1/download/:jobId/:filename ──────────────────────
   app.get(
@@ -119,10 +116,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
 
       return reply
         .header("Content-Type", contentType)
-        .header(
-          "Content-Disposition",
-          `attachment; filename="${encodeURIComponent(filename)}"`,
-        )
+        .header("Content-Disposition", `attachment; filename="${encodeURIComponent(filename)}"`)
         .send(buffer);
     },
   );

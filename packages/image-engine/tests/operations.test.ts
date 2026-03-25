@@ -1,23 +1,23 @@
-import { describe, it, expect, beforeAll } from "vitest";
 import sharp from "sharp";
-import { resize } from "../src/operations/resize.js";
-import { crop } from "../src/operations/crop.js";
-import { rotate } from "../src/operations/rotate.js";
-import { flip } from "../src/operations/flip.js";
-import { convert } from "../src/operations/convert.js";
-import { compress } from "../src/operations/compress.js";
-import { grayscale } from "../src/operations/grayscale.js";
-import { sepia } from "../src/operations/sepia.js";
-import { invert } from "../src/operations/invert.js";
-import { brightness } from "../src/operations/brightness.js";
-import { contrast } from "../src/operations/contrast.js";
-import { saturation } from "../src/operations/saturation.js";
-import { colorChannels } from "../src/operations/color-channels.js";
-import { stripMetadata } from "../src/operations/strip-metadata.js";
+import { beforeAll, describe, expect, it } from "vitest";
 import { processImage } from "../src/engine.js";
 import { detectFormat } from "../src/formats/detect.js";
+import { brightness } from "../src/operations/brightness.js";
+import { colorChannels } from "../src/operations/color-channels.js";
+import { compress } from "../src/operations/compress.js";
+import { contrast } from "../src/operations/contrast.js";
+import { convert } from "../src/operations/convert.js";
+import { crop } from "../src/operations/crop.js";
+import { flip } from "../src/operations/flip.js";
+import { grayscale } from "../src/operations/grayscale.js";
+import { invert } from "../src/operations/invert.js";
+import { resize } from "../src/operations/resize.js";
+import { rotate } from "../src/operations/rotate.js";
+import { saturation } from "../src/operations/saturation.js";
+import { sepia } from "../src/operations/sepia.js";
+import { stripMetadata } from "../src/operations/strip-metadata.js";
 import { getImageInfo } from "../src/utils/metadata.js";
-import { extToMime, mimeToExt, formatToMime, formatToExt } from "../src/utils/mime.js";
+import { extToMime, formatToExt, formatToMime, mimeToExt } from "../src/utils/mime.js";
 
 // Generate a 100x100 red PNG buffer for testing
 let testBuffer: Buffer;
@@ -79,15 +79,11 @@ describe("crop", () => {
   });
 
   it("should throw on out-of-bounds crop", async () => {
-    await expect(
-      crop(testImage(), { left: 90, top: 90, width: 20, height: 20 })
-    ).rejects.toThrow();
+    await expect(crop(testImage(), { left: 90, top: 90, width: 20, height: 20 })).rejects.toThrow();
   });
 
   it("should throw on zero dimensions", async () => {
-    await expect(
-      crop(testImage(), { left: 0, top: 0, width: 0, height: 10 })
-    ).rejects.toThrow();
+    await expect(crop(testImage(), { left: 0, top: 0, width: 0, height: 10 })).rejects.toThrow();
   });
 });
 
@@ -163,9 +159,7 @@ describe("convert", () => {
   });
 
   it("should throw on invalid quality", async () => {
-    await expect(
-      convert(testImage(), { format: "png", quality: 0 })
-    ).rejects.toThrow();
+    await expect(convert(testImage(), { format: "png", quality: 0 })).rejects.toThrow();
   });
 });
 
@@ -192,9 +186,7 @@ describe("compress", () => {
   });
 
   it("should throw on invalid quality", async () => {
-    await expect(
-      compress(testImage(), { quality: 0 })
-    ).rejects.toThrow();
+    await expect(compress(testImage(), { quality: 0 })).rejects.toThrow();
   });
 
   it("should compress to target size", async () => {
@@ -296,9 +288,7 @@ describe("colorChannels", () => {
   });
 
   it("should throw on out-of-range values", async () => {
-    await expect(
-      colorChannels(testImage(), { red: 250, green: 100, blue: 100 })
-    ).rejects.toThrow();
+    await expect(colorChannels(testImage(), { red: 250, green: 100, blue: 100 })).rejects.toThrow();
   });
 });
 
@@ -318,7 +308,7 @@ describe("processImage (engine)", () => {
         { type: "resize", options: { width: 50, height: 50 } },
         { type: "grayscale", options: {} },
       ],
-      "png"
+      "png",
     );
 
     expect(result.info.width).toBe(50);
@@ -327,9 +317,9 @@ describe("processImage (engine)", () => {
   });
 
   it("should throw on unknown operation", async () => {
-    await expect(
-      processImage(testBuffer, [{ type: "unknown-op", options: {} }])
-    ).rejects.toThrow("Unknown operation");
+    await expect(processImage(testBuffer, [{ type: "unknown-op", options: {} }])).rejects.toThrow(
+      "Unknown operation",
+    );
   });
 
   it("should convert output format", async () => {

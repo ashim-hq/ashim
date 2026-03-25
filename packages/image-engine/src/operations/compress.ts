@@ -1,5 +1,5 @@
 import sharp from "sharp";
-import type { Sharp, CompressOptions, OutputFormat } from "../types.js";
+import type { CompressOptions, OutputFormat, Sharp } from "../types.js";
 
 const FORMAT_MAP: Record<OutputFormat, string> = {
   jpg: "jpeg",
@@ -16,7 +16,7 @@ export async function compress(image: Sharp, options: CompressOptions): Promise<
   const metadata = await image.metadata();
   const outputFormat = format
     ? (FORMAT_MAP[format] as keyof import("sharp").FormatEnum)
-    : (metadata.format as keyof import("sharp").FormatEnum) ?? "jpeg";
+    : ((metadata.format as keyof import("sharp").FormatEnum) ?? "jpeg");
 
   if (targetSizeBytes !== undefined) {
     if (targetSizeBytes <= 0) {
@@ -37,7 +37,7 @@ export async function compress(image: Sharp, options: CompressOptions): Promise<
 async function compressToTargetSize(
   inputBuffer: Buffer,
   format: keyof import("sharp").FormatEnum,
-  targetBytes: number
+  targetBytes: number,
 ): Promise<Sharp> {
   let low = 1;
   let high = 100;
@@ -69,9 +69,7 @@ async function compressToTargetSize(
 
   // If we never found a suitable buffer, compress at lowest quality found
   if (bestBuffer === null) {
-    bestBuffer = await sharp(inputBuffer)
-      .toFormat(format, { quality: bestQuality })
-      .toBuffer();
+    bestBuffer = await sharp(inputBuffer).toFormat(format, { quality: bestQuality }).toBuffer();
   }
 
   // Preserve format + quality so the caller's .toBuffer() doesn't re-encode at defaults

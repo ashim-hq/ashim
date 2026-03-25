@@ -1,12 +1,15 @@
+import type { FastifyInstance } from "fastify";
+import sharp from "sharp";
 import { z } from "zod";
 import { createToolRoute } from "../tool-factory.js";
-import sharp from "sharp";
-import type { FastifyInstance } from "fastify";
 
 const settingsSchema = z.object({
   text: z.string().min(1).max(500),
   fontSize: z.number().min(8).max(200).default(48),
-  color: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#000000"),
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default("#000000"),
   opacity: z.number().min(0).max(100).default(50),
   position: z
     .enum(["center", "top-left", "top-right", "bottom-left", "bottom-right", "tiled"])
@@ -86,7 +89,6 @@ export function registerWatermarkText(app: FastifyInstance) {
             y = height - pad;
             anchor = "end";
             break;
-          case "center":
           default:
             x = width / 2;
             y = height / 2;

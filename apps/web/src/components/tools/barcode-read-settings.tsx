@@ -1,6 +1,6 @@
+import { Check, Copy, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useFileStore } from "@/stores/file-store";
-import { Loader2, Copy, Check } from "lucide-react";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
@@ -83,9 +83,13 @@ export function BarcodeReadSettings() {
                 className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80"
               >
                 {copied ? (
-                  <><Check className="h-3 w-3" /> Copied</>
+                  <>
+                    <Check className="h-3 w-3" /> Copied
+                  </>
                 ) : (
-                  <><Copy className="h-3 w-3" /> Copy to clipboard</>
+                  <>
+                    <Copy className="h-3 w-3" /> Copy to clipboard
+                  </>
                 )}
               </button>
             </>

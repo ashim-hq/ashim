@@ -1,4 +1,4 @@
-import { Moon, Sun, Globe } from "lucide-react";
+import { Globe, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 
 export function Footer() {
@@ -11,11 +11,7 @@ export function Footer() {
         className="p-2 rounded-lg bg-card border border-border hover:bg-muted transition-colors"
         title="Toggle Theme"
       >
-        {resolvedTheme === "dark" ? (
-          <Sun className="h-4 w-4" />
-        ) : (
-          <Moon className="h-4 w-4" />
-        )}
+        {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </button>
       <button
         className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card border border-border hover:bg-muted transition-colors text-sm"

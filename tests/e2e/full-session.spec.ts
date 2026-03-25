@@ -1,6 +1,6 @@
-import { test, expect, uploadTestImage, waitForProcessing } from "./helpers";
-import path from "node:path";
 import fs from "node:fs";
+import path from "node:path";
+import { expect, test, uploadTestImage, waitForProcessing } from "./helpers";
 
 // ---------------------------------------------------------------------------
 // Full user session: simulates a real user uploading images, applying
@@ -30,9 +30,7 @@ test.describe("Full user session", () => {
     await waitForProcessing(page);
 
     // Verify download button appears
-    const downloadBtn = page
-      .getByRole("link", { name: /download/i })
-      .first();
+    const downloadBtn = page.getByRole("link", { name: /download/i }).first();
     await expect(downloadBtn).toBeVisible({ timeout: 15_000 });
 
     // Click download and verify a file is received
@@ -44,19 +42,13 @@ test.describe("Full user session", () => {
     expect(download.suggestedFilename()).toBeTruthy();
 
     // Save to disk and verify it is a non-empty file
-    const downloadPath = path.join(
-      process.cwd(),
-      "test-results",
-      "download-resize-result",
-    );
+    const downloadPath = path.join(process.cwd(), "test-results", "download-resize-result");
     await download.saveAs(downloadPath);
     const stat = fs.statSync(downloadPath);
     expect(stat.size).toBeGreaterThan(0);
   });
 
-  test("upload -> rotate 90 -> download cycle", async ({
-    loggedInPage: page,
-  }) => {
+  test("upload -> rotate 90 -> download cycle", async ({ loggedInPage: page }) => {
     await page.goto("/rotate");
     await expect(page.getByText("Rotate").first()).toBeVisible();
 
@@ -79,9 +71,7 @@ test.describe("Full user session", () => {
     await waitForProcessing(page);
 
     // Verify result
-    const downloadBtn = page
-      .getByRole("link", { name: /download/i })
-      .first();
+    const downloadBtn = page.getByRole("link", { name: /download/i }).first();
     await expect(downloadBtn).toBeVisible({ timeout: 15_000 });
 
     const downloadPromise = page.waitForEvent("download");
@@ -90,9 +80,7 @@ test.describe("Full user session", () => {
     expect(download.suggestedFilename()).toBeTruthy();
   });
 
-  test("upload -> convert to JPEG -> download cycle", async ({
-    loggedInPage: page,
-  }) => {
+  test("upload -> convert to JPEG -> download cycle", async ({ loggedInPage: page }) => {
     await page.goto("/convert");
     await expect(page.getByText("Convert").first()).toBeVisible();
 
@@ -112,9 +100,7 @@ test.describe("Full user session", () => {
     await waitForProcessing(page);
 
     // Verify download
-    const downloadBtn = page
-      .getByRole("link", { name: /download/i })
-      .first();
+    const downloadBtn = page.getByRole("link", { name: /download/i }).first();
     await expect(downloadBtn).toBeVisible({ timeout: 15_000 });
 
     const downloadPromise = page.waitForEvent("download");
@@ -149,9 +135,7 @@ test.describe("Full user session", () => {
     await waitForProcessing(page);
 
     // Verify download
-    const downloadBtn = page
-      .getByRole("link", { name: /download/i })
-      .first();
+    const downloadBtn = page.getByRole("link", { name: /download/i }).first();
     await expect(downloadBtn).toBeVisible({ timeout: 15_000 });
 
     const downloadPromise = page.waitForEvent("download");
@@ -160,9 +144,7 @@ test.describe("Full user session", () => {
     expect(download.suggestedFilename()).toBeTruthy();
   });
 
-  test("upload -> compress -> download cycle", async ({
-    loggedInPage: page,
-  }) => {
+  test("upload -> compress -> download cycle", async ({ loggedInPage: page }) => {
     await page.goto("/compress");
     await expect(page.getByText("Compress").first()).toBeVisible();
 
@@ -173,9 +155,7 @@ test.describe("Full user session", () => {
     await page.getByRole("button", { name: "Compress" }).click();
     await waitForProcessing(page);
 
-    const downloadBtn = page
-      .getByRole("link", { name: /download/i })
-      .first();
+    const downloadBtn = page.getByRole("link", { name: /download/i }).first();
     await expect(downloadBtn).toBeVisible({ timeout: 15_000 });
 
     const downloadPromise = page.waitForEvent("download");
@@ -184,19 +164,13 @@ test.describe("Full user session", () => {
     expect(download.suggestedFilename()).toBeTruthy();
 
     // Save and verify the downloaded file is a valid non-empty image
-    const downloadPath = path.join(
-      process.cwd(),
-      "test-results",
-      "download-compress-result",
-    );
+    const downloadPath = path.join(process.cwd(), "test-results", "download-compress-result");
     await download.saveAs(downloadPath);
     const stat = fs.statSync(downloadPath);
     expect(stat.size).toBeGreaterThan(0);
   });
 
-  test("multi-tool session: resize then compress", async ({
-    loggedInPage: page,
-  }) => {
+  test("multi-tool session: resize then compress", async ({ loggedInPage: page }) => {
     // Step 1: Resize
     await page.goto("/resize");
     await uploadTestImage(page);
@@ -204,9 +178,7 @@ test.describe("Full user session", () => {
     await page.getByRole("button", { name: "Resize" }).click();
     await waitForProcessing(page);
 
-    const resizeDownloadBtn = page
-      .getByRole("link", { name: /download/i })
-      .first();
+    const resizeDownloadBtn = page.getByRole("link", { name: /download/i }).first();
     await expect(resizeDownloadBtn).toBeVisible({ timeout: 15_000 });
 
     // Step 2: Navigate to compress and process a new image
@@ -215,9 +187,7 @@ test.describe("Full user session", () => {
     await page.getByRole("button", { name: "Compress" }).click();
     await waitForProcessing(page);
 
-    const compressDownloadBtn = page
-      .getByRole("link", { name: /download/i })
-      .first();
+    const compressDownloadBtn = page.getByRole("link", { name: /download/i }).first();
     await expect(compressDownloadBtn).toBeVisible({ timeout: 15_000 });
   });
 
@@ -238,18 +208,14 @@ test.describe("Full user session", () => {
     await expect(page.getByText("Upload from computer")).toBeVisible();
   });
 
-  test("download button triggers actual file download", async ({
-    loggedInPage: page,
-  }) => {
+  test("download button triggers actual file download", async ({ loggedInPage: page }) => {
     await page.goto("/strip-metadata");
     await uploadTestImage(page);
 
     await page.getByRole("button", { name: /strip metadata/i }).click();
     await waitForProcessing(page);
 
-    const downloadBtn = page
-      .getByRole("link", { name: /download/i })
-      .first();
+    const downloadBtn = page.getByRole("link", { name: /download/i }).first();
     await expect(downloadBtn).toBeVisible({ timeout: 15_000 });
 
     // Intercept the download event
@@ -263,11 +229,7 @@ test.describe("Full user session", () => {
     expect(filename.length).toBeGreaterThan(0);
 
     // Save and confirm it wrote bytes
-    const savePath = path.join(
-      process.cwd(),
-      "test-results",
-      "download-strip-metadata-result",
-    );
+    const savePath = path.join(process.cwd(), "test-results", "download-strip-metadata-result");
     await download.saveAs(savePath);
     const stat = fs.statSync(savePath);
     expect(stat.size).toBeGreaterThan(0);

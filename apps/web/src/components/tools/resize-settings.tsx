@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { SOCIAL_MEDIA_PRESETS } from "@stirling-image/shared";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
 import { Download, Link, Unlink } from "lucide-react";
+import { useState } from "react";
 import { ProgressCard } from "@/components/common/progress-card";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 type ResizeTab = "presets" | "custom" | "scale";
 type FitMode = "cover" | "contain" | "fill";
@@ -67,9 +67,7 @@ export function ResizeSettings() {
   const canProcess =
     hasFile &&
     !processing &&
-    (tab === "scale"
-      ? Number(percentage) > 0
-      : Boolean(width) || Boolean(height));
+    (tab === "scale" ? Number(percentage) > 0 : Boolean(width) || Boolean(height));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

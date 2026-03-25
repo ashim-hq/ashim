@@ -1,5 +1,5 @@
-import type { FastifyInstance } from "fastify";
 import multipart from "@fastify/multipart";
+import type { FastifyInstance } from "fastify";
 import { env } from "../config.js";
 
 export async function registerUpload(app: FastifyInstance): Promise<void> {

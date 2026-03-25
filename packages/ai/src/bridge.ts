@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { resolve, dirname } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -7,8 +7,7 @@ const PYTHON_DIR = resolve(__dirname, "../python");
 
 /** Try venv first, then system python. */
 function getPythonPath(): string {
-  const venvPath =
-    process.env.PYTHON_VENV_PATH || resolve(__dirname, "../../../.venv");
+  const venvPath = process.env.PYTHON_VENV_PATH || resolve(__dirname, "../../../.venv");
   return `${venvPath}/bin/python3`;
 }
 
@@ -40,9 +39,7 @@ function extractPythonError(error: unknown): string {
   return String(error);
 }
 
-export interface ProgressCallback {
-  (percent: number, stage: string): void;
-}
+export type ProgressCallback = (percent: number, stage: string) => void;
 
 /**
  * Run a Python script with real-time progress streaming via stderr.
@@ -95,10 +92,7 @@ export function runPythonWithProgress(
 
           try {
             const parsed = JSON.parse(trimmed);
-            if (
-              typeof parsed.progress === "number" &&
-              typeof parsed.stage === "string"
-            ) {
+            if (typeof parsed.progress === "number" && typeof parsed.stage === "string") {
               options.onProgress?.(parsed.progress, parsed.stage);
               continue;
             }
@@ -147,4 +141,3 @@ export function runPythonWithProgress(
     trySpawn(getPythonPath(), false);
   });
 }
-

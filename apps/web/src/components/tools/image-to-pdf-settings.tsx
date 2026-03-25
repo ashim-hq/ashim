@@ -1,6 +1,6 @@
+import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useFileStore } from "@/stores/file-store";
-import { Download, Loader2 } from "lucide-react";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
@@ -52,8 +52,8 @@ export function ImageToPdfSettings() {
   return (
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">
-        {files.length} image{files.length !== 1 ? "s" : ""} will be combined
-        into a PDF, one image per page.
+        {files.length} image{files.length !== 1 ? "s" : ""} will be combined into a PDF, one image
+        per page.
       </p>
 
       <div>
@@ -93,7 +93,14 @@ export function ImageToPdfSettings() {
           <label className="text-xs text-muted-foreground">Margin</label>
           <span className="text-xs font-mono text-foreground">{margin}pt</span>
         </div>
-        <input type="range" min={0} max={100} value={margin} onChange={(e) => setMargin(Number(e.target.value))} className="w-full mt-1" />
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={margin}
+          onChange={(e) => setMargin(Number(e.target.value))}
+          className="w-full mt-1"
+        />
       </div>
 
       {error && <p className="text-xs text-red-500">{error}</p>}
@@ -108,7 +115,11 @@ export function ImageToPdfSettings() {
       </button>
 
       {downloadUrl && (
-        <a href={downloadUrl} download className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5">
+        <a
+          href={downloadUrl}
+          download
+          className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5"
+        >
           <Download className="h-4 w-4" />
           Download PDF
         </a>

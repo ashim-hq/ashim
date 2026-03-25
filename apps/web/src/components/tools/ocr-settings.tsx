@@ -1,7 +1,7 @@
-import { useState, useRef } from "react";
-import { useFileStore } from "@/stores/file-store";
+import { Check, Copy } from "lucide-react";
+import { useRef, useState } from "react";
 import { ProgressCard } from "@/components/common/progress-card";
-import { Copy, Check } from "lucide-react";
+import { useFileStore } from "@/stores/file-store";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
@@ -204,11 +204,7 @@ export function OcrSettings() {
               onClick={handleCopy}
               className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
             >
-              {copied ? (
-                <Check className="h-3 w-3" />
-              ) : (
-                <Copy className="h-3 w-3" />
-              )}
+              {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
               {copied ? "Copied" : "Copy"}
             </button>
           </div>
@@ -219,9 +215,7 @@ export function OcrSettings() {
             className="w-full px-2 py-1.5 rounded border border-border bg-muted text-xs text-foreground font-mono resize-y"
           />
           {text.length > 0 && (
-            <p className="text-[10px] text-muted-foreground">
-              {text.length} characters extracted
-            </p>
+            <p className="text-[10px] text-muted-foreground">{text.length} characters extracted</p>
           )}
         </div>
       )}

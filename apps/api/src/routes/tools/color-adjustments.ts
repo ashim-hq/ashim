@@ -1,16 +1,16 @@
-import { z } from "zod";
-import { createToolRoute } from "../tool-factory.js";
 import {
   brightness as adjustBrightness,
   contrast as adjustContrast,
   saturation as adjustSaturation,
   colorChannels,
   grayscale,
-  sepia,
   invert,
+  sepia,
 } from "@stirling-image/image-engine";
-import sharp from "sharp";
 import type { FastifyInstance } from "fastify";
+import sharp from "sharp";
+import { z } from "zod";
+import { createToolRoute } from "../tool-factory.js";
 
 const settingsSchema = z.object({
   brightness: z.number().min(-100).max(100).default(0),
@@ -19,9 +19,7 @@ const settingsSchema = z.object({
   red: z.number().min(0).max(200).default(100),
   green: z.number().min(0).max(200).default(100),
   blue: z.number().min(0).max(200).default(100),
-  effect: z
-    .enum(["none", "grayscale", "sepia", "invert"])
-    .default("none"),
+  effect: z.enum(["none", "grayscale", "sepia", "invert"]).default("none"),
 });
 
 /**
@@ -32,12 +30,7 @@ const settingsSchema = z.object({
  */
 export function registerColorAdjustments(app: FastifyInstance) {
   // Register the same handler under all four color-related tool IDs
-  const toolIds = [
-    "brightness-contrast",
-    "saturation",
-    "color-channels",
-    "color-effects",
-  ];
+  const toolIds = ["brightness-contrast", "saturation", "color-channels", "color-effects"];
 
   for (const toolId of toolIds) {
     createToolRoute(app, {
@@ -66,11 +59,7 @@ export function registerColorAdjustments(app: FastifyInstance) {
         }
 
         // Apply color channels (only if not default 100/100/100)
-        if (
-          settings.red !== 100 ||
-          settings.green !== 100 ||
-          settings.blue !== 100
-        ) {
+        if (settings.red !== 100 || settings.green !== 100 || settings.blue !== 100) {
           image = await colorChannels(image, {
             red: settings.red,
             green: settings.green,

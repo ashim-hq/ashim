@@ -1,8 +1,8 @@
-import { runPythonWithProgress, type ProgressCallback } from "./bridge.js";
-import { writeFile, readFile, unlink } from "node:fs/promises";
-import { join } from "node:path";
-import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
+import { readFile, unlink, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { type ProgressCallback, runPythonWithProgress } from "./bridge.js";
 
 export interface RemoveBackgroundOptions {
   model?: string;
@@ -23,11 +23,11 @@ export async function removeBackground(
   try {
     // BiRefNet models need longer timeout (up to 10 min for first load)
     const timeout = options.model?.startsWith("birefnet") ? 600000 : 300000;
-    const { stdout } = await runPythonWithProgress("remove_bg.py", [
-      inputPath,
-      outputPath,
-      JSON.stringify(options),
-    ], { onProgress, timeout });
+    const { stdout } = await runPythonWithProgress(
+      "remove_bg.py",
+      [inputPath, outputPath, JSON.stringify(options)],
+      { onProgress, timeout },
+    );
 
     const result = JSON.parse(stdout);
     if (!result.success) {

@@ -1,6 +1,6 @@
+import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useFileStore } from "@/stores/file-store";
-import { Download, Loader2 } from "lucide-react";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
@@ -18,7 +18,8 @@ const LAYOUTS: { value: Layout; label: string }[] = [
 ];
 
 export function CollageSettings() {
-  const { files, processing, error, setProcessing, setError, setProcessedUrl, setSizes, setJobId } = useFileStore();
+  const { files, processing, error, setProcessing, setError, setProcessedUrl, setSizes, setJobId } =
+    useFileStore();
   const [layout, setLayout] = useState<Layout>("2x2");
   const [gap, setGap] = useState(4);
   const [backgroundColor, setBackgroundColor] = useState("#FFFFFF");
@@ -89,12 +90,24 @@ export function CollageSettings() {
           <label className="text-xs text-muted-foreground">Gap</label>
           <span className="text-xs font-mono text-foreground">{gap}px</span>
         </div>
-        <input type="range" min={0} max={50} value={gap} onChange={(e) => setGap(Number(e.target.value))} className="w-full mt-1" />
+        <input
+          type="range"
+          min={0}
+          max={50}
+          value={gap}
+          onChange={(e) => setGap(Number(e.target.value))}
+          className="w-full mt-1"
+        />
       </div>
 
       <div>
         <label className="text-xs text-muted-foreground">Background Color</label>
-        <input type="color" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} className="w-full mt-0.5 h-8 rounded border border-border" />
+        <input
+          type="color"
+          value={backgroundColor}
+          onChange={(e) => setBackgroundColor(e.target.value)}
+          className="w-full mt-0.5 h-8 rounded border border-border"
+        />
       </div>
 
       {error && <p className="text-xs text-red-500">{error}</p>}
@@ -116,7 +129,11 @@ export function CollageSettings() {
       </button>
 
       {downloadUrl && (
-        <a href={downloadUrl} download className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5">
+        <a
+          href={downloadUrl}
+          download
+          className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5"
+        >
           <Download className="h-4 w-4" />
           Download Collage
         </a>

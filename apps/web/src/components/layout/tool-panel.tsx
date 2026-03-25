@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { TOOLS, CATEGORIES } from "@stirling-image/shared";
+import { CATEGORIES, TOOLS } from "@stirling-image/shared";
+import { useMemo, useState } from "react";
 import { SearchBar } from "../common/search-bar";
 import { ToolCard } from "../common/tool-card";
 
@@ -10,9 +10,7 @@ export function ToolPanel() {
     if (!search) return TOOLS;
     const q = search.toLowerCase();
     return TOOLS.filter(
-      (t) =>
-        t.name.toLowerCase().includes(q) ||
-        t.description.toLowerCase().includes(q)
+      (t) => t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q),
     );
   }, [search]);
 
@@ -32,24 +30,20 @@ export function ToolPanel() {
         <SearchBar value={search} onChange={setSearch} />
       </div>
       <div className="px-3 pb-4 flex-1">
-        {CATEGORIES.filter((cat) => groupedTools.has(cat.id)).map(
-          (category) => (
-            <div key={category.id} className="mb-4">
-              <h3 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-2">
-                {category.name}
-              </h3>
-              <div className="space-y-0.5">
-                {groupedTools.get(category.id)!.map((tool) => (
-                  <ToolCard key={tool.id} tool={tool} />
-                ))}
-              </div>
+        {CATEGORIES.filter((cat) => groupedTools.has(cat.id)).map((category) => (
+          <div key={category.id} className="mb-4">
+            <h3 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-2">
+              {category.name}
+            </h3>
+            <div className="space-y-0.5">
+              {groupedTools.get(category.id)?.map((tool) => (
+                <ToolCard key={tool.id} tool={tool} />
+              ))}
             </div>
-          )
-        )}
+          </div>
+        ))}
         {filteredTools.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-8">
-            No tools found
-          </p>
+          <p className="text-sm text-muted-foreground text-center py-8">No tools found</p>
         )}
       </div>
     </div>

@@ -1,4 +1,4 @@
-import type { Sharp, ResizeOptions } from "../types.js";
+import type { ResizeOptions, Sharp } from "../types.js";
 
 export async function resize(image: Sharp, options: ResizeOptions): Promise<Sharp> {
   let { width, height, fit, withoutEnlargement, percentage } = options;

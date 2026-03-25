@@ -1,9 +1,9 @@
+import { extname } from "node:path";
+import { convert } from "@stirling-image/image-engine";
+import type { FastifyInstance } from "fastify";
+import sharp from "sharp";
 import { z } from "zod";
 import { createToolRoute } from "../tool-factory.js";
-import { convert } from "@stirling-image/image-engine";
-import sharp from "sharp";
-import type { FastifyInstance } from "fastify";
-import { extname } from "node:path";
 
 const FORMAT_CONTENT_TYPES: Record<string, string> = {
   jpg: "image/jpeg",
@@ -33,8 +33,7 @@ export function registerConvert(app: FastifyInstance) {
       const baseName = ext ? filename.slice(0, -ext.length) : filename;
       const outputFilename = `${baseName}.${settings.format}`;
 
-      const contentType =
-        FORMAT_CONTENT_TYPES[settings.format] || "application/octet-stream";
+      const contentType = FORMAT_CONTENT_TYPES[settings.format] || "application/octet-stream";
 
       return { buffer, filename: outputFilename, contentType };
     },

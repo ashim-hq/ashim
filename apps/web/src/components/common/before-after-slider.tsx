@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect, type PointerEvent } from "react";
+import { type PointerEvent, useCallback, useEffect, useRef, useState } from "react";
 
 interface BeforeAfterSliderProps {
   /** URL or data URL of original image. */
@@ -34,17 +34,14 @@ export function BeforeAfterSlider({
   const [position, setPosition] = useState(50); // percentage 0-100
   const [isDragging, setIsDragging] = useState(false);
 
-  const updatePosition = useCallback(
-    (clientX: number) => {
-      const container = containerRef.current;
-      if (!container) return;
-      const rect = container.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const pct = Math.max(0, Math.min(100, (x / rect.width) * 100));
-      setPosition(pct);
-    },
-    [],
-  );
+  const updatePosition = useCallback((clientX: number) => {
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const pct = Math.max(0, Math.min(100, (x / rect.width) * 100));
+    setPosition(pct);
+  }, []);
 
   const handlePointerDown = useCallback(
     (e: PointerEvent) => {
@@ -95,12 +92,7 @@ export function BeforeAfterSlider({
         onPointerCancel={handlePointerUp}
       >
         {/* Before image (full width, bottom layer) */}
-        <img
-          src={beforeSrc}
-          alt="Original"
-          className="block w-full h-auto"
-          draggable={false}
-        />
+        <img src={beforeSrc} alt="Original" className="block w-full h-auto" draggable={false} />
 
         {/* After image (clipped, top layer) */}
         <div
@@ -124,13 +116,7 @@ export function BeforeAfterSlider({
         >
           {/* Handle grip */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white border-2 border-primary shadow-lg flex items-center justify-center pointer-events-none">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-              className="text-primary"
-            >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-primary">
               <path
                 d="M4 3L1 7L4 11"
                 stroke="currentColor"
@@ -170,9 +156,7 @@ export function BeforeAfterSlider({
               <span className="ml-1">({savingsPercent}% smaller)</span>
             )}
             {savingsPercent !== null && Number(savingsPercent) < 0 && (
-              <span className="ml-1">
-                ({Math.abs(Number(savingsPercent))}% larger)
-              </span>
+              <span className="ml-1">({Math.abs(Number(savingsPercent))}% larger)</span>
             )}
           </span>
         </div>

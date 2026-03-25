@@ -1,26 +1,25 @@
-import { useState, useCallback } from "react";
+import { TOOLS } from "@stirling-image/shared";
+import * as icons from "lucide-react";
 import {
-  Plus,
-  X,
-  ChevronUp,
   ChevronDown,
   ChevronRight,
+  ChevronUp,
+  Download,
+  FileImage,
+  Loader2,
   Play,
+  Plus,
   Save,
   Upload,
-  Loader2,
-  FileImage,
-  Download,
+  X,
 } from "lucide-react";
-import * as icons from "lucide-react";
-import { TOOLS } from "@stirling-image/shared";
+import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { PipelineStepSettings } from "./pipeline-step-settings";
 
 /** Tools that can be used as pipeline steps (excludes pipeline/batch/multi-file tools). */
 const PIPELINE_TOOLS = TOOLS.filter(
-  (t) =>
-    !["pipeline", "batch", "compare", "find-duplicates", "collage", "compose"].includes(t.id)
+  (t) => !["pipeline", "batch", "compare", "find-duplicates", "collage", "compose"].includes(t.id),
 );
 
 export interface PipelineStep {
@@ -71,7 +70,7 @@ export function PipelineBuilder({
       setShowToolPicker(false);
       setExpandedStep(step.id);
     },
-    [steps, onStepsChange]
+    [steps, onStepsChange],
   );
 
   const removeStep = useCallback(
@@ -79,7 +78,7 @@ export function PipelineBuilder({
       onStepsChange(steps.filter((s) => s.id !== id));
       if (expandedStep === id) setExpandedStep(null);
     },
-    [steps, onStepsChange, expandedStep]
+    [steps, onStepsChange, expandedStep],
   );
 
   const moveStep = useCallback(
@@ -92,14 +91,14 @@ export function PipelineBuilder({
       [newSteps[idx], newSteps[newIdx]] = [newSteps[newIdx], newSteps[idx]];
       onStepsChange(newSteps);
     },
-    [steps, onStepsChange]
+    [steps, onStepsChange],
   );
 
   const updateStepSettings = useCallback(
     (id: string, newSettings: Record<string, unknown>) => {
       onStepsChange(steps.map((s) => (s.id === id ? { ...s, settings: newSettings } : s)));
     },
-    [steps, onStepsChange]
+    [steps, onStepsChange],
   );
 
   const handleFileSelect = useCallback(() => {
@@ -132,10 +131,7 @@ export function PipelineBuilder({
     onExecute(file);
   }, [file, onExecute]);
 
-  const iconsMap = icons as unknown as Record<
-    string,
-    React.ComponentType<{ className?: string }>
-  >;
+  const iconsMap = icons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
 
   return (
     <div className="space-y-6">
@@ -147,7 +143,7 @@ export function PipelineBuilder({
           "rounded-xl border-2 border-dashed p-6 text-center transition-colors",
           file
             ? "border-primary/30 bg-primary/5"
-            : "border-border bg-muted/20 hover:border-primary/30"
+            : "border-border bg-muted/20 hover:border-primary/30",
         )}
       >
         {file ? (
@@ -203,9 +199,7 @@ export function PipelineBuilder({
 
                   {/* Tool icon + name */}
                   <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="text-sm font-medium text-foreground flex-1">
-                    {tool.name}
-                  </span>
+                  <span className="text-sm font-medium text-foreground flex-1">{tool.name}</span>
 
                   {/* Controls */}
                   <div className="flex items-center gap-0.5 shrink-0">
@@ -247,9 +241,7 @@ export function PipelineBuilder({
                 {/* Expanded settings */}
                 {isExpanded && (
                   <div className="border-t border-border p-3 bg-muted/10 space-y-3">
-                    <p className="text-xs text-muted-foreground">
-                      {tool.description}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{tool.description}</p>
                     <PipelineStepSettings
                       toolId={step.toolId}
                       settings={step.settings}
@@ -286,9 +278,7 @@ export function PipelineBuilder({
                 <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-foreground">{tool.name}</div>
-                  <div className="text-xs text-muted-foreground truncate">
-                    {tool.description}
-                  </div>
+                  <div className="text-xs text-muted-foreground truncate">{tool.description}</div>
                 </div>
               </button>
             );
@@ -365,7 +355,6 @@ export function PipelineBuilder({
               onChange={(e) => setSaveName(e.target.value)}
               placeholder="Pipeline name"
               className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground flex-1"
-              autoFocus
             />
             <input
               type="text"

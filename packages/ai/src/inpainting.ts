@@ -1,6 +1,6 @@
-import { runPythonWithProgress, type ProgressCallback } from "./bridge.js";
-import { writeFile, readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { type ProgressCallback, runPythonWithProgress } from "./bridge.js";
 
 export async function inpaint(
   inputBuffer: Buffer,
@@ -15,11 +15,9 @@ export async function inpaint(
   await writeFile(inputPath, inputBuffer);
   await writeFile(maskPath, maskBuffer);
 
-  const { stdout } = await runPythonWithProgress("inpaint.py", [
-    inputPath,
-    maskPath,
-    outputPath,
-  ], { onProgress });
+  const { stdout } = await runPythonWithProgress("inpaint.py", [inputPath, maskPath, outputPath], {
+    onProgress,
+  });
 
   const result = JSON.parse(stdout);
   if (!result.success) {

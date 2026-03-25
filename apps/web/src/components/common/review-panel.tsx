@@ -1,15 +1,9 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { TOOLS } from "@stirling-image/shared";
-import {
-  Download,
-  Undo2,
-  ChevronDown,
-  ChevronRight,
-  ArrowRight,
-} from "lucide-react";
 import * as icons from "lucide-react";
-import { triggerDownload, formatFileSize } from "@/lib/download";
+import { ArrowRight, ChevronDown, ChevronRight, Download, Undo2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { formatFileSize, triggerDownload } from "@/lib/download";
 import { getSuggestedTools } from "@/lib/suggested-tools";
 
 interface ReviewPanelProps {
@@ -35,18 +29,13 @@ export function ReviewPanel({
   const [isSuggestionsExpanded, setIsSuggestionsExpanded] = useState(true);
   const navigate = useNavigate();
 
-  const suggestedToolIds = useMemo(
-    () => getSuggestedTools(currentToolId),
-    [currentToolId],
-  );
+  const suggestedToolIds = useMemo(() => getSuggestedTools(currentToolId), [currentToolId]);
 
   const suggestedTools = useMemo(
     () =>
       suggestedToolIds
         .map((id) => TOOLS.find((t) => t.id === id))
-        .filter(
-          (t): t is (typeof TOOLS)[number] => t !== undefined,
-        ),
+        .filter((t): t is (typeof TOOLS)[number] => t !== undefined),
     [suggestedToolIds],
   );
 
@@ -69,11 +58,7 @@ export function ReviewPanel({
         className="flex items-center justify-between w-full text-sm font-medium text-muted-foreground hover:text-foreground"
       >
         <span>Review</span>
-        {isExpanded ? (
-          <ChevronDown className="h-4 w-4" />
-        ) : (
-          <ChevronRight className="h-4 w-4" />
-        )}
+        {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
       </button>
 
       {isExpanded && (
@@ -120,9 +105,7 @@ export function ReviewPanel({
             <div className="space-y-2">
               <div className="border-t border-border pt-2" />
               <button
-                onClick={() =>
-                  setIsSuggestionsExpanded(!isSuggestionsExpanded)
-                }
+                onClick={() => setIsSuggestionsExpanded(!isSuggestionsExpanded)}
                 className="flex items-center justify-between w-full text-xs font-medium text-muted-foreground hover:text-foreground"
               >
                 <span>Continue editing</span>

@@ -1,9 +1,6 @@
-import type { Sharp, ColorChannelOptions } from "../types.js";
+import type { ColorChannelOptions, Sharp } from "../types.js";
 
-export async function colorChannels(
-  image: Sharp,
-  options: ColorChannelOptions
-): Promise<Sharp> {
+export async function colorChannels(image: Sharp, options: ColorChannelOptions): Promise<Sharp> {
   const { red, green, blue } = options;
 
   if (red < 0 || red > 200) {
@@ -21,11 +18,7 @@ export async function colorChannels(
   const gMul = green / 100;
   const bMul = blue / 100;
 
-  const matrix: [
-    [number, number, number],
-    [number, number, number],
-    [number, number, number],
-  ] = [
+  const matrix: [[number, number, number], [number, number, number], [number, number, number]] = [
     [rMul, 0, 0],
     [0, gMul, 0],
     [0, 0, bMul],

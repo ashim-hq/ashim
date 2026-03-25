@@ -2,15 +2,7 @@ import sharp from "sharp";
 import { env } from "../config.js";
 
 /** Formats we accept as input. */
-const SUPPORTED_INPUT_FORMATS = new Set([
-  "jpeg",
-  "png",
-  "webp",
-  "gif",
-  "tiff",
-  "bmp",
-  "avif",
-]);
+const SUPPORTED_INPUT_FORMATS = new Set(["jpeg", "png", "webp", "gif", "tiff", "bmp", "avif"]);
 
 interface MagicEntry {
   bytes: number[];

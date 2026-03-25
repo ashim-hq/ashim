@@ -1,4 +1,4 @@
-import { test, expect, uploadTestImage, waitForProcessing } from "./helpers";
+import { expect, test, uploadTestImage, waitForProcessing } from "./helpers";
 
 // ---------------------------------------------------------------------------
 // Test actual image processing for core tools. Upload an image, configure
@@ -16,9 +16,9 @@ test.describe("Tool processing (core tools)", () => {
 
     await page.getByRole("button", { name: "Resize" }).click();
     await waitForProcessing(page);
-    await expect(
-      page.getByRole("link", { name: /download/i }).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("link", { name: /download/i }).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test("compress processes image", async ({ loggedInPage: page }) => {
@@ -27,9 +27,9 @@ test.describe("Tool processing (core tools)", () => {
     // Compress has defaults, just click
     await page.getByRole("button", { name: "Compress" }).click();
     await waitForProcessing(page);
-    await expect(
-      page.getByRole("link", { name: /download/i }).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("link", { name: /download/i }).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test("convert processes image", async ({ loggedInPage: page }) => {
@@ -38,9 +38,9 @@ test.describe("Tool processing (core tools)", () => {
     // Convert has a default format, just click
     await page.getByRole("button", { name: /convert/i }).click();
     await waitForProcessing(page);
-    await expect(
-      page.getByRole("link", { name: /download/i }).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("link", { name: /download/i }).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test("rotate processes image", async ({ loggedInPage: page }) => {
@@ -59,9 +59,9 @@ test.describe("Tool processing (core tools)", () => {
       });
     await page.getByRole("button", { name: "Rotate" }).click();
     await waitForProcessing(page);
-    await expect(
-      page.getByRole("link", { name: /download/i }).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("link", { name: /download/i }).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test("crop processes image", async ({ loggedInPage: page }) => {
@@ -70,15 +70,15 @@ test.describe("Tool processing (core tools)", () => {
     // Crop needs valid dimensions - set small crop box
     const widthInputs = page.locator("input[type='number']");
     // Fill width and height for crop
-    if (await widthInputs.count() >= 4) {
+    if ((await widthInputs.count()) >= 4) {
       await widthInputs.nth(2).fill("50");
       await widthInputs.nth(3).fill("50");
     }
     await page.getByRole("button", { name: "Crop" }).click();
     await waitForProcessing(page);
-    await expect(
-      page.getByRole("link", { name: /download/i }).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("link", { name: /download/i }).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test("strip-metadata processes image", async ({ loggedInPage: page }) => {
@@ -86,14 +86,12 @@ test.describe("Tool processing (core tools)", () => {
     await uploadTestImage(page);
     await page.getByRole("button", { name: /strip metadata/i }).click();
     await waitForProcessing(page);
-    await expect(
-      page.getByRole("link", { name: /download/i }).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("link", { name: /download/i }).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
-  test("brightness-contrast processes image", async ({
-    loggedInPage: page,
-  }) => {
+  test("brightness-contrast processes image", async ({ loggedInPage: page }) => {
     await page.goto("/brightness-contrast");
     await uploadTestImage(page);
     // Adjust brightness to non-zero so processing makes a change
@@ -102,9 +100,9 @@ test.describe("Tool processing (core tools)", () => {
     // Button text is "Apply" in color-settings.tsx
     await page.getByRole("button", { name: /^apply$/i }).click();
     await waitForProcessing(page);
-    await expect(
-      page.getByRole("link", { name: /download/i }).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("link", { name: /download/i }).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test("border processes image", async ({ loggedInPage: page }) => {
@@ -115,7 +113,9 @@ test.describe("Tool processing (core tools)", () => {
     await page.getByRole("button", { name: /add border/i }).click();
     await waitForProcessing(page);
     await expect(
-      page.getByRole("link", { name: /download/i }).first()
+      page
+        .getByRole("link", { name: /download/i })
+        .first()
         .or(page.getByText(/invalid|error/i).first()),
     ).toBeVisible({ timeout: 15_000 });
   });
@@ -126,23 +126,19 @@ test.describe("Tool processing (core tools)", () => {
     await page.getByRole("button", { name: /read info/i }).click();
     await waitForProcessing(page);
     // Should display some image info
-    await expect(
-      page.getByText(/width|height|format|dimensions|png/i).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/width|height|format|dimensions|png/i).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
-  test("qr-generate creates QR code without file upload", async ({
-    loggedInPage: page,
-  }) => {
+  test("qr-generate creates QR code without file upload", async ({ loggedInPage: page }) => {
     await page.goto("/qr-generate");
     // Fill in QR text
     await page.locator("textarea").first().fill("https://example.com");
     await page.getByRole("button", { name: /generate qr/i }).click();
     await waitForProcessing(page);
     // QR has a "Download QR Code" button in the left panel
-    await expect(
-      page.getByText(/download qr/i).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/download qr/i).first()).toBeVisible({ timeout: 15_000 });
   });
 
   test("vectorize processes image", async ({ loggedInPage: page }) => {
@@ -150,23 +146,21 @@ test.describe("Tool processing (core tools)", () => {
     await uploadTestImage(page);
     await page.getByRole("button", { name: /vectorize/i }).click();
     await waitForProcessing(page);
-    await expect(
-      page.getByRole("link", { name: /download/i }).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("link", { name: /download/i }).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test("watermark-text processes image", async ({ loggedInPage: page }) => {
     await page.goto("/watermark-text");
     await uploadTestImage(page);
     // Fill in watermark text
-    const textInput = page
-      .locator("input[type='text'], textarea")
-      .first();
+    const textInput = page.locator("input[type='text'], textarea").first();
     await textInput.fill("Test Watermark");
     await page.getByRole("button", { name: /add watermark|apply watermark/i }).click();
     await waitForProcessing(page);
-    await expect(
-      page.getByRole("link", { name: /download/i }).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("link", { name: /download/i }).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 });

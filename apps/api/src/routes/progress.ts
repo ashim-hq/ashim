@@ -5,7 +5,7 @@
  *
  * Sends Server-Sent Events with progress data until the job finishes.
  */
-import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 
 export interface JobProgress {
   jobId: string;
@@ -32,10 +32,7 @@ export interface SingleFileProgress {
 const jobProgressStore = new Map<string, JobProgress>();
 
 /** SSE listeners waiting for updates, keyed by jobId. */
-const listeners = new Map<
-  string,
-  Set<(data: JobProgress | SingleFileProgress) => void>
->();
+const listeners = new Map<string, Set<(data: JobProgress | SingleFileProgress) => void>>();
 
 /**
  * Create or update progress for a job.
@@ -58,9 +55,7 @@ export function updateJobProgress(progress: JobProgress): void {
   }
 }
 
-export function updateSingleFileProgress(
-  progress: Omit<SingleFileProgress, "type">,
-): void {
+export function updateSingleFileProgress(progress: Omit<SingleFileProgress, "type">): void {
   const event: SingleFileProgress = { ...progress, type: "single" };
   const subs = listeners.get(progress.jobId);
   if (subs) {
@@ -75,15 +70,10 @@ export function updateSingleFileProgress(
   }
 }
 
-export async function registerProgressRoutes(
-  app: FastifyInstance,
-): Promise<void> {
+export async function registerProgressRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     "/api/v1/jobs/:jobId/progress",
-    async (
-      request: FastifyRequest<{ Params: { jobId: string } }>,
-      reply: FastifyReply,
-    ) => {
+    async (request: FastifyRequest<{ Params: { jobId: string } }>, reply: FastifyReply) => {
       const { jobId } = request.params;
 
       // Take over the response from Fastify for SSE streaming
@@ -106,10 +96,7 @@ export async function registerProgressRoutes(
       const existing = jobProgressStore.get(jobId);
       if (existing) {
         sendEvent(existing);
-        if (
-          existing.status === "completed" ||
-          existing.status === "failed"
-        ) {
+        if (existing.status === "completed" || existing.status === "failed") {
           reply.raw.end();
           return;
         }
@@ -123,16 +110,14 @@ export async function registerProgressRoutes(
       const callback = (data: JobProgress | SingleFileProgress) => {
         sendEvent(data);
         if (
-          ("status" in data &&
-            (data.status === "completed" || data.status === "failed")) ||
-          ("phase" in data &&
-            (data.phase === "complete" || data.phase === "failed"))
+          ("status" in data && (data.status === "completed" || data.status === "failed")) ||
+          ("phase" in data && (data.phase === "complete" || data.phase === "failed"))
         ) {
           reply.raw.end();
         }
       };
 
-      listeners.get(jobId)!.add(callback);
+      listeners.get(jobId)?.add(callback);
 
       // Clean up on client disconnect
       request.raw.on("close", () => {

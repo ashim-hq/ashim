@@ -1,13 +1,14 @@
-import { useState, useRef } from "react";
-import { useFileStore } from "@/stores/file-store";
 import { Download, Loader2, Upload } from "lucide-react";
+import { useRef, useState } from "react";
+import { useFileStore } from "@/stores/file-store";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
 }
 
 export function ComposeSettings() {
-  const { files, processing, error, setProcessing, setError, setProcessedUrl, setSizes, setJobId } = useFileStore();
+  const { files, processing, error, setProcessing, setError, setProcessedUrl, setSizes, setJobId } =
+    useFileStore();
   const [overlayFile, setOverlayFile] = useState<File | null>(null);
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
@@ -81,13 +82,23 @@ export function ComposeSettings() {
       <div className="flex gap-2">
         <div className="flex-1">
           <label className="text-xs text-muted-foreground">X Position</label>
-          <input type="number" value={x} onChange={(e) => setX(Number(e.target.value))} min={0}
-            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground" />
+          <input
+            type="number"
+            value={x}
+            onChange={(e) => setX(Number(e.target.value))}
+            min={0}
+            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
+          />
         </div>
         <div className="flex-1">
           <label className="text-xs text-muted-foreground">Y Position</label>
-          <input type="number" value={y} onChange={(e) => setY(Number(e.target.value))} min={0}
-            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground" />
+          <input
+            type="number"
+            value={y}
+            onChange={(e) => setY(Number(e.target.value))}
+            min={0}
+            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
+          />
         </div>
       </div>
 
@@ -96,7 +107,14 @@ export function ComposeSettings() {
           <label className="text-xs text-muted-foreground">Opacity</label>
           <span className="text-xs font-mono text-foreground">{opacity}%</span>
         </div>
-        <input type="range" min={0} max={100} value={opacity} onChange={(e) => setOpacity(Number(e.target.value))} className="w-full mt-1" />
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={opacity}
+          onChange={(e) => setOpacity(Number(e.target.value))}
+          className="w-full mt-1"
+        />
       </div>
 
       <div>
@@ -138,7 +156,11 @@ export function ComposeSettings() {
       </button>
 
       {downloadUrl && (
-        <a href={downloadUrl} download className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5">
+        <a
+          href={downloadUrl}
+          download
+          className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5"
+        >
           <Download className="h-4 w-4" />
           Download
         </a>

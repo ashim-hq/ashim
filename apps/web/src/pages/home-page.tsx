@@ -1,18 +1,19 @@
+import { CATEGORIES, TOOLS } from "@stirling-image/shared";
+import * as icons from "lucide-react";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { AppLayout } from "@/components/layout/app-layout";
 import { ImageViewer } from "@/components/common/image-viewer";
 import { MultiImageViewer } from "@/components/common/multi-image-viewer";
-import { useFileStore } from "@/stores/file-store";
-import { TOOLS, CATEGORIES } from "@stirling-image/shared";
-import * as icons from "lucide-react";
+import { AppLayout } from "@/components/layout/app-layout";
 import { cn } from "@/lib/utils";
+import { useFileStore } from "@/stores/file-store";
 
 // Tools shown prominently as "quick actions" at the top
 const QUICK_ACTION_IDS = ["resize", "compress", "convert", "remove-background"];
 
 export function HomePage() {
-  const { setFiles, files, reset, originalBlobUrl, selectedFileName, selectedFileSize } = useFileStore();
+  const { setFiles, files, reset, originalBlobUrl, selectedFileName, selectedFileSize } =
+    useFileStore();
   const navigate = useNavigate();
 
   const handleFiles = useCallback(
@@ -70,7 +71,10 @@ export function HomePage() {
               {QUICK_ACTION_IDS.map((id) => {
                 const tool = TOOLS.find((t) => t.id === id);
                 if (!tool) return null;
-                const Icon = (icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[tool.icon] || icons.FileImage;
+                const Icon =
+                  (icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[
+                    tool.icon
+                  ] || icons.FileImage;
                 return (
                   <button
                     key={id}
@@ -97,19 +101,28 @@ export function HomePage() {
               if (categoryTools.length === 0) return null;
               return (
                 <div key={category.id} className="mb-4">
-                  <p className="text-xs font-medium text-muted-foreground mb-1.5" style={{ color: category.color }}>
+                  <p
+                    className="text-xs font-medium text-muted-foreground mb-1.5"
+                    style={{ color: category.color }}
+                  >
                     {category.name}
                   </p>
                   <div className="space-y-0.5">
                     {categoryTools.map((tool) => {
-                      const Icon = (icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[tool.icon] || icons.FileImage;
+                      const Icon =
+                        (
+                          icons as unknown as Record<
+                            string,
+                            React.ComponentType<{ className?: string }>
+                          >
+                        )[tool.icon] || icons.FileImage;
                       return (
                         <button
                           key={tool.id}
                           onClick={() => handleToolClick(tool.route)}
                           className={cn(
                             "flex items-center gap-2.5 w-full py-1.5 px-2 rounded-lg text-left transition-colors",
-                            "hover:bg-muted text-foreground"
+                            "hover:bg-muted text-foreground",
                           )}
                         >
                           <Icon className="h-4 w-4 text-muted-foreground shrink-0" />

@@ -1,4 +1,4 @@
-import type { Sharp, FlipOptions } from "../types.js";
+import type { FlipOptions, Sharp } from "../types.js";
 
 export async function flip(image: Sharp, options: FlipOptions): Promise<Sharp> {
   const { horizontal, vertical } = options;

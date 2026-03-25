@@ -1,10 +1,10 @@
+import { basename } from "node:path";
+import { stripMetadata } from "@stirling-image/image-engine";
+import exifReader from "exif-reader";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import sharp from "sharp";
 import { z } from "zod";
 import { createToolRoute } from "../tool-factory.js";
-import { stripMetadata } from "@stirling-image/image-engine";
-import sharp from "sharp";
-import exifReader from "exif-reader";
-import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { basename } from "node:path";
 
 const settingsSchema = z.object({
   stripExif: z.boolean().default(false),
@@ -116,7 +116,7 @@ function parseIccProfile(iccBuffer: Buffer): Record<string, string> {
 
   const major = iccBuffer[8];
   const minor = (iccBuffer[9] >> 4) & 0xf;
-  if (major) info["Version"] = `${major}.${minor}`;
+  if (major) info.Version = `${major}.${minor}`;
 
   // Extract description tag from ICC tag table
   const tagCount = iccBuffer.readUInt32BE(128);
@@ -132,8 +132,10 @@ function parseIccProfile(iccBuffer: Buffer): Record<string, string> {
         if (descType === "desc") {
           const strLen = iccBuffer.readUInt32BE(dataOffset + 8);
           if (strLen > 0 && strLen < 256) {
-            const desc = iccBuffer.subarray(dataOffset + 12, dataOffset + 12 + strLen - 1).toString("ascii");
-            info["Description"] = desc;
+            const desc = iccBuffer
+              .subarray(dataOffset + 12, dataOffset + 12 + strLen - 1)
+              .toString("ascii");
+            info.Description = desc;
           }
         } else if (descType === "mluc") {
           const recCount = iccBuffer.readUInt32BE(dataOffset + 8);
@@ -141,7 +143,10 @@ function parseIccProfile(iccBuffer: Buffer): Record<string, string> {
             const strOffset = iccBuffer.readUInt32BE(dataOffset + 20);
             const strLength = iccBuffer.readUInt32BE(dataOffset + 16);
             if (strOffset && strLength && dataOffset + strOffset + strLength <= iccBuffer.length) {
-              const raw = iccBuffer.subarray(dataOffset + strOffset, dataOffset + strOffset + strLength);
+              const raw = iccBuffer.subarray(
+                dataOffset + strOffset,
+                dataOffset + strOffset + strLength,
+              );
               // ICC mluc strings are UTF-16BE: swap bytes for Node's utf16le decoder
               const swapped = Buffer.alloc(raw.length);
               for (let j = 0; j < raw.length - 1; j += 2) {
@@ -149,7 +154,7 @@ function parseIccProfile(iccBuffer: Buffer): Record<string, string> {
                 swapped[j + 1] = raw[j];
               }
               const desc = swapped.toString("utf16le");
-              info["Description"] = desc.replace(/\0/g, "");
+              info.Description = desc.replace(/\0/g, "");
             }
           }
         }
@@ -230,9 +235,9 @@ export function registerStripMetadata(app: FastifyInstance) {
                 gpsData[k] = sanitizeValue(v);
               }
               const coords = parseGpsCoordinates(parsed.GPSInfo as Record<string, unknown>);
-              if (coords.latitude !== null) gpsData["_latitude"] = coords.latitude;
-              if (coords.longitude !== null) gpsData["_longitude"] = coords.longitude;
-              if (coords.altitude !== null) gpsData["_altitude"] = coords.altitude;
+              if (coords.latitude !== null) gpsData._latitude = coords.latitude;
+              if (coords.longitude !== null) gpsData._longitude = coords.longitude;
+              if (coords.altitude !== null) gpsData._altitude = coords.altitude;
             }
 
             if (Object.keys(exifData).length > 0) result.exif = exifData;

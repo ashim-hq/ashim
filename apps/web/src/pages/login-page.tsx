@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { type FormEvent, useState } from "react";
 import { setToken } from "@/lib/api";
 
 export function LoginPage() {
@@ -47,7 +47,9 @@ export function LoginPage() {
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium mb-1 text-foreground">Username</label>
+              <label htmlFor="username" className="block text-sm font-medium mb-1 text-foreground">
+                Username
+              </label>
               <input
                 id="username"
                 type="text"
@@ -59,7 +61,9 @@ export function LoginPage() {
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-1 text-foreground">Password</label>
+              <label htmlFor="password" className="block text-sm font-medium mb-1 text-foreground">
+                Password
+              </label>
               <input
                 id="password"
                 type="password"
@@ -85,7 +89,8 @@ export function LoginPage() {
         <div className="max-w-lg space-y-6 text-center">
           <h2 className="text-3xl font-bold">Your one-stop-shop for all your image needs.</h2>
           <p className="text-lg text-white/80">
-            A privacy-first image suite that lets you resize, compress, convert, and process images with 30+ powerful tools.
+            A privacy-first image suite that lets you resize, compress, convert, and process images
+            with 30+ powerful tools.
           </p>
         </div>
       </div>

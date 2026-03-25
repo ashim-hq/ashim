@@ -1,4 +1,4 @@
-import { Upload, Loader2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 
 interface ProgressCardProps {
   active: boolean;
@@ -9,14 +9,7 @@ interface ProgressCardProps {
   elapsed: number;
 }
 
-export function ProgressCard({
-  active,
-  phase,
-  label,
-  stage,
-  percent,
-  elapsed,
-}: ProgressCardProps) {
+export function ProgressCard({ active, phase, label, stage, percent, elapsed }: ProgressCardProps) {
   if (!active) return null;
 
   const icon =
@@ -35,12 +28,8 @@ export function ProgressCard({
           {icon}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium text-foreground truncate">
-            {label}
-          </div>
-          <div className="text-[11px] text-muted-foreground truncate">
-            {sublabel}
-          </div>
+          <div className="text-sm font-medium text-foreground truncate">{label}</div>
+          <div className="text-[11px] text-muted-foreground truncate">{sublabel}</div>
         </div>
         <span className="text-sm font-semibold text-primary font-mono tabular-nums">
           {Math.round(percent)}%

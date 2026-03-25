@@ -5,96 +5,78 @@
  * PUT  /api/v1/settings      — Save settings (admin only)
  * GET  /api/v1/settings/:key — Get a specific setting
  */
-import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+
 import { eq } from "drizzle-orm";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { db, schema } from "../db/index.js";
-import { requireAuth, requireAdmin } from "../plugins/auth.js";
+import { requireAdmin, requireAuth } from "../plugins/auth.js";
 
 export async function settingsRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/v1/settings — Get all settings as a key-value object
-  app.get(
-    "/api/v1/settings",
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const user = requireAuth(request, reply);
-      if (!user) return;
+  app.get("/api/v1/settings", async (request: FastifyRequest, reply: FastifyReply) => {
+    const user = requireAuth(request, reply);
+    if (!user) return;
 
-      const rows = db.select().from(schema.settings).all();
+    const rows = db.select().from(schema.settings).all();
 
-      const settings: Record<string, string> = {};
-      for (const row of rows) {
-        settings[row.key] = row.value;
-      }
+    const settings: Record<string, string> = {};
+    for (const row of rows) {
+      settings[row.key] = row.value;
+    }
 
-      return reply.send({ settings });
-    },
-  );
+    return reply.send({ settings });
+  });
 
   // PUT /api/v1/settings — Save settings (admin only)
-  app.put(
-    "/api/v1/settings",
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const admin = requireAdmin(request, reply);
-      if (!admin) return;
+  app.put("/api/v1/settings", async (request: FastifyRequest, reply: FastifyReply) => {
+    const admin = requireAdmin(request, reply);
+    if (!admin) return;
 
-      const body = request.body as Record<string, unknown> | null;
+    const body = request.body as Record<string, unknown> | null;
 
-      if (!body || typeof body !== "object" || Array.isArray(body)) {
-        return reply.status(400).send({
-          error: "Request body must be a JSON object with key-value pairs",
-          code: "VALIDATION_ERROR",
-        });
-      }
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return reply.status(400).send({
+        error: "Request body must be a JSON object with key-value pairs",
+        code: "VALIDATION_ERROR",
+      });
+    }
 
-      const now = new Date();
-      let updatedCount = 0;
+    const now = new Date();
+    let updatedCount = 0;
 
-      for (const [key, value] of Object.entries(body)) {
-        if (typeof key !== "string" || key.length === 0) continue;
+    for (const [key, value] of Object.entries(body)) {
+      if (typeof key !== "string" || key.length === 0) continue;
 
-        const strValue = typeof value === "string" ? value : JSON.stringify(value);
+      const strValue = typeof value === "string" ? value : JSON.stringify(value);
 
-        // Upsert: insert or update on conflict
-        const existing = db
-          .select()
-          .from(schema.settings)
+      // Upsert: insert or update on conflict
+      const existing = db.select().from(schema.settings).where(eq(schema.settings.key, key)).get();
+
+      if (existing) {
+        db.update(schema.settings)
+          .set({ value: strValue, updatedAt: now })
           .where(eq(schema.settings.key, key))
-          .get();
-
-        if (existing) {
-          db.update(schema.settings)
-            .set({ value: strValue, updatedAt: now })
-            .where(eq(schema.settings.key, key))
-            .run();
-        } else {
-          db.insert(schema.settings)
-            .values({ key, value: strValue })
-            .run();
-        }
-
-        updatedCount++;
+          .run();
+      } else {
+        db.insert(schema.settings).values({ key, value: strValue }).run();
       }
 
-      return reply.send({ ok: true, updatedCount });
-    },
-  );
+      updatedCount++;
+    }
+
+    return reply.send({ ok: true, updatedCount });
+  });
 
   // GET /api/v1/settings/:key — Get a specific setting
   app.get(
     "/api/v1/settings/:key",
-    async (
-      request: FastifyRequest<{ Params: { key: string } }>,
-      reply: FastifyReply,
-    ) => {
+    async (request: FastifyRequest<{ Params: { key: string } }>, reply: FastifyReply) => {
       const user = requireAuth(request, reply);
       if (!user) return;
 
       const { key } = request.params;
 
-      const row = db
-        .select()
-        .from(schema.settings)
-        .where(eq(schema.settings.key, key))
-        .get();
+      const row = db.select().from(schema.settings).where(eq(schema.settings.key, key)).get();
 
       if (!row) {
         return reply.status(404).send({

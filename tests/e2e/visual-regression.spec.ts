@@ -1,4 +1,4 @@
-import { test, expect, uploadTestImage } from "./helpers";
+import { expect, test, uploadTestImage } from "./helpers";
 
 // ---------------------------------------------------------------------------
 // Visual regression tests: capture screenshots at different viewport sizes
@@ -75,9 +75,7 @@ test.describe("Visual regression: Login page", () => {
 });
 
 test.describe("Visual regression: Tool pages", () => {
-  test("resize tool - desktop (empty state)", async ({
-    loggedInPage: page,
-  }) => {
+  test("resize tool - desktop (empty state)", async ({ loggedInPage: page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto("/resize");
     await page.waitForLoadState("networkidle");
@@ -89,9 +87,7 @@ test.describe("Visual regression: Tool pages", () => {
     });
   });
 
-  test("resize tool - desktop (with file uploaded)", async ({
-    loggedInPage: page,
-  }) => {
+  test("resize tool - desktop (with file uploaded)", async ({ loggedInPage: page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto("/resize");
     await uploadTestImage(page);
@@ -105,9 +101,7 @@ test.describe("Visual regression: Tool pages", () => {
     });
   });
 
-  test("resize tool - mobile (empty state)", async ({
-    loggedInPage: page,
-  }) => {
+  test("resize tool - mobile (empty state)", async ({ loggedInPage: page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/resize");
     await page.waitForLoadState("networkidle");
@@ -119,9 +113,7 @@ test.describe("Visual regression: Tool pages", () => {
     });
   });
 
-  test("compress tool - desktop (empty state)", async ({
-    loggedInPage: page,
-  }) => {
+  test("compress tool - desktop (empty state)", async ({ loggedInPage: page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto("/compress");
     await page.waitForLoadState("networkidle");
@@ -133,9 +125,7 @@ test.describe("Visual regression: Tool pages", () => {
     });
   });
 
-  test("convert tool - desktop (empty state)", async ({
-    loggedInPage: page,
-  }) => {
+  test("convert tool - desktop (empty state)", async ({ loggedInPage: page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto("/convert");
     await page.waitForLoadState("networkidle");
@@ -187,9 +177,7 @@ test.describe("Visual regression: Fullscreen grid", () => {
 });
 
 test.describe("Visual regression: Sidebar", () => {
-  test("sidebar collapsed vs expanded appearance - desktop", async ({
-    loggedInPage: page,
-  }) => {
+  test("sidebar collapsed vs expanded appearance - desktop", async ({ loggedInPage: page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto("/");
     await page.waitForLoadState("networkidle");

@@ -1,24 +1,28 @@
-import { useState, useCallback, useEffect } from "react";
+import { APP_VERSION } from "@stirling-image/shared";
 import {
-  X,
-  Settings,
-  Shield,
-  Key,
-  Info,
+  Check,
+  Copy,
   Eye,
   EyeOff,
-  Copy,
-  Check,
+  Info,
+  Key,
+  Loader2,
   LogOut,
   Monitor,
-  Users,
+  MoreVertical,
+  Pencil,
+  RotateCcw,
+  Search,
+  Settings,
+  Shield,
   Trash2,
-  Plus,
-  Loader2,
+  UserPlus,
+  Users,
+  X,
 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { apiDelete, apiGet, apiPost, apiPut, clearToken } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { apiGet, apiPost, apiPut, apiDelete, clearToken } from "@/lib/api";
-import { APP_VERSION } from "@stirling-image/shared";
 
 interface SettingsDialogProps {
   open: boolean;
@@ -60,10 +64,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Dialog */}
       <div className="relative bg-background border border-border rounded-xl shadow-2xl w-full max-w-3xl h-[85vh] flex overflow-hidden">
@@ -80,7 +81,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                 "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm transition-colors",
                 section === item.id
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -126,9 +127,10 @@ interface ApiKeyEntry {
 }
 
 interface UserEntry {
-  id: number;
+  id: string;
   username: string;
   role: string;
+  team: string;
   createdAt: string;
 }
 
@@ -165,16 +167,18 @@ function GeneralSection() {
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-foreground">General</h3>
-        <p className="text-sm text-muted-foreground mt-1">
-          User preferences and display settings.
-        </p>
+        <p className="text-sm text-muted-foreground mt-1">User preferences and display settings.</p>
       </div>
 
       {/* User info */}
       <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/20">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : username.charAt(0).toUpperCase()}
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              username.charAt(0).toUpperCase()
+            )}
           </div>
           <div>
             <p className="font-medium text-foreground">{loading ? "Loading..." : username}</p>
@@ -224,17 +228,15 @@ function SystemSection() {
           fileUploadLimitMb: "100",
           defaultTheme: "system",
           defaultLocale: "en",
+          loginAttemptLimit: "5",
         });
       })
       .finally(() => setLoading(false));
   }, []);
 
-  const updateSetting = useCallback(
-    (key: string, value: string) => {
-      setSettings((prev) => ({ ...prev, [key]: value }));
-    },
-    []
-  );
+  const updateSetting = useCallback((key: string, value: string) => {
+    setSettings((prev) => ({ ...prev, [key]: value }));
+  }, []);
 
   const handleSave = useCallback(async () => {
     setSaving(true);
@@ -262,9 +264,7 @@ function SystemSection() {
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-foreground">System Settings</h3>
-        <p className="text-sm text-muted-foreground mt-1">
-          Server-side configuration and limits.
-        </p>
+        <p className="text-sm text-muted-foreground mt-1">Server-side configuration and limits.</p>
       </div>
 
       <SettingRow label="App Name" description="Display name for the application">
@@ -298,7 +298,7 @@ function SystemSection() {
         </select>
       </SettingRow>
 
-      <SettingRow label="Default Locale" description="Language for the interface">
+      <SettingRow label="Language" description="Language for the interface">
         <select
           value={settings.defaultLocale || "en"}
           onChange={(e) => updateSetting("defaultLocale", e.target.value)}
@@ -313,6 +313,20 @@ function SystemSection() {
         </select>
       </SettingRow>
 
+      <SettingRow
+        label="Login Attempt Limit"
+        description="Max failed login attempts per minute before lockout"
+      >
+        <input
+          type="number"
+          value={settings.loginAttemptLimit || "5"}
+          onChange={(e) => updateSetting("loginAttemptLimit", e.target.value)}
+          className="px-3 py-1.5 rounded-lg border border-border bg-background text-sm text-foreground w-24"
+          min={1}
+          max={100}
+        />
+      </SettingRow>
+
       <div className="flex items-center gap-3 pt-2">
         <button
           onClick={handleSave}
@@ -323,7 +337,14 @@ function SystemSection() {
           Save Settings
         </button>
         {saveMsg && (
-          <span className={cn("text-sm", saveMsg.includes("Failed") ? "text-destructive" : "text-green-600 dark:text-green-400")}>
+          <span
+            className={cn(
+              "text-sm",
+              saveMsg.includes("Failed")
+                ? "text-destructive"
+                : "text-green-600 dark:text-green-400",
+            )}
+          >
             {saveMsg}
           </span>
         )}
@@ -365,21 +386,22 @@ function SecuritySection() {
         setConfirmPassword("");
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Failed to change password";
-        setMessage({ type: "error", text: msg.includes("401") ? "Current password is incorrect" : msg });
+        setMessage({
+          type: "error",
+          text: msg.includes("401") ? "Current password is incorrect" : msg,
+        });
       } finally {
         setSubmitting(false);
       }
     },
-    [currentPassword, newPassword, confirmPassword]
+    [currentPassword, newPassword, confirmPassword],
   );
 
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-foreground">Security</h3>
-        <p className="text-sm text-muted-foreground mt-1">
-          Password and authentication settings.
-        </p>
+        <p className="text-sm text-muted-foreground mt-1">Password and authentication settings.</p>
       </div>
 
       <form onSubmit={handleChangePassword} className="space-y-4">
@@ -435,7 +457,9 @@ function SecuritySection() {
             <p
               className={cn(
                 "text-sm",
-                message.type === "error" ? "text-destructive" : "text-green-600 dark:text-green-400"
+                message.type === "error"
+                  ? "text-destructive"
+                  : "text-green-600 dark:text-green-400",
               )}
             >
               {message.text}
@@ -454,9 +478,9 @@ function SecuritySection() {
       </form>
 
       <div className="border-t border-border pt-4">
-        <SettingRow label="Login Attempt Limit" description="Max failed attempts before lockout">
-          <span className="text-sm font-mono text-muted-foreground">5 attempts</span>
-        </SettingRow>
+        <p className="text-sm text-muted-foreground">
+          Login attempt limits can be configured in System Settings.
+        </p>
       </div>
     </div>
   );
@@ -466,18 +490,31 @@ function SecuritySection() {
 
 function PeopleSection() {
   const [users, setUsers] = useState<UserEntry[]>([]);
+  const [maxUsers, setMaxUsers] = useState(5);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newRole, setNewRole] = useState("user");
+  const [newTeam, setNewTeam] = useState("Default");
   const [addError, setAddError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<UserEntry | null>(null);
+  const [editRole, setEditRole] = useState("");
+  const [editTeam, setEditTeam] = useState("");
+  const [resetPasswordUser, setResetPasswordUser] = useState<UserEntry | null>(null);
+  const [resetPassword, setResetPassword] = useState("");
+  const [actionMsg, setActionMsg] = useState<{ type: "success" | "error"; text: string } | null>(
+    null,
+  );
 
   const loadUsers = useCallback(async () => {
     try {
-      const data = await apiGet<{ users: UserEntry[] }>("/auth/users");
+      const data = await apiGet<{ users: UserEntry[]; maxUsers: number }>("/auth/users");
       setUsers(data.users);
+      setMaxUsers(data.maxUsers);
     } catch {
       setUsers([]);
     } finally {
@@ -489,6 +526,20 @@ function PeopleSection() {
     loadUsers();
   }, [loadUsers]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!openMenuId) return;
+    const handler = () => setOpenMenuId(null);
+    window.addEventListener("click", handler);
+    return () => window.removeEventListener("click", handler);
+  }, [openMenuId]);
+
+  const filteredUsers = users.filter((u) =>
+    u.username.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const atLimit = users.length >= maxUsers;
+
   const handleAddUser = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -499,32 +550,84 @@ function PeopleSection() {
           username: newUsername,
           password: newPassword,
           role: newRole,
+          team: newTeam,
         });
         setNewUsername("");
         setNewPassword("");
         setNewRole("user");
+        setNewTeam("Default");
         setShowAddForm(false);
+        setActionMsg({ type: "success", text: "User created successfully" });
         await loadUsers();
       } catch (err) {
-        setAddError(err instanceof Error ? err.message : "Failed to create user");
+        const msg = err instanceof Error ? err.message : "Failed to create user";
+        setAddError(msg.includes("403") ? `User limit reached (${maxUsers} max)` : msg);
       } finally {
         setAdding(false);
+        setTimeout(() => setActionMsg(null), 3000);
       }
     },
-    [newUsername, newPassword, newRole, loadUsers]
+    [newUsername, newPassword, newRole, newTeam, maxUsers, loadUsers],
   );
 
   const handleDeleteUser = useCallback(
-    async (id: number, username: string) => {
+    async (id: string, username: string) => {
       if (!confirm(`Delete user "${username}"? This cannot be undone.`)) return;
       try {
         await apiDelete(`/auth/users/${id}`);
+        setActionMsg({ type: "success", text: `User "${username}" deleted` });
         await loadUsers();
       } catch {
-        // Silently fail - user likely lacks permission
+        setActionMsg({ type: "error", text: "Failed to delete user" });
       }
+      setOpenMenuId(null);
+      setTimeout(() => setActionMsg(null), 3000);
     },
-    [loadUsers]
+    [loadUsers],
+  );
+
+  const handleUpdateUser = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!editingUser) return;
+      try {
+        await apiPut(`/auth/users/${editingUser.id}`, {
+          role: editRole,
+          team: editTeam,
+        });
+        setEditingUser(null);
+        setActionMsg({ type: "success", text: "User updated" });
+        await loadUsers();
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Failed to update user";
+        setActionMsg({
+          type: "error",
+          text: msg.includes("400") ? "Cannot remove your own admin role" : msg,
+        });
+      }
+      setTimeout(() => setActionMsg(null), 3000);
+    },
+    [editingUser, editRole, editTeam, loadUsers],
+  );
+
+  const handleResetPassword = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!resetPasswordUser) return;
+      try {
+        await apiPost(`/auth/users/${resetPasswordUser.id}/reset-password`, {
+          newPassword: resetPassword,
+        });
+        setResetPasswordUser(null);
+        setResetPassword("");
+        setActionMsg({ type: "success", text: "Password reset successfully" });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Failed to reset password";
+        setActionMsg({ type: "error", text: msg });
+      }
+      setTimeout(() => setActionMsg(null), 3000);
+    },
+    [resetPasswordUser, resetPassword],
   );
 
   if (loading) {
@@ -536,35 +639,80 @@ function PeopleSection() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-foreground">People</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            Manage users and their roles.
-          </p>
+    <div className="space-y-5">
+      {/* Header */}
+      <div>
+        <h3 className="text-lg font-semibold text-foreground">People</h3>
+        <p className="text-sm text-muted-foreground mt-1">
+          Manage workspace members and their permissions
+        </p>
+      </div>
+
+      {/* User count */}
+      <p className="text-sm text-muted-foreground">
+        {users.length} / {maxUsers} users
+      </p>
+
+      {/* Action message */}
+      {actionMsg && (
+        <div
+          className={cn(
+            "text-sm px-3 py-2 rounded-lg",
+            actionMsg.type === "error"
+              ? "bg-destructive/10 text-destructive"
+              : "bg-green-500/10 text-green-600 dark:text-green-400",
+          )}
+        >
+          {actionMsg.text}
+        </div>
+      )}
+
+      {/* Search + Add Members */}
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search members..."
+            className="w-full pl-9 pr-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground"
+          />
         </div>
         <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+          onClick={() => {
+            setShowAddForm(!showAddForm);
+            setAddError(null);
+          }}
+          disabled={atLimit && !showAddForm}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+            atLimit && !showAddForm
+              ? "bg-muted text-muted-foreground cursor-not-allowed"
+              : "bg-primary text-primary-foreground hover:bg-primary/90",
+          )}
+          title={atLimit ? `User limit reached (${maxUsers} max)` : "Add a new member"}
         >
-          <Plus className="h-3.5 w-3.5" />
-          Add User
+          <UserPlus className="h-4 w-4" />
+          Add Members
         </button>
       </div>
 
       {/* Add user form */}
       {showAddForm && (
-        <form onSubmit={handleAddUser} className="p-4 rounded-lg border border-border bg-muted/20 space-y-3">
-          <h4 className="text-sm font-medium text-foreground">New User</h4>
-          <div className="flex flex-wrap gap-3">
+        <form
+          onSubmit={handleAddUser}
+          className="p-4 rounded-lg border border-border bg-muted/20 space-y-3"
+        >
+          <h4 className="text-sm font-medium text-foreground">New Member</h4>
+          <div className="grid grid-cols-2 gap-3">
             <input
               type="text"
               value={newUsername}
               onChange={(e) => setNewUsername(e.target.value)}
               placeholder="Username"
               required
-              className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground w-40"
+              className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground"
             />
             <input
               type="password"
@@ -572,8 +720,8 @@ function PeopleSection() {
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Password"
               required
-              minLength={4}
-              className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground w-40"
+              minLength={8}
+              className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground"
             />
             <select
               value={newRole}
@@ -583,47 +731,216 @@ function PeopleSection() {
               <option value="user">User</option>
               <option value="admin">Admin</option>
             </select>
+            <input
+              type="text"
+              value={newTeam}
+              onChange={(e) => setNewTeam(e.target.value)}
+              placeholder="Team"
+              className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground"
+            />
+          </div>
+          <div className="flex items-center gap-3">
             <button
               type="submit"
-              disabled={adding}
+              disabled={adding || atLimit}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
               {adding && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               Create
             </button>
+            <button
+              type="button"
+              onClick={() => setShowAddForm(false)}
+              className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:bg-muted transition-colors"
+            >
+              Cancel
+            </button>
           </div>
-          {addError && (
-            <p className="text-sm text-destructive">{addError}</p>
-          )}
+          {addError && <p className="text-sm text-destructive">{addError}</p>}
         </form>
       )}
 
-      {/* User list */}
-      <div className="space-y-1">
-        {users.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-4 text-center">No users found.</p>
+      {/* Edit user modal */}
+      {editingUser && (
+        <form
+          onSubmit={handleUpdateUser}
+          className="p-4 rounded-lg border border-primary/30 bg-primary/5 space-y-3"
+        >
+          <h4 className="text-sm font-medium text-foreground">Edit {editingUser.username}</h4>
+          <div className="flex flex-wrap gap-3">
+            <select
+              value={editRole}
+              onChange={(e) => setEditRole(e.target.value)}
+              className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+            <input
+              type="text"
+              value={editTeam}
+              onChange={(e) => setEditTeam(e.target.value)}
+              placeholder="Team"
+              className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground w-40"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditingUser(null)}
+              className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:bg-muted transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Reset password modal */}
+      {resetPasswordUser && (
+        <form
+          onSubmit={handleResetPassword}
+          className="p-4 rounded-lg border border-orange-500/30 bg-orange-500/5 space-y-3"
+        >
+          <h4 className="text-sm font-medium text-foreground">
+            Reset password for {resetPasswordUser.username}
+          </h4>
+          <div className="flex flex-wrap gap-3">
+            <input
+              type="password"
+              value={resetPassword}
+              onChange={(e) => setResetPassword(e.target.value)}
+              placeholder="New password (min 8 chars)"
+              required
+              minLength={8}
+              className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground w-60"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition-colors"
+            >
+              Reset Password
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setResetPasswordUser(null);
+                setResetPassword("");
+              }}
+              className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:bg-muted transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            This will invalidate all sessions and API keys for this user.
+          </p>
+        </form>
+      )}
+
+      {/* Users table */}
+      <div className="border border-border rounded-lg overflow-hidden">
+        {/* Table header */}
+        <div className="grid grid-cols-[1fr_100px_120px_60px] gap-2 px-4 py-2.5 bg-muted/40 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <span>User</span>
+          <span>Role</span>
+          <span>Team</span>
+          <span />
+        </div>
+
+        {/* Table rows */}
+        {filteredUsers.length === 0 ? (
+          <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+            {search ? "No members match your search." : "No users found."}
+          </div>
         ) : (
-          users.map((u) => (
+          filteredUsers.map((u) => (
             <div
               key={u.id}
-              className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/20"
+              className="grid grid-cols-[1fr_100px_120px_60px] gap-2 items-center px-4 py-3 border-b border-border last:border-0 hover:bg-muted/20 transition-colors"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
+              {/* User cell */}
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm shrink-0">
                   {u.username.charAt(0).toUpperCase()}
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">{u.username}</p>
-                  <p className="text-xs text-muted-foreground capitalize">{u.role}</p>
-                </div>
+                <span className="text-sm font-medium text-foreground truncate">{u.username}</span>
               </div>
-              <button
-                onClick={() => handleDeleteUser(u.id, u.username)}
-                className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
-                title={`Delete ${u.username}`}
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+
+              {/* Role badge */}
+              <div>
+                <span
+                  className={cn(
+                    "inline-block px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wide",
+                    u.role === "admin"
+                      ? "bg-primary/15 text-primary"
+                      : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {u.role}
+                </span>
+              </div>
+
+              {/* Team */}
+              <span className="text-sm text-foreground truncate">{u.team}</span>
+
+              {/* Actions */}
+              <div className="flex items-center gap-1 justify-end relative">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenMenuId(openMenuId === u.id ? null : u.id);
+                  }}
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  title="Actions"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </button>
+
+                {/* Dropdown menu */}
+                {openMenuId === u.id && (
+                  <div
+                    className="absolute right-0 top-8 z-50 w-44 rounded-lg border border-border bg-background shadow-lg py-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      onClick={() => {
+                        setEditingUser(u);
+                        setEditRole(u.role);
+                        setEditTeam(u.team);
+                        setOpenMenuId(null);
+                      }}
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      Edit Role / Team
+                    </button>
+                    <button
+                      onClick={() => {
+                        setResetPasswordUser(u);
+                        setResetPassword("");
+                        setOpenMenuId(null);
+                      }}
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      Reset Password
+                    </button>
+                    <div className="border-t border-border my-1" />
+                    <button
+                      onClick={() => handleDeleteUser(u.id, u.username)}
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Delete User
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ))
         )}
@@ -691,7 +1008,7 @@ function ApiKeysSection() {
         // Silently fail
       }
     },
-    [loadKeys]
+    [loadKeys],
   );
 
   if (loading) {
@@ -779,7 +1096,9 @@ function ApiKeysSection() {
       )}
 
       {keys.length === 0 && !newKey && (
-        <p className="text-sm text-muted-foreground">No API keys yet. Generate one to get started.</p>
+        <p className="text-sm text-muted-foreground">
+          No API keys yet. Generate one to get started.
+        </p>
       )}
     </div>
   );
@@ -801,9 +1120,8 @@ function AboutSection() {
           </div>
         </div>
         <p className="text-sm text-muted-foreground">
-          A self-hosted, privacy-first image processing suite with 37+ tools.
-          Resize, compress, convert, watermark, and automate your image workflows
-          without sending data to the cloud.
+          A self-hosted, privacy-first image processing suite with 37+ tools. Resize, compress,
+          convert, watermark, and automate your image workflows without sending data to the cloud.
         </p>
         <div className="flex items-center gap-4 text-sm">
           <span className="text-muted-foreground">Version:</span>

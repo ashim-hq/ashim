@@ -1,6 +1,6 @@
+import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useFileStore } from "@/stores/file-store";
-import { Download, Loader2 } from "lucide-react";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
@@ -68,7 +68,10 @@ export function SplitSettings() {
           {presets.map((p) => (
             <button
               key={p.label}
-              onClick={() => { setColumns(p.c); setRows(p.r); }}
+              onClick={() => {
+                setColumns(p.c);
+                setRows(p.r);
+              }}
               className={`text-xs px-2 py-1 rounded ${columns === p.c && rows === p.r ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
             >
               {p.label}
@@ -80,19 +83,29 @@ export function SplitSettings() {
       <div className="flex gap-2">
         <div className="flex-1">
           <label className="text-xs text-muted-foreground">Columns</label>
-          <input type="number" value={columns} onChange={(e) => setColumns(Math.max(1, Number(e.target.value)))} min={1} max={10}
-            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground" />
+          <input
+            type="number"
+            value={columns}
+            onChange={(e) => setColumns(Math.max(1, Number(e.target.value)))}
+            min={1}
+            max={10}
+            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
+          />
         </div>
         <div className="flex-1">
           <label className="text-xs text-muted-foreground">Rows</label>
-          <input type="number" value={rows} onChange={(e) => setRows(Math.max(1, Number(e.target.value)))} min={1} max={10}
-            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground" />
+          <input
+            type="number"
+            value={rows}
+            onChange={(e) => setRows(Math.max(1, Number(e.target.value)))}
+            min={1}
+            max={10}
+            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
+          />
         </div>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Will produce {columns * rows} parts
-      </p>
+      <p className="text-xs text-muted-foreground">Will produce {columns * rows} parts</p>
 
       {error && <p className="text-xs text-red-500">{error}</p>}
 

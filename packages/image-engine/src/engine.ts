@@ -1,34 +1,34 @@
 import sharp from "sharp";
+import { brightness } from "./operations/brightness.js";
+import { colorChannels } from "./operations/color-channels.js";
+import { compress } from "./operations/compress.js";
+import { contrast } from "./operations/contrast.js";
+import { convert } from "./operations/convert.js";
+import { crop } from "./operations/crop.js";
+import { flip } from "./operations/flip.js";
+import { grayscale } from "./operations/grayscale.js";
+import { invert } from "./operations/invert.js";
+import { resize } from "./operations/resize.js";
+import { rotate } from "./operations/rotate.js";
+import { saturation } from "./operations/saturation.js";
+import { sepia } from "./operations/sepia.js";
+import { stripMetadata } from "./operations/strip-metadata.js";
 import type {
+  BrightnessOptions,
+  ColorChannelOptions,
+  CompressOptions,
+  ContrastOptions,
+  ConvertOptions,
+  CropOptions,
+  FlipOptions,
   OperationResult,
   OutputFormat,
-  Sharp,
   ResizeOptions,
-  CropOptions,
   RotateOptions,
-  FlipOptions,
-  ConvertOptions,
-  CompressOptions,
-  StripMetadataOptions,
-  BrightnessOptions,
-  ContrastOptions,
   SaturationOptions,
-  ColorChannelOptions,
+  Sharp,
+  StripMetadataOptions,
 } from "./types.js";
-import { resize } from "./operations/resize.js";
-import { crop } from "./operations/crop.js";
-import { rotate } from "./operations/rotate.js";
-import { flip } from "./operations/flip.js";
-import { convert } from "./operations/convert.js";
-import { compress } from "./operations/compress.js";
-import { stripMetadata } from "./operations/strip-metadata.js";
-import { brightness } from "./operations/brightness.js";
-import { contrast } from "./operations/contrast.js";
-import { saturation } from "./operations/saturation.js";
-import { colorChannels } from "./operations/color-channels.js";
-import { grayscale } from "./operations/grayscale.js";
-import { sepia } from "./operations/sepia.js";
-import { invert } from "./operations/invert.js";
 import { getImageInfo } from "./utils/metadata.js";
 
 export interface Operation {
@@ -46,13 +46,11 @@ const OPERATION_MAP: Record<
   flip: (img, opts) => flip(img, opts as unknown as FlipOptions),
   convert: (img, opts) => convert(img, opts as unknown as ConvertOptions),
   compress: (img, opts) => compress(img, opts as unknown as CompressOptions),
-  "strip-metadata": (img, opts) =>
-    stripMetadata(img, opts as unknown as StripMetadataOptions),
+  "strip-metadata": (img, opts) => stripMetadata(img, opts as unknown as StripMetadataOptions),
   brightness: (img, opts) => brightness(img, opts as unknown as BrightnessOptions),
   contrast: (img, opts) => contrast(img, opts as unknown as ContrastOptions),
   saturation: (img, opts) => saturation(img, opts as unknown as SaturationOptions),
-  "color-channels": (img, opts) =>
-    colorChannels(img, opts as unknown as ColorChannelOptions),
+  "color-channels": (img, opts) => colorChannels(img, opts as unknown as ColorChannelOptions),
   grayscale: (img) => grayscale(img),
   sepia: (img) => sepia(img),
   invert: (img) => invert(img),
@@ -78,7 +76,7 @@ const FORMAT_MAP: Record<OutputFormat, string> = {
 export async function processImage(
   input: Buffer,
   operations: Operation[],
-  outputFormat?: OutputFormat
+  outputFormat?: OutputFormat,
 ): Promise<OperationResult> {
   let image: Sharp = sharp(input);
 

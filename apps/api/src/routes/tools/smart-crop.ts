@@ -1,6 +1,6 @@
-import { z } from "zod";
-import sharp from "sharp";
 import type { FastifyInstance } from "fastify";
+import sharp from "sharp";
+import { z } from "zod";
 import { createToolRoute } from "../tool-factory.js";
 
 const settingsSchema = z.object({
@@ -26,7 +26,7 @@ export function registerSmartCrop(app: FastifyInstance) {
         .png()
         .toBuffer();
 
-      const outputFilename = filename.replace(/\.[^.]+$/, "") + "_smartcrop.png";
+      const outputFilename = `${filename.replace(/\.[^.]+$/, "")}_smartcrop.png`;
       return { buffer: result, filename: outputFilename, contentType: "image/png" };
     },
   });

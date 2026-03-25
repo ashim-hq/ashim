@@ -1,4 +1,4 @@
-import type { Sharp, SaturationOptions } from "../types.js";
+import type { SaturationOptions, Sharp } from "../types.js";
 
 export async function saturation(image: Sharp, options: SaturationOptions): Promise<Sharp> {
   const { value } = options;

@@ -1,4 +1,4 @@
-import type { Sharp, BrightnessOptions } from "../types.js";
+import type { BrightnessOptions, Sharp } from "../types.js";
 
 export async function brightness(image: Sharp, options: BrightnessOptions): Promise<Sharp> {
   const { value } = options;

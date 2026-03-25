@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
 import fs from "node:fs";
+import { expect, test } from "@playwright/test";
 import { getTestImagePath } from "./helpers";
 
 // ---------------------------------------------------------------------------
@@ -37,9 +37,7 @@ test.describe("Security: Path traversal", () => {
   });
 
   test("download rejects path traversal in jobId (..)", async () => {
-    const res = await fetch(
-      `${API}/api/v1/download/../../../etc/passwd/file.png`,
-    );
+    const res = await fetch(`${API}/api/v1/download/../../../etc/passwd/file.png`);
     // Should return 400 (invalid path) or 404, never the actual file
     expect([400, 404]).toContain(res.status);
     const body = await res.text();
@@ -47,9 +45,7 @@ test.describe("Security: Path traversal", () => {
   });
 
   test("download rejects path traversal in filename (..)", async () => {
-    const res = await fetch(
-      `${API}/api/v1/download/some-job-id/..%2F..%2F..%2Fetc%2Fpasswd`,
-    );
+    const res = await fetch(`${API}/api/v1/download/some-job-id/..%2F..%2F..%2Fetc%2Fpasswd`);
     // Server may return 400 (bad path), 404 (not found), or 401 (route mismatch)
     expect(res.status).not.toBe(200);
     const body = await res.text();
@@ -57,25 +53,19 @@ test.describe("Security: Path traversal", () => {
   });
 
   test("download rejects null bytes in path", async () => {
-    const res = await fetch(
-      `${API}/api/v1/download/test-id/file.png%00.txt`,
-    );
+    const res = await fetch(`${API}/api/v1/download/test-id/file.png%00.txt`);
     // Should be blocked - any non-200 is acceptable
     expect(res.status).not.toBe(200);
   });
 
   test("download rejects backslash traversal", async () => {
-    const res = await fetch(
-      `${API}/api/v1/download/test-id/..\\..\\etc\\passwd`,
-    );
+    const res = await fetch(`${API}/api/v1/download/test-id/..\\..\\etc\\passwd`);
     // Backslash may cause URL routing to fail in various ways
     expect(res.status).not.toBe(200);
   });
 
   test("download with non-existent jobId returns 404", async () => {
-    const res = await fetch(
-      `${API}/api/v1/download/00000000-0000-0000-0000-000000000000/file.png`,
-    );
+    const res = await fetch(`${API}/api/v1/download/00000000-0000-0000-0000-000000000000/file.png`);
     // Should be 404 (not found) but could be 400 if UUID validation exists
     expect([400, 404]).toContain(res.status);
   });
@@ -91,15 +81,8 @@ test.describe("Security: XSS in filenames", () => {
   test("upload with script tag in filename is sanitized", async () => {
     const { blob } = readTestImage();
     const formData = new FormData();
-    formData.append(
-      "file",
-      blob,
-      '<img src=x onerror=alert(1)>.png',
-    );
-    formData.append(
-      "settings",
-      JSON.stringify({ width: 50, height: 50, fit: "contain" }),
-    );
+    formData.append("file", blob, "<img src=x onerror=alert(1)>.png");
+    formData.append("settings", JSON.stringify({ width: 50, height: 50, fit: "contain" }));
 
     const res = await fetch(`${API}/api/v1/tools/resize`, {
       method: "POST",
@@ -125,10 +108,7 @@ test.describe("Security: XSS in filenames", () => {
     const { blob } = readTestImage();
     const formData = new FormData();
     formData.append("file", blob, "../../../etc/passwd.png");
-    formData.append(
-      "settings",
-      JSON.stringify({ width: 50, height: 50, fit: "contain" }),
-    );
+    formData.append("settings", JSON.stringify({ width: 50, height: 50, fit: "contain" }));
 
     const res = await fetch(`${API}/api/v1/tools/resize`, {
       method: "POST",
@@ -177,8 +157,7 @@ test.describe("Security: Rate limiting", () => {
     const retryAfter = res.headers.get("retry-after");
 
     // At least one rate-limit related header should be present
-    const hasRateLimitHeaders =
-      remaining !== null || limit !== null || retryAfter !== null;
+    const hasRateLimitHeaders = remaining !== null || limit !== null || retryAfter !== null;
 
     // If rate limiting is configured but headers aren't returned on health endpoint,
     // that's also acceptable (some configurations only add headers on rate-limited routes)

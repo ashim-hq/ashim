@@ -2,7 +2,7 @@ import type { Sharp, StripMetadataOptions } from "../types.js";
 
 export async function stripMetadata(
   image: Sharp,
-  options: StripMetadataOptions = {}
+  options: StripMetadataOptions = {},
 ): Promise<Sharp> {
   const { stripExif, stripGps, stripIcc, stripXmp, stripAll } = options;
 

@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
-import { ProgressCard } from "@/components/common/progress-card";
 import { Download } from "lucide-react";
+import { useState } from "react";
+import { ProgressCard } from "@/components/common/progress-card";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 export function UpscaleSettings() {
   const { files } = useFileStore();
@@ -41,7 +41,8 @@ export function UpscaleSettings() {
 
       {/* Info */}
       <p className="text-[10px] text-muted-foreground">
-        Uses Real-ESRGAN for AI upscaling when available, otherwise falls back to high-quality Lanczos interpolation.
+        Uses Real-ESRGAN for AI upscaling when available, otherwise falls back to high-quality
+        Lanczos interpolation.
       </p>
 
       {/* Error */}

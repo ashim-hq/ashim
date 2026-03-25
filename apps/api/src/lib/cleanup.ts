@@ -1,9 +1,9 @@
-import { readdir, stat, rm } from "node:fs/promises";
-import { join } from "node:path";
 import { mkdirSync } from "node:fs";
+import { readdir, rm, stat } from "node:fs/promises";
+import { join } from "node:path";
 import { lt } from "drizzle-orm";
-import { db, schema } from "../db/index.js";
 import { env } from "../config.js";
+import { db, schema } from "../db/index.js";
 
 export function startCleanupCron() {
   // Ensure workspace directory exists
@@ -59,5 +59,7 @@ export function startCleanupCron() {
   // Schedule recurring cleanup
   setInterval(cleanup, intervalMs);
   setInterval(purgeExpiredSessions, 60 * 60 * 1000); // Hourly
-  console.log(`Cleanup scheduled: every ${env.CLEANUP_INTERVAL_MINUTES}m, max age ${env.FILE_MAX_AGE_HOURS}h`);
+  console.log(
+    `Cleanup scheduled: every ${env.CLEANUP_INTERVAL_MINUTES}m, max age ${env.FILE_MAX_AGE_HOURS}h`,
+  );
 }

@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
-import { Download, ChevronDown, ChevronRight, Loader2, MapPin, AlertTriangle } from "lucide-react";
+import { AlertTriangle, ChevronDown, ChevronRight, Download, Loader2, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
 import { ProgressCard } from "@/components/common/progress-card";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
@@ -61,10 +61,19 @@ const EXIF_LABELS: Record<string, string> = {
 
 /** Keys to skip in display (internal/binary/redundant) */
 const SKIP_KEYS = new Set([
-  "ExifTag", "GPSTag", "InteroperabilityTag", "MakerNote",
-  "PrintImageMatching", "ComponentsConfiguration", "FlashpixVersion",
-  "ExifVersion", "FileSource", "SceneType", "UserComment",
-  "InteroperabilityIndex", "InteroperabilityVersion",
+  "ExifTag",
+  "GPSTag",
+  "InteroperabilityTag",
+  "MakerNote",
+  "PrintImageMatching",
+  "ComponentsConfiguration",
+  "FlashpixVersion",
+  "ExifVersion",
+  "FileSource",
+  "SceneType",
+  "UserComment",
+  "InteroperabilityIndex",
+  "InteroperabilityVersion",
 ]);
 
 function formatExifValue(key: string, value: unknown): string {
@@ -110,7 +119,11 @@ function CollapsibleSection({
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted/50 transition-colors"
       >
-        {open ? <ChevronDown className="h-3 w-3 shrink-0" /> : <ChevronRight className="h-3 w-3 shrink-0" />}
+        {open ? (
+          <ChevronDown className="h-3 w-3 shrink-0" />
+        ) : (
+          <ChevronRight className="h-3 w-3 shrink-0" />
+        )}
         <span className="flex-1 text-left">{title}</span>
         {warning && <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />}
         {badge && (
@@ -124,9 +137,16 @@ function CollapsibleSection({
   );
 }
 
-function MetadataGrid({ data, labelMap }: { data: Record<string, unknown>; labelMap?: Record<string, string> }) {
+function MetadataGrid({
+  data,
+  labelMap,
+}: {
+  data: Record<string, unknown>;
+  labelMap?: Record<string, string>;
+}) {
   const entries = Object.entries(data).filter(
-    ([k, v]) => !SKIP_KEYS.has(k) && !k.startsWith("_") && v !== undefined && v !== null && String(v) !== ""
+    ([k, v]) =>
+      !SKIP_KEYS.has(k) && !k.startsWith("_") && v !== undefined && v !== null && String(v) !== "",
   );
 
   if (entries.length === 0) {
@@ -140,7 +160,10 @@ function MetadataGrid({ data, labelMap }: { data: Record<string, unknown>; label
           <div className="text-[10px] text-muted-foreground truncate" title={k}>
             {labelMap?.[k] ?? k}
           </div>
-          <div className="text-[10px] text-foreground font-mono truncate" title={formatExifValue(k, v)}>
+          <div
+            className="text-[10px] text-foreground font-mono truncate"
+            title={formatExifValue(k, v)}
+          >
             {formatExifValue(k, v)}
           </div>
         </div>
@@ -167,7 +190,9 @@ export function StripMetadataSettings() {
   const [inspectError, setInspectError] = useState<string | null>(null);
 
   const currentFile = entries[selectedIndex]?.file ?? null;
-  const fileKey = currentFile ? `${currentFile.name}-${currentFile.size}-${currentFile.lastModified}` : null;
+  const fileKey = currentFile
+    ? `${currentFile.name}-${currentFile.size}-${currentFile.lastModified}`
+    : null;
 
   // Auto-fetch metadata for the selected file (with per-file caching)
   useEffect(() => {
@@ -214,7 +239,7 @@ export function StripMetadataSettings() {
     })();
 
     return () => controller.abort();
-  }, [currentFile, fileKey]);
+  }, [currentFile, fileKey, metadataCache.get]);
 
   const handleStripAllChange = (checked: boolean) => {
     setStripAll(checked);
@@ -245,8 +270,8 @@ export function StripMetadataSettings() {
   const sectionCount = [hasExif, hasGps, hasIcc, hasXmp].filter(Boolean).length;
 
   // GPS coordinates for display
-  const gpsLat = metadata?.gps?.["_latitude"] as number | null | undefined;
-  const gpsLon = metadata?.gps?.["_longitude"] as number | null | undefined;
+  const gpsLat = metadata?.gps?._latitude as number | null | undefined;
+  const gpsLon = metadata?.gps?._longitude as number | null | undefined;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -262,9 +287,7 @@ export function StripMetadataSettings() {
             </div>
           )}
 
-          {inspectError && (
-            <p className="text-[10px] text-red-500">{inspectError}</p>
-          )}
+          {inspectError && <p className="text-[10px] text-red-500">{inspectError}</p>}
 
           {metadata && !hasAnyMetadata && !inspecting && (
             <p className="text-xs text-muted-foreground italic py-1">
@@ -287,7 +310,7 @@ export function StripMetadataSettings() {
               {hasExif && (
                 <CollapsibleSection
                   title="EXIF"
-                  badge={`${Object.keys(metadata.exif!).filter(k => !SKIP_KEYS.has(k) && !k.startsWith("_")).length} fields`}
+                  badge={`${Object.keys(metadata.exif!).filter((k) => !SKIP_KEYS.has(k) && !k.startsWith("_")).length} fields`}
                   defaultOpen
                 >
                   <MetadataGrid data={metadata.exif!} labelMap={EXIF_LABELS} />
@@ -299,19 +322,29 @@ export function StripMetadataSettings() {
               )}
 
               {hasGps && (
-                <CollapsibleSection title="GPS" warning badge={`${Object.keys(metadata.gps!).filter(k => !k.startsWith("_")).length} fields`}>
+                <CollapsibleSection
+                  title="GPS"
+                  warning
+                  badge={`${Object.keys(metadata.gps!).filter((k) => !k.startsWith("_")).length} fields`}
+                >
                   <MetadataGrid data={metadata.gps!} />
                 </CollapsibleSection>
               )}
 
               {hasIcc && (
-                <CollapsibleSection title="ICC Profile" badge={`${Object.keys(metadata.icc!).length} fields`}>
+                <CollapsibleSection
+                  title="ICC Profile"
+                  badge={`${Object.keys(metadata.icc!).length} fields`}
+                >
                   <MetadataGrid data={metadata.icc!} />
                 </CollapsibleSection>
               )}
 
               {hasXmp && (
-                <CollapsibleSection title="XMP" badge={`${Object.keys(metadata.xmp!).length} fields`}>
+                <CollapsibleSection
+                  title="XMP"
+                  badge={`${Object.keys(metadata.xmp!).length} fields`}
+                >
                   <MetadataGrid data={metadata.xmp!} />
                 </CollapsibleSection>
               )}
@@ -343,7 +376,9 @@ export function StripMetadataSettings() {
       <div className="space-y-2">
         <label className="text-xs text-muted-foreground">Or select specific metadata:</label>
 
-        <label className={`flex items-center gap-2 text-sm ${stripAll ? "text-muted-foreground" : "text-foreground"}`}>
+        <label
+          className={`flex items-center gap-2 text-sm ${stripAll ? "text-muted-foreground" : "text-foreground"}`}
+        >
           <input
             type="checkbox"
             checked={stripExif}
@@ -353,11 +388,15 @@ export function StripMetadataSettings() {
           />
           Strip EXIF (camera info, date, exposure)
           {hasExif && !stripAll && (
-            <span className="ml-auto text-[10px] text-muted-foreground">{Object.keys(metadata!.exif!).filter(k => !SKIP_KEYS.has(k)).length} fields</span>
+            <span className="ml-auto text-[10px] text-muted-foreground">
+              {Object.keys(metadata?.exif!).filter((k) => !SKIP_KEYS.has(k)).length} fields
+            </span>
           )}
         </label>
 
-        <label className={`flex items-center gap-2 text-sm ${stripAll ? "text-muted-foreground" : "text-foreground"}`}>
+        <label
+          className={`flex items-center gap-2 text-sm ${stripAll ? "text-muted-foreground" : "text-foreground"}`}
+        >
           <input
             type="checkbox"
             checked={stripGps}
@@ -371,7 +410,9 @@ export function StripMetadataSettings() {
           )}
         </label>
 
-        <label className={`flex items-center gap-2 text-sm ${stripAll ? "text-muted-foreground" : "text-foreground"}`}>
+        <label
+          className={`flex items-center gap-2 text-sm ${stripAll ? "text-muted-foreground" : "text-foreground"}`}
+        >
           <input
             type="checkbox"
             checked={stripIcc}
@@ -382,7 +423,9 @@ export function StripMetadataSettings() {
           Strip ICC (color profile)
         </label>
 
-        <label className={`flex items-center gap-2 text-sm ${stripAll ? "text-muted-foreground" : "text-foreground"}`}>
+        <label
+          className={`flex items-center gap-2 text-sm ${stripAll ? "text-muted-foreground" : "text-foreground"}`}
+        >
           <input
             type="checkbox"
             checked={stripXmp}

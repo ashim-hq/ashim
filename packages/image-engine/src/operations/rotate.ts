@@ -1,4 +1,4 @@
-import type { Sharp, RotateOptions } from "../types.js";
+import type { RotateOptions, Sharp } from "../types.js";
 
 export async function rotate(image: Sharp, options: RotateOptions): Promise<Sharp> {
   const { angle, background } = options;

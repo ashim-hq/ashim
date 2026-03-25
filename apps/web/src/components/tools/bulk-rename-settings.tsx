@@ -1,6 +1,6 @@
+import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useFileStore } from "@/stores/file-store";
-import { Download, Loader2 } from "lucide-react";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
@@ -60,10 +60,12 @@ export function BulkRenameSettings() {
         const ext = f.name.includes(".") ? f.name.slice(f.name.lastIndexOf(".")) : "";
         const idx = startIndex + i;
         const padded = String(idx).padStart(String(files.length + startIndex).length, "0");
-        return pattern
-          .replace(/\{\{index\}\}/g, String(idx))
-          .replace(/\{\{padded\}\}/g, padded)
-          .replace(/\{\{original\}\}/g, f.name.replace(ext, "")) + ext;
+        return (
+          pattern
+            .replace(/\{\{index\}\}/g, String(idx))
+            .replace(/\{\{padded\}\}/g, padded)
+            .replace(/\{\{original\}\}/g, f.name.replace(ext, "")) + ext
+        );
       })
     : [];
 
@@ -84,8 +86,13 @@ export function BulkRenameSettings() {
 
       <div>
         <label className="text-xs text-muted-foreground">Start Index</label>
-        <input type="number" value={startIndex} onChange={(e) => setStartIndex(Number(e.target.value))} min={0}
-          className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground" />
+        <input
+          type="number"
+          value={startIndex}
+          onChange={(e) => setStartIndex(Number(e.target.value))}
+          min={0}
+          className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
+        />
       </div>
 
       {previewNames.length > 0 && (
@@ -93,7 +100,10 @@ export function BulkRenameSettings() {
           <label className="text-xs text-muted-foreground">Preview</label>
           <div className="mt-1 space-y-0.5">
             {previewNames.map((name, i) => (
-              <div key={i} className="text-xs font-mono text-foreground bg-muted px-2 py-0.5 rounded truncate">
+              <div
+                key={i}
+                className="text-xs font-mono text-foreground bg-muted px-2 py-0.5 rounded truncate"
+              >
                 {name}
               </div>
             ))}

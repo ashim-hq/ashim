@@ -1,10 +1,8 @@
-import { test, expect, uploadTestImage, waitForProcessing } from "./helpers";
+import { expect, test, uploadTestImage, waitForProcessing } from "./helpers";
 
 test.describe("Essential Tools", () => {
   // ── Resize ────────────────────────────────────────────────────────────
-  test("resize tool page renders correctly", async ({
-    loggedInPage: page,
-  }) => {
+  test("resize tool page renders correctly", async ({ loggedInPage: page }) => {
     await page.goto("/resize");
 
     // Tool header
@@ -14,9 +12,7 @@ test.describe("Essential Tools", () => {
     await expect(page.getByText("Upload from computer")).toBeVisible();
   });
 
-  test("resize tool shows settings after upload", async ({
-    loggedInPage: page,
-  }) => {
+  test("resize tool shows settings after upload", async ({ loggedInPage: page }) => {
     await page.goto("/resize");
     await uploadTestImage(page);
 
@@ -36,9 +32,9 @@ test.describe("Essential Tools", () => {
     await page.getByRole("button", { name: "Resize" }).click();
     await waitForProcessing(page);
 
-    await expect(
-      page.getByRole("link", { name: /download/i }).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("link", { name: /download/i }).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   // ── Crop ──────────────────────────────────────────────────────────────
@@ -48,52 +44,40 @@ test.describe("Essential Tools", () => {
     await expect(page.getByText("Upload from computer")).toBeVisible();
   });
 
-  test("crop tool shows settings after upload", async ({
-    loggedInPage: page,
-  }) => {
+  test("crop tool shows settings after upload", async ({ loggedInPage: page }) => {
     await page.goto("/crop");
     await uploadTestImage(page);
     await expect(page.getByText("Settings").first()).toBeVisible();
   });
 
   // ── Rotate & Flip ────────────────────────────────────────────────────
-  test("rotate tool page renders correctly", async ({
-    loggedInPage: page,
-  }) => {
+  test("rotate tool page renders correctly", async ({ loggedInPage: page }) => {
     await page.goto("/rotate");
     await expect(page.getByText("Rotate").first()).toBeVisible();
     await expect(page.getByText("Upload from computer")).toBeVisible();
   });
 
-  test("rotate tool shows settings after upload", async ({
-    loggedInPage: page,
-  }) => {
+  test("rotate tool shows settings after upload", async ({ loggedInPage: page }) => {
     await page.goto("/rotate");
     await uploadTestImage(page);
     await expect(page.getByText("Settings").first()).toBeVisible();
   });
 
   // ── Convert ───────────────────────────────────────────────────────────
-  test("convert tool page renders correctly", async ({
-    loggedInPage: page,
-  }) => {
+  test("convert tool page renders correctly", async ({ loggedInPage: page }) => {
     await page.goto("/convert");
     await expect(page.getByText("Convert").first()).toBeVisible();
     await expect(page.getByText("Upload from computer")).toBeVisible();
   });
 
-  test("convert tool shows format selector after upload", async ({
-    loggedInPage: page,
-  }) => {
+  test("convert tool shows format selector after upload", async ({ loggedInPage: page }) => {
     await page.goto("/convert");
     await uploadTestImage(page);
     await expect(page.getByText("Settings").first()).toBeVisible();
   });
 
   // ── Compress ──────────────────────────────────────────────────────────
-  test("compress tool page renders correctly", async ({
-    loggedInPage: page,
-  }) => {
+  test("compress tool page renders correctly", async ({ loggedInPage: page }) => {
     await page.goto("/compress");
     await expect(page.getByText("Compress").first()).toBeVisible();
     await expect(page.getByText("Upload from computer")).toBeVisible();
@@ -108,8 +92,8 @@ test.describe("Essential Tools", () => {
 
     await waitForProcessing(page);
 
-    await expect(
-      page.getByRole("link", { name: /download/i }).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("link", { name: /download/i }).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 });

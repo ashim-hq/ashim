@@ -1,4 +1,4 @@
-import type { Sharp, CropOptions } from "../types.js";
+import type { CropOptions, Sharp } from "../types.js";
 
 export async function crop(image: Sharp, options: CropOptions): Promise<Sharp> {
   const { left, top, width, height } = options;
@@ -16,12 +16,12 @@ export async function crop(image: Sharp, options: CropOptions): Promise<Sharp> {
 
   if (left + width > imgWidth) {
     throw new Error(
-      `Crop region exceeds image width: left(${left}) + width(${width}) > ${imgWidth}`
+      `Crop region exceeds image width: left(${left}) + width(${width}) > ${imgWidth}`,
     );
   }
   if (top + height > imgHeight) {
     throw new Error(
-      `Crop region exceeds image height: top(${top}) + height(${height}) > ${imgHeight}`
+      `Crop region exceeds image height: top(${top}) + height(${height}) > ${imgHeight}`,
     );
   }
 

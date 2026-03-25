@@ -1,6 +1,6 @@
+import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useFileStore } from "@/stores/file-store";
-import { Download, Loader2 } from "lucide-react";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
@@ -62,8 +62,8 @@ export function FaviconSettings() {
   return (
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">
-        Upload a square image (recommended 512x512 or larger) to generate all
-        favicon and app icon sizes.
+        Upload a square image (recommended 512x512 or larger) to generate all favicon and app icon
+        sizes.
       </p>
 
       <div>
@@ -76,9 +76,7 @@ export function FaviconSettings() {
             </div>
           ))}
         </div>
-        <p className="text-[10px] text-muted-foreground mt-1">
-          + manifest.json + HTML snippet
-        </p>
+        <p className="text-[10px] text-muted-foreground mt-1">+ manifest.json + HTML snippet</p>
       </div>
 
       {error && <p className="text-xs text-red-500">{error}</p>}

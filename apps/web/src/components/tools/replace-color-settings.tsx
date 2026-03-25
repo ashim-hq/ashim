@@ -1,13 +1,21 @@
-import { useState } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
 import { Download } from "lucide-react";
+import { useState } from "react";
 import { ProgressCard } from "@/components/common/progress-card";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 export function ReplaceColorSettings() {
   const { files } = useFileStore();
-  const { processFiles, processAllFiles, processing, error, downloadUrl, originalSize, processedSize, progress } =
-    useToolProcessor("replace-color");
+  const {
+    processFiles,
+    processAllFiles,
+    processing,
+    error,
+    downloadUrl,
+    originalSize,
+    processedSize,
+    progress,
+  } = useToolProcessor("replace-color");
 
   const [sourceColor, setSourceColor] = useState("#FF0000");
   const [targetColor, setTargetColor] = useState("#00FF00");
@@ -30,13 +38,23 @@ export function ReplaceColorSettings() {
       <div>
         <label className="text-xs text-muted-foreground">Source Color (to replace)</label>
         <div className="flex items-center gap-2 mt-0.5">
-          <input type="color" value={sourceColor} onChange={(e) => setSourceColor(e.target.value)} className="w-10 h-8 rounded border border-border" />
+          <input
+            type="color"
+            value={sourceColor}
+            onChange={(e) => setSourceColor(e.target.value)}
+            className="w-10 h-8 rounded border border-border"
+          />
           <span className="text-xs font-mono text-foreground">{sourceColor}</span>
         </div>
       </div>
 
       <label className="flex items-center gap-2 text-sm text-foreground">
-        <input type="checkbox" checked={makeTransparent} onChange={(e) => setMakeTransparent(e.target.checked)} className="rounded" />
+        <input
+          type="checkbox"
+          checked={makeTransparent}
+          onChange={(e) => setMakeTransparent(e.target.checked)}
+          className="rounded"
+        />
         Make transparent instead
       </label>
 
@@ -44,7 +62,12 @@ export function ReplaceColorSettings() {
         <div>
           <label className="text-xs text-muted-foreground">Target Color (replacement)</label>
           <div className="flex items-center gap-2 mt-0.5">
-            <input type="color" value={targetColor} onChange={(e) => setTargetColor(e.target.value)} className="w-10 h-8 rounded border border-border" />
+            <input
+              type="color"
+              value={targetColor}
+              onChange={(e) => setTargetColor(e.target.value)}
+              className="w-10 h-8 rounded border border-border"
+            />
             <span className="text-xs font-mono text-foreground">{targetColor}</span>
           </div>
         </div>
@@ -55,7 +78,14 @@ export function ReplaceColorSettings() {
           <label className="text-xs text-muted-foreground">Tolerance</label>
           <span className="text-xs font-mono text-foreground">{tolerance}</span>
         </div>
-        <input type="range" min={0} max={255} value={tolerance} onChange={(e) => setTolerance(Number(e.target.value))} className="w-full mt-1" />
+        <input
+          type="range"
+          min={0}
+          max={255}
+          value={tolerance}
+          onChange={(e) => setTolerance(Number(e.target.value))}
+          className="w-full mt-1"
+        />
         <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5">
           <span>Exact match</span>
           <span>Wide range</span>
@@ -91,7 +121,11 @@ export function ReplaceColorSettings() {
       )}
 
       {downloadUrl && (
-        <a href={downloadUrl} download className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5">
+        <a
+          href={downloadUrl}
+          download
+          className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5"
+        >
           <Download className="h-4 w-4" />
           Download
         </a>

@@ -113,6 +113,15 @@ Requires Node.js 22+ and pnpm 9+.
 - **AI/ML:** Python (rembg, Real-ESRGAN, PaddleOCR, MediaPipe)
 - **Infrastructure:** Turborepo monorepo, Docker multi-arch
 
+## Support This Project
+
+If Stirling Image is useful to you, consider supporting its development:
+
+<p align="center">
+  <a href="https://github.com/sponsors/siddharthksah"><img src="https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?logo=github-sponsors" alt="GitHub Sponsors"></a>
+  <a href="https://ko-fi.com/siddharthksah"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Ko--fi-FF5E5B?logo=ko-fi" alt="Ko-fi"></a>
+</p>
+
 ## Contributing
 
 Contributions are welcome. Please open an issue first to discuss what you'd like to change.

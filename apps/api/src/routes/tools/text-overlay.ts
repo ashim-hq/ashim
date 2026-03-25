@@ -1,15 +1,21 @@
+import type { FastifyInstance } from "fastify";
+import sharp from "sharp";
 import { z } from "zod";
 import { createToolRoute } from "../tool-factory.js";
-import sharp from "sharp";
-import type { FastifyInstance } from "fastify";
 
 const settingsSchema = z.object({
   text: z.string().min(1).max(500),
   fontSize: z.number().min(8).max(200).default(48),
-  color: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#FFFFFF"),
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default("#FFFFFF"),
   position: z.enum(["top", "center", "bottom"]).default("bottom"),
   backgroundBox: z.boolean().default(false),
-  backgroundColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#000000"),
+  backgroundColor: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default("#000000"),
   shadow: z.boolean().default(true),
 });
 
@@ -43,7 +49,6 @@ export function registerTextOverlay(app: FastifyInstance) {
         case "center":
           y = height / 2;
           break;
-        case "bottom":
         default:
           y = height - pad;
           break;
