@@ -1,3 +1,10 @@
+## [0.8.1](https://github.com/siddharthksah/Stirling-Image/compare/v0.8.0...v0.8.1) (2026-03-25)
+
+
+### Bug Fixes
+
+* resolve test failures from shared DB race conditions ([1a7116d](https://github.com/siddharthksah/Stirling-Image/commit/1a7116d79072d131b94d1c454abbc32b9e961c1b))
+
 # [0.8.0](https://github.com/siddharthksah/Stirling-Image/compare/v0.7.0...v0.8.0) (2026-03-25)
 
 
