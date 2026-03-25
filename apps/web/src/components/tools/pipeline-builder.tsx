@@ -158,7 +158,8 @@ export function PipelineBuilder({
   return (
     <div className="space-y-6">
       {/* File Upload Area */}
-      <div
+      <section
+        aria-label="File upload area"
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleFileDrop}
         className={cn(
@@ -178,6 +179,7 @@ export function PipelineBuilder({
               </span>
             </div>
             <button
+              type="button"
               onClick={() => setFile(null)}
               className="p-1 rounded hover:bg-muted text-muted-foreground"
             >
@@ -186,6 +188,7 @@ export function PipelineBuilder({
           </div>
         ) : (
           <button
+            type="button"
             onClick={handleFileSelect}
             className="flex items-center gap-2 mx-auto px-4 py-2 rounded-lg border border-primary text-primary hover:bg-primary/5 transition-colors text-sm"
           >
@@ -193,7 +196,7 @@ export function PipelineBuilder({
             Upload image to process
           </button>
         )}
-      </div>
+      </section>
 
       {/* Pipeline Steps */}
       <div className="space-y-2">
@@ -226,6 +229,7 @@ export function PipelineBuilder({
                   {/* Controls */}
                   <div className="flex items-center gap-0.5 shrink-0">
                     <button
+                      type="button"
                       onClick={() => setExpandedStep(isExpanded ? null : step.id)}
                       className="p-1 rounded hover:bg-muted text-muted-foreground"
                       title="Settings"
@@ -235,6 +239,7 @@ export function PipelineBuilder({
                       />
                     </button>
                     <button
+                      type="button"
                       onClick={() => moveStep(step.id, "up")}
                       disabled={idx === 0}
                       className="p-1 rounded hover:bg-muted text-muted-foreground disabled:opacity-30"
@@ -243,6 +248,7 @@ export function PipelineBuilder({
                       <ChevronUp className="h-4 w-4" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => moveStep(step.id, "down")}
                       disabled={idx === steps.length - 1}
                       className="p-1 rounded hover:bg-muted text-muted-foreground disabled:opacity-30"
@@ -251,6 +257,7 @@ export function PipelineBuilder({
                       <ChevronDown className="h-4 w-4" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => removeStep(step.id)}
                       className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
                       title="Remove"
@@ -283,6 +290,7 @@ export function PipelineBuilder({
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">Add a step</span>
             <button
+              type="button"
               onClick={() => setShowToolPicker(false)}
               className="p-1 rounded hover:bg-muted text-muted-foreground"
             >
@@ -294,6 +302,7 @@ export function PipelineBuilder({
             return (
               <button
                 key={tool.id}
+                type="button"
                 onClick={() => addStep(tool.id)}
                 className="flex items-center gap-2 w-full px-3 py-2 rounded-lg hover:bg-muted text-sm text-left transition-colors"
               >
@@ -308,6 +317,7 @@ export function PipelineBuilder({
         </div>
       ) : (
         <button
+          type="button"
           onClick={() => setShowToolPicker(true)}
           className="flex items-center gap-2 w-full justify-center px-4 py-2.5 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors"
         >
@@ -343,6 +353,7 @@ export function PipelineBuilder({
       {/* Action Buttons */}
       <div className="flex items-center gap-3">
         <button
+          type="button"
           onClick={handleExecute}
           disabled={steps.length === 0 || !file || executing}
           className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -362,6 +373,7 @@ export function PipelineBuilder({
 
         {!showSaveForm ? (
           <button
+            type="button"
             onClick={() => setShowSaveForm(true)}
             disabled={steps.length === 0}
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-border text-sm text-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -386,6 +398,7 @@ export function PipelineBuilder({
               className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground flex-1 hidden sm:block"
             />
             <button
+              type="button"
               onClick={handleSave}
               disabled={!saveName.trim() || saving}
               className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-50"
@@ -393,6 +406,7 @@ export function PipelineBuilder({
               {saving ? "Saving..." : "Save"}
             </button>
             <button
+              type="button"
               onClick={() => setShowSaveForm(false)}
               className="p-2 rounded-lg hover:bg-muted text-muted-foreground"
             >

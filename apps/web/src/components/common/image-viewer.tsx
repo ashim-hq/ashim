@@ -102,6 +102,7 @@ export function ImageViewer({
       {/* Toolbar */}
       <div className="flex items-center justify-center gap-1 py-2 px-3 border-b border-border shrink-0">
         <button
+          type="button"
           onClick={zoomOut}
           disabled={zoom <= ZOOM_STEPS[0]}
           className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
@@ -113,6 +114,7 @@ export function ImageViewer({
           {fitMode === "fit" ? "Fit" : `${zoom}%`}
         </span>
         <button
+          type="button"
           onClick={zoomIn}
           disabled={zoom >= ZOOM_STEPS[ZOOM_STEPS.length - 1]}
           className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
@@ -122,6 +124,7 @@ export function ImageViewer({
         </button>
         <div className="w-px h-4 bg-border mx-1" />
         <button
+          type="button"
           onClick={fitToContainer}
           className={`px-2 py-1 rounded text-xs ${fitMode === "fit" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
           title="Fit to view"
@@ -129,6 +132,7 @@ export function ImageViewer({
           <Maximize className="h-3.5 w-3.5" />
         </button>
         <button
+          type="button"
           onClick={actualSize}
           className={`px-2 py-1 rounded text-xs ${fitMode === "actual" && zoom === 100 ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
           title="Actual size (100%)"

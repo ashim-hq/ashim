@@ -62,8 +62,11 @@ export function ComposeSettings() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-xs text-muted-foreground">Overlay Image</label>
+        <label htmlFor="compose-overlay-image" className="text-xs text-muted-foreground">
+          Overlay Image
+        </label>
         <input
+          id="compose-overlay-image"
           ref={overlayInputRef}
           type="file"
           accept="image/*"
@@ -71,6 +74,7 @@ export function ComposeSettings() {
           className="hidden"
         />
         <button
+          type="button"
           onClick={() => overlayInputRef.current?.click()}
           className="w-full mt-0.5 px-2 py-2 rounded border border-dashed border-border bg-background text-sm text-muted-foreground hover:text-foreground flex items-center justify-center gap-2"
         >
@@ -81,8 +85,11 @@ export function ComposeSettings() {
 
       <div className="flex gap-2">
         <div className="flex-1">
-          <label className="text-xs text-muted-foreground">X Position</label>
+          <label htmlFor="compose-x-position" className="text-xs text-muted-foreground">
+            X Position
+          </label>
           <input
+            id="compose-x-position"
             type="number"
             value={x}
             onChange={(e) => setX(Number(e.target.value))}
@@ -91,8 +98,11 @@ export function ComposeSettings() {
           />
         </div>
         <div className="flex-1">
-          <label className="text-xs text-muted-foreground">Y Position</label>
+          <label htmlFor="compose-y-position" className="text-xs text-muted-foreground">
+            Y Position
+          </label>
           <input
+            id="compose-y-position"
             type="number"
             value={y}
             onChange={(e) => setY(Number(e.target.value))}
@@ -104,10 +114,13 @@ export function ComposeSettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Opacity</label>
+          <label htmlFor="compose-opacity" className="text-xs text-muted-foreground">
+            Opacity
+          </label>
           <span className="text-xs font-mono text-foreground">{opacity}%</span>
         </div>
         <input
+          id="compose-opacity"
           type="range"
           min={0}
           max={100}
@@ -118,8 +131,11 @@ export function ComposeSettings() {
       </div>
 
       <div>
-        <label className="text-xs text-muted-foreground">Blend Mode</label>
+        <label htmlFor="compose-blend-mode" className="text-xs text-muted-foreground">
+          Blend Mode
+        </label>
         <select
+          id="compose-blend-mode"
           value={blendMode}
           onChange={(e) => setBlendMode(e.target.value)}
           className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
@@ -147,6 +163,7 @@ export function ComposeSettings() {
       )}
 
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFile || !overlayFile || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

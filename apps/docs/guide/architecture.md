@@ -47,11 +47,12 @@ Shared TypeScript types, constants (like `APP_VERSION` and tool definitions), an
 ### API (`apps/api`)
 
 A Fastify v5 server that handles:
-- File uploads and temporary workspace management
+- File uploads, temporary workspace management, and persistent file storage
 - Tool execution (routes each tool request to the image engine or AI bridge)
 - Pipeline orchestration (chaining multiple tools sequentially)
 - Batch processing with concurrency control via p-queue
-- User authentication, API key management, and rate limiting
+- User authentication, teams, API key management, and rate limiting
+- Admin settings (tool visibility, feature flags, cleanup config, branding)
 - Swagger/OpenAPI documentation at `/api/docs`
 - Serving the built frontend as a SPA in production
 
@@ -60,6 +61,8 @@ Key dependencies: Fastify, Drizzle ORM, better-sqlite3, Sharp, Zod for validatio
 ### Web (`apps/web`)
 
 A React 19 single-page app built with Vite. Uses Zustand for state management, Tailwind CSS v4 for styling, and Lucide for icons. Communicates with the API over REST and SSE (for progress tracking).
+
+Pages include a tool workspace, a Files page for managing persistent uploads and results, an automation/pipeline builder, and an admin settings panel.
 
 The built frontend gets served by the Fastify backend in production, so there is no separate web server in the Docker container.
 

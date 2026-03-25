@@ -15,6 +15,7 @@ export function ToolCard({ tool }: ToolCardProps) {
   return (
     <div className="group flex items-center gap-3 relative">
       <button
+        type="button"
         className="opacity-0 group-hover:opacity-100 transition-opacity absolute -left-5"
         title="Add to favourites"
       >

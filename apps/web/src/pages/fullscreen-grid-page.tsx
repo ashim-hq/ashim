@@ -81,6 +81,7 @@ export function FullscreenGridPage() {
 
           {/* Toggle details */}
           <button
+            type="button"
             onClick={() => setShowDetails(!showDetails)}
             className={cn(
               "flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm transition-colors",
@@ -97,6 +98,7 @@ export function FullscreenGridPage() {
 
           {/* Switch to sidebar view */}
           <button
+            type="button"
             onClick={() => navigate("/")}
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:bg-muted transition-colors"
             title="Switch to sidebar view"

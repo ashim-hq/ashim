@@ -129,9 +129,10 @@ export function OcrSettings() {
     <div className="space-y-4">
       {/* Engine selector */}
       <div>
-        <label className="text-sm font-medium text-muted-foreground">OCR Engine</label>
+        <p className="text-sm font-medium text-muted-foreground">OCR Engine</p>
         <div className="flex gap-1 mt-1">
           <button
+            type="button"
             onClick={() => setEngine("tesseract")}
             className={`flex-1 text-xs py-1.5 rounded ${
               engine === "tesseract"
@@ -142,6 +143,7 @@ export function OcrSettings() {
             Tesseract
           </button>
           <button
+            type="button"
             onClick={() => setEngine("paddleocr")}
             className={`flex-1 text-xs py-1.5 rounded ${
               engine === "paddleocr"
@@ -156,8 +158,11 @@ export function OcrSettings() {
 
       {/* Language selector */}
       <div>
-        <label className="text-xs text-muted-foreground">Language</label>
+        <label htmlFor="ocr-language" className="text-xs text-muted-foreground">
+          Language
+        </label>
         <select
+          id="ocr-language"
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
           className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
@@ -185,6 +190,7 @@ export function OcrSettings() {
         />
       ) : (
         <button
+          type="button"
           onClick={handleProcess}
           disabled={!hasFile || processing}
           className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -197,10 +203,11 @@ export function OcrSettings() {
       {text !== null && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-muted-foreground">
+            <label htmlFor="ocr-result-text" className="text-xs font-medium text-muted-foreground">
               Extracted Text ({detectedEngine})
             </label>
             <button
+              type="button"
               onClick={handleCopy}
               className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
             >
@@ -209,6 +216,7 @@ export function OcrSettings() {
             </button>
           </div>
           <textarea
+            id="ocr-result-text"
             readOnly
             value={text}
             rows={8}

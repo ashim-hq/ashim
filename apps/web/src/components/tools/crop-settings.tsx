@@ -165,7 +165,7 @@ export function CropSettings({
       {/* Aspect Ratio */}
       <div>
         <div className="flex items-center justify-between mb-1">
-          <label className="text-xs text-muted-foreground">Aspect Ratio</label>
+          <p className="text-xs text-muted-foreground">Aspect Ratio</p>
           {aspect !== undefined && (
             <button
               type="button"
@@ -197,13 +197,14 @@ export function CropSettings({
 
       {/* Position & Size */}
       <div>
-        <label className="text-xs text-muted-foreground">Position & Size</label>
+        <p className="text-xs text-muted-foreground">Position & Size</p>
         <div className="grid grid-cols-2 gap-2 mt-1">
           <div>
-            <label className="text-[10px] text-muted-foreground">
+            <label htmlFor="crop-x" className="text-[10px] text-muted-foreground">
               X{imgDimensions ? ` (of ${imgDimensions.width})` : ""}
             </label>
             <input
+              id="crop-x"
               type="number"
               value={pixels.left}
               onChange={(e) => handlePixelChange("left", Number(e.target.value))}
@@ -213,10 +214,11 @@ export function CropSettings({
             />
           </div>
           <div>
-            <label className="text-[10px] text-muted-foreground">
+            <label htmlFor="crop-y" className="text-[10px] text-muted-foreground">
               Y{imgDimensions ? ` (of ${imgDimensions.height})` : ""}
             </label>
             <input
+              id="crop-y"
               type="number"
               value={pixels.top}
               onChange={(e) => handlePixelChange("top", Number(e.target.value))}
@@ -226,10 +228,11 @@ export function CropSettings({
             />
           </div>
           <div>
-            <label className="text-[10px] text-muted-foreground">
+            <label htmlFor="crop-width" className="text-[10px] text-muted-foreground">
               Width{imgDimensions ? ` (of ${imgDimensions.width})` : ""}
             </label>
             <input
+              id="crop-width"
               type="number"
               value={pixels.width}
               onChange={(e) => handlePixelChange("width", Number(e.target.value))}
@@ -239,10 +242,11 @@ export function CropSettings({
             />
           </div>
           <div>
-            <label className="text-[10px] text-muted-foreground">
+            <label htmlFor="crop-height" className="text-[10px] text-muted-foreground">
               Height{imgDimensions ? ` (of ${imgDimensions.height})` : ""}
             </label>
             <input
+              id="crop-height"
               type="number"
               value={pixels.height}
               onChange={(e) => handlePixelChange("height", Number(e.target.value))}

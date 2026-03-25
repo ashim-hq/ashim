@@ -46,14 +46,14 @@ export function Dropzone({ onFiles, accept, multiple = true, currentFiles = [] }
   const hasMultipleFiles = currentFiles.length > 1;
 
   return (
-    <div
+    <section
+      aria-label="File drop zone"
       onDragEnter={handleDrag}
       onDragOver={handleDrag}
       onDragLeave={handleDrag}
       onDrop={handleDrop}
-      onClick={handleClick}
       className={cn(
-        "flex flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-colors cursor-pointer min-h-[400px] mx-auto max-w-2xl w-full",
+        "flex flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-colors min-h-[400px] mx-auto max-w-2xl w-full",
         isDragging
           ? "border-primary bg-primary/5"
           : "border-border bg-muted/30 hover:border-primary/50 hover:bg-muted/50",
@@ -63,7 +63,11 @@ export function Dropzone({ onFiles, accept, multiple = true, currentFiles = [] }
         <div className="text-3xl font-bold text-muted-foreground/30">
           Stirling <span className="text-primary/30">Image</span>
         </div>
-        <button className="flex items-center gap-2 px-6 py-2.5 rounded-lg border border-primary text-primary hover:bg-primary/5 transition-colors text-sm font-medium">
+        <button
+          type="button"
+          onClick={handleClick}
+          className="flex items-center gap-2 px-6 py-2.5 rounded-lg border border-primary text-primary hover:bg-primary/5 transition-colors text-sm font-medium"
+        >
           <Upload className="h-4 w-4" />
           Upload from computer
         </button>
@@ -77,9 +81,9 @@ export function Dropzone({ onFiles, accept, multiple = true, currentFiles = [] }
               {currentFiles.length} files selected
             </span>
             <div className="max-h-32 overflow-y-auto w-full max-w-xs">
-              {currentFiles.map((f, i) => (
+              {currentFiles.map((f) => (
                 <div
-                  key={i}
+                  key={f.name}
                   className="flex items-center justify-between text-xs text-muted-foreground px-2 py-0.5"
                 >
                   <span className="truncate">{f.name}</span>
@@ -90,6 +94,6 @@ export function Dropzone({ onFiles, accept, multiple = true, currentFiles = [] }
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

@@ -76,7 +76,11 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-default"
+        onClick={onClose}
+      />
 
       {/* Dialog */}
       <div className="relative bg-background border border-border rounded-xl shadow-2xl w-full max-w-3xl h-[85vh] flex overflow-hidden">
@@ -88,6 +92,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
           {NAV_ITEMS.map((item) => (
             <button
               key={item.id}
+              type="button"
               onClick={() => setSection(item.id)}
               className={cn(
                 "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm transition-colors",
@@ -105,6 +110,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
           <button
+            type="button"
             onClick={onClose}
             className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
           >
@@ -207,6 +213,7 @@ function GeneralSection() {
           </div>
         </div>
         <button
+          type="button"
           onClick={handleLogout}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
@@ -336,9 +343,13 @@ function SystemSection() {
               alt="Logo"
             />
           )}
-          <label className="px-3 py-1.5 rounded-lg border border-border bg-background text-sm cursor-pointer hover:bg-muted transition-colors">
+          <label
+            htmlFor="system-logo-upload"
+            className="px-3 py-1.5 rounded-lg border border-border bg-background text-sm cursor-pointer hover:bg-muted transition-colors"
+          >
             Upload
             <input
+              id="system-logo-upload"
               type="file"
               accept="image/png,image/jpeg,image/svg+xml"
               className="hidden"
@@ -346,7 +357,11 @@ function SystemSection() {
             />
           </label>
           {settings.customLogo === "true" && (
-            <button onClick={handleLogoDelete} className="text-sm text-destructive hover:underline">
+            <button
+              type="button"
+              onClick={handleLogoDelete}
+              className="text-sm text-destructive hover:underline"
+            >
               Remove
             </button>
           )}
@@ -409,6 +424,7 @@ function SystemSection() {
         description="Show tools that are still in development. These may be unstable."
       >
         <button
+          type="button"
           onClick={() =>
             updateSetting(
               "enableExperimentalTools",
@@ -449,6 +465,7 @@ function SystemSection() {
         description="Clean up old temporary files when the server starts"
       >
         <button
+          type="button"
           onClick={() =>
             updateSetting("startupCleanup", settings.startupCleanup === "false" ? "true" : "false")
           }
@@ -468,6 +485,7 @@ function SystemSection() {
 
       <div className="flex items-center gap-3 pt-2">
         <button
+          type="button"
           onClick={handleSave}
           disabled={saving}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
@@ -830,6 +848,7 @@ function PeopleSection() {
           />
         </div>
         <button
+          type="button"
           onClick={() => {
             setShowAddForm(!showAddForm);
             setAddError(null);
@@ -1051,6 +1070,7 @@ function PeopleSection() {
               {/* Actions */}
               <div className="flex items-center gap-1 justify-end relative">
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setOpenMenuId(openMenuId === u.id ? null : u.id);
@@ -1064,10 +1084,11 @@ function PeopleSection() {
                 {/* Dropdown menu */}
                 {openMenuId === u.id && (
                   <div
+                    role="menu"
                     className="absolute right-0 top-8 z-50 w-44 rounded-lg border border-border bg-background shadow-lg py-1"
-                    onClick={(e) => e.stopPropagation()}
                   >
                     <button
+                      type="button"
                       onClick={() => {
                         setEditingUser(u);
                         setEditRole(u.role);
@@ -1080,6 +1101,7 @@ function PeopleSection() {
                       Edit Role / Team
                     </button>
                     <button
+                      type="button"
                       onClick={() => {
                         setResetPasswordUser(u);
                         setResetPassword("");
@@ -1092,6 +1114,7 @@ function PeopleSection() {
                     </button>
                     <div className="border-t border-border my-1" />
                     <button
+                      type="button"
                       onClick={() => handleDeleteUser(u.id, u.username)}
                       className="flex items-center gap-2 w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
                     >
@@ -1198,6 +1221,7 @@ function ApiKeysSection() {
           className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground w-48"
         />
         <button
+          type="button"
           onClick={generateKey}
           disabled={generating}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
@@ -1215,6 +1239,7 @@ function ApiKeysSection() {
               {newKey}
             </code>
             <button
+              type="button"
               onClick={() => copyKey(newKey)}
               className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground shrink-0"
               title="Copy"
@@ -1244,6 +1269,7 @@ function ApiKeysSection() {
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => deleteKey(k.id)}
                 className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
                 title="Delete key"
@@ -1397,6 +1423,7 @@ function TeamsSection() {
 
       <div className="flex items-center gap-3">
         <button
+          type="button"
           onClick={() => setShowCreateForm(!showCreateForm)}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
         >
@@ -1469,12 +1496,14 @@ function TeamsSection() {
                       }}
                     />
                     <button
+                      type="button"
                       onClick={() => handleRename(t.id)}
                       className="text-xs text-primary hover:underline"
                     >
                       Save
                     </button>
                     <button
+                      type="button"
                       onClick={() => setEditingTeamId(null)}
                       className="text-xs text-muted-foreground hover:underline"
                     >
@@ -1488,6 +1517,7 @@ function TeamsSection() {
               <span className="text-sm text-muted-foreground">{t.memberCount}</span>
               <div className="flex items-center gap-1 justify-end relative">
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setOpenMenuId(openMenuId === t.id ? null : t.id);
@@ -1498,10 +1528,11 @@ function TeamsSection() {
                 </button>
                 {openMenuId === t.id && (
                   <div
+                    role="menu"
                     className="absolute right-0 top-8 z-50 w-36 rounded-lg border border-border bg-background shadow-lg py-1"
-                    onClick={(e) => e.stopPropagation()}
                   >
                     <button
+                      type="button"
                       onClick={() => {
                         setEditingTeamId(t.id);
                         setEditingTeamName(t.name);
@@ -1514,6 +1545,7 @@ function TeamsSection() {
                     </button>
                     <div className="border-t border-border my-1" />
                     <button
+                      type="button"
                       onClick={() => handleDelete(t.id, t.name)}
                       className="flex items-center gap-2 w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
                     >
@@ -1640,6 +1672,7 @@ function ToolsSection() {
                       <p className="text-xs text-muted-foreground truncate">{tool.description}</p>
                     </div>
                     <button
+                      type="button"
                       onClick={() => toggleTool(tool.id)}
                       className={cn(
                         "w-11 h-6 rounded-full transition-colors relative shrink-0 ml-3",
@@ -1669,6 +1702,7 @@ function ToolsSection() {
 
       <div className="flex items-center gap-3 pt-2">
         <button
+          type="button"
           onClick={handleSave}
           disabled={saving}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"

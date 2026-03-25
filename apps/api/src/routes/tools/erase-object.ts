@@ -71,10 +71,11 @@ export function registerEraseObject(app: FastifyInstance) {
       await writeFile(inputPath, imageBuffer);
 
       // Process
-      const onProgress = clientJobId
+      const jobIdForProgress = clientJobId;
+      const onProgress = jobIdForProgress
         ? (percent: number, stage: string) => {
             updateSingleFileProgress({
-              jobId: clientJobId!,
+              jobId: jobIdForProgress,
               phase: "processing",
               stage,
               percent,

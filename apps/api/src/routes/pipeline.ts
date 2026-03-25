@@ -150,7 +150,12 @@ export async function registerPipelineRoutes(app: FastifyInstance): Promise<void
     try {
       for (let i = 0; i < pipeline.steps.length; i++) {
         const step = pipeline.steps[i];
-        const toolConfig = getToolConfig(step.toolId)!;
+        const toolConfig = getToolConfig(step.toolId);
+        if (!toolConfig) {
+          return reply
+            .status(400)
+            .send({ error: `Step ${i + 1}: Tool "${step.toolId}" not found` });
+        }
 
         // Parse settings through the schema to apply defaults
         const settings = toolConfig.settingsSchema.parse(step.settings);

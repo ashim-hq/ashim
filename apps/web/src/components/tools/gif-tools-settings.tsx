@@ -32,15 +32,17 @@ export function GifToolsSettings() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-xs text-muted-foreground">Mode</label>
+        <p className="text-xs text-muted-foreground">Mode</p>
         <div className="flex gap-1 mt-1">
           <button
+            type="button"
             onClick={() => setMode("resize")}
             className={`flex-1 text-xs py-1.5 rounded ${mode === "resize" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
           >
             Resize
           </button>
           <button
+            type="button"
             onClick={() => setMode("extract")}
             className={`flex-1 text-xs py-1.5 rounded ${mode === "extract" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
           >
@@ -53,8 +55,11 @@ export function GifToolsSettings() {
         <>
           <div className="flex gap-2">
             <div className="flex-1">
-              <label className="text-xs text-muted-foreground">Width (px)</label>
+              <label htmlFor="gif-tools-width" className="text-xs text-muted-foreground">
+                Width (px)
+              </label>
               <input
+                id="gif-tools-width"
                 type="number"
                 value={width}
                 onChange={(e) => setWidth(e.target.value)}
@@ -63,8 +68,11 @@ export function GifToolsSettings() {
               />
             </div>
             <div className="flex-1">
-              <label className="text-xs text-muted-foreground">Height (px)</label>
+              <label htmlFor="gif-tools-height" className="text-xs text-muted-foreground">
+                Height (px)
+              </label>
               <input
+                id="gif-tools-height"
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
@@ -74,8 +82,12 @@ export function GifToolsSettings() {
             </div>
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-foreground">
+          <label
+            htmlFor="gif-tools-optimize"
+            className="flex items-center gap-2 text-sm text-foreground"
+          >
             <input
+              id="gif-tools-optimize"
               type="checkbox"
               checked={optimize}
               onChange={(e) => setOptimize(e.target.checked)}
@@ -86,8 +98,11 @@ export function GifToolsSettings() {
         </>
       ) : (
         <div>
-          <label className="text-xs text-muted-foreground">Frame Number</label>
+          <label htmlFor="gif-tools-frame" className="text-xs text-muted-foreground">
+            Frame Number
+          </label>
           <input
+            id="gif-tools-frame"
             type="number"
             value={extractFrame}
             onChange={(e) => setExtractFrame(e.target.value)}
@@ -118,6 +133,7 @@ export function GifToolsSettings() {
         />
       ) : (
         <button
+          type="button"
           onClick={handleProcess}
           disabled={!hasFile || processing}
           className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

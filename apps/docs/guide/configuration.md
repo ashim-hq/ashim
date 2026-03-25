@@ -26,6 +26,7 @@ All configuration is done through environment variables. Every variable has a se
 | `STORAGE_MODE` | `local` | `local` or `s3`. Only local storage is currently implemented. |
 | `DB_PATH` | `./data/stirling.db` | Path to the SQLite database file. |
 | `WORKSPACE_PATH` | `./tmp/workspace` | Directory for temporary files during processing. Cleaned up automatically. |
+| `FILES_STORAGE_PATH` | `./data/files` | Directory for persistent user files (uploaded images, saved results). |
 
 ### Processing limits
 
@@ -76,5 +77,5 @@ services:
 
 The Docker container uses two volumes:
 
-- `/data` -- Persistent storage for the SQLite database. Mount this to keep users, API keys, and saved pipelines across container restarts.
+- `/data` -- Persistent storage for the SQLite database and user files. Mount this to keep users, API keys, saved pipelines, and uploaded images across container restarts.
 - `/tmp/workspace` -- Temporary storage for images being processed. This can be ephemeral, but mounting it avoids filling up the container's writable layer.

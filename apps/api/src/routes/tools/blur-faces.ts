@@ -60,10 +60,11 @@ export function registerBlurFaces(app: FastifyInstance) {
       await writeFile(inputPath, fileBuffer);
 
       // Process
-      const onProgress = clientJobId
+      const jobIdForProgress = clientJobId;
+      const onProgress = jobIdForProgress
         ? (percent: number, stage: string) => {
             updateSingleFileProgress({
-              jobId: clientJobId!,
+              jobId: jobIdForProgress,
               phase: "processing",
               stage,
               percent,

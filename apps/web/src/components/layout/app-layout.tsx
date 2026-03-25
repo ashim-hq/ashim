@@ -44,7 +44,8 @@ export function AppLayout({ children, showToolPanel = true, onFiles }: AppLayout
       {isMobile && mobileSidebarOpen && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+            aria-hidden="true"
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm cursor-default"
             onClick={() => setMobileSidebarOpen(false)}
           />
           <div className="fixed inset-y-0 left-0 z-50 w-64 bg-background border-r border-border shadow-xl animate-in slide-in-from-left">
@@ -61,25 +62,25 @@ export function AppLayout({ children, showToolPanel = true, onFiles }: AppLayout
                 </span>
               )}
               <button
+                type="button"
                 onClick={() => setMobileSidebarOpen(false)}
                 className="p-1.5 rounded-lg hover:bg-muted"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div onClick={() => setMobileSidebarOpen(false)}>
-              <Sidebar
-                onSettingsClick={() => {
-                  setMobileSidebarOpen(false);
-                  setSettingsOpen(true);
-                }}
-                onHelpClick={() => {
-                  setMobileSidebarOpen(false);
-                  setHelpOpen(true);
-                }}
-                expanded
-              />
-            </div>
+            <Sidebar
+              onSettingsClick={() => {
+                setMobileSidebarOpen(false);
+                setSettingsOpen(true);
+              }}
+              onHelpClick={() => {
+                setMobileSidebarOpen(false);
+                setHelpOpen(true);
+              }}
+              onNavClick={() => setMobileSidebarOpen(false)}
+              expanded
+            />
           </div>
         </>
       )}
@@ -88,6 +89,7 @@ export function AppLayout({ children, showToolPanel = true, onFiles }: AppLayout
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border px-3 py-2 flex items-center gap-3">
           <button
+            type="button"
             onClick={() => setMobileSidebarOpen(true)}
             className="p-1.5 rounded-lg hover:bg-muted"
           >
@@ -129,6 +131,7 @@ export function AppLayout({ children, showToolPanel = true, onFiles }: AppLayout
           <MobileNavItem icon={Workflow} label="Automate" href="/automate" />
           <MobileNavItem icon={FolderOpen} label="Files" href="/files" />
           <button
+            type="button"
             onClick={() => setSettingsOpen(true)}
             className="flex flex-col items-center gap-0.5 px-3 py-1 text-muted-foreground"
           >

@@ -526,8 +526,11 @@ export function PipelineStepSettings({ toolId, settings, onChange }: PipelineSte
           case "number":
             return (
               <div key={field.key}>
-                <label className="text-xs text-muted-foreground">{field.label}</label>
+                <label htmlFor={`pipeline-${field.key}`} className="text-xs text-muted-foreground">
+                  {field.label}
+                </label>
                 <input
+                  id={`pipeline-${field.key}`}
                   type="number"
                   value={value != null && value !== "" ? Number(value) : ""}
                   onChange={(e) =>
@@ -548,8 +551,11 @@ export function PipelineStepSettings({ toolId, settings, onChange }: PipelineSte
           case "text":
             return (
               <div key={field.key}>
-                <label className="text-xs text-muted-foreground">{field.label}</label>
+                <label htmlFor={`pipeline-${field.key}`} className="text-xs text-muted-foreground">
+                  {field.label}
+                </label>
                 <input
+                  id={`pipeline-${field.key}`}
                   type="text"
                   value={String(value ?? "")}
                   onChange={(e) => updateField(field.key, e.target.value || undefined)}
@@ -560,12 +566,12 @@ export function PipelineStepSettings({ toolId, settings, onChange }: PipelineSte
             );
 
           case "select": {
-            const opts = field.options!;
+            const opts = field.options ?? [];
             // Use button group for <= 4 options, dropdown for more
             if (opts.length <= 4) {
               return (
                 <div key={field.key}>
-                  <label className="text-xs text-muted-foreground">{field.label}</label>
+                  <p className="text-xs text-muted-foreground">{field.label}</p>
                   <div className="flex gap-1 mt-0.5">
                     {opts.map((opt) => (
                       <button
@@ -587,8 +593,11 @@ export function PipelineStepSettings({ toolId, settings, onChange }: PipelineSte
             }
             return (
               <div key={field.key}>
-                <label className="text-xs text-muted-foreground">{field.label}</label>
+                <label htmlFor={`pipeline-${field.key}`} className="text-xs text-muted-foreground">
+                  {field.label}
+                </label>
                 <select
+                  id={`pipeline-${field.key}`}
                   value={String(value ?? "")}
                   onChange={(e) => updateField(field.key, e.target.value)}
                   className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
@@ -623,15 +632,22 @@ export function PipelineStepSettings({ toolId, settings, onChange }: PipelineSte
           case "color":
             return (
               <div key={field.key}>
-                <label className="text-xs text-muted-foreground">{field.label}</label>
+                <label
+                  htmlFor={`pipeline-${field.key}-text`}
+                  className="text-xs text-muted-foreground"
+                >
+                  {field.label}
+                </label>
                 <div className="flex gap-2 mt-0.5">
                   <input
+                    id={`pipeline-${field.key}-picker`}
                     type="color"
                     value={String(value || "#000000").slice(0, 7)}
                     onChange={(e) => updateField(field.key, e.target.value)}
                     className="h-8 w-8 rounded border border-border cursor-pointer bg-background"
                   />
                   <input
+                    id={`pipeline-${field.key}-text`}
                     type="text"
                     value={String(value ?? "")}
                     onChange={(e) => updateField(field.key, e.target.value || undefined)}

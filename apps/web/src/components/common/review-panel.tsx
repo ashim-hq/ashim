@@ -54,6 +54,7 @@ export function ReviewPanel({
 
       {/* Review header */}
       <button
+        type="button"
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex items-center justify-between w-full text-sm font-medium text-muted-foreground hover:text-foreground"
       >
@@ -85,6 +86,7 @@ export function ReviewPanel({
           {/* Action buttons */}
           <div className="flex gap-2">
             <button
+              type="button"
               onClick={onUndo}
               className="flex-1 py-2 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center gap-1.5 text-xs font-medium"
             >
@@ -92,6 +94,7 @@ export function ReviewPanel({
               Undo
             </button>
             <button
+              type="button"
               onClick={handleDownload}
               className="flex-1 py-2 rounded-lg bg-primary text-primary-foreground flex items-center justify-center gap-1.5 text-xs font-medium hover:bg-primary/90"
             >
@@ -105,6 +108,7 @@ export function ReviewPanel({
             <div className="space-y-2">
               <div className="border-t border-border pt-2" />
               <button
+                type="button"
                 onClick={() => setIsSuggestionsExpanded(!isSuggestionsExpanded)}
                 className="flex items-center justify-between w-full text-xs font-medium text-muted-foreground hover:text-foreground"
               >
@@ -129,6 +133,7 @@ export function ReviewPanel({
                     return (
                       <button
                         key={tool.id}
+                        type="button"
                         onClick={() => navigate(tool.route)}
                         className="flex items-center gap-2 w-full px-2 py-1.5 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted group"
                       >

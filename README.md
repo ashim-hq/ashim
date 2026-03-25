@@ -12,36 +12,40 @@
 
 ---
 
-A self-hosted, privacy-first image processing suite with 37+ tools. Resize, compress, convert, watermark, remove backgrounds, and more — all from a single Docker container. No data ever leaves your server.
+Self-hosted image processing with 37+ tools in a single Docker container. Resize, compress, convert, watermark, remove backgrounds, run OCR, and more. Nothing leaves your server.
 
 Inspired by [Stirling-PDF](https://github.com/Stirling-Tools/Stirling-PDF), built for images.
 
 <!-- TODO: Add screenshot here -->
 <!-- ![Dashboard](docs/screenshot-dashboard.png) -->
 
-## Quick Start
+## Quick start
 
 ```bash
 docker run -d -p 1349:1349 -v ./data:/data ghcr.io/siddharthksah/stirling-image:latest
 ```
 
-Then open [http://localhost:1349](http://localhost:1349).
+Open [http://localhost:1349](http://localhost:1349). Default login is `admin` / `admin`.
 
-## Key Capabilities
+## What it does
 
-- **37+ image tools** — Resize, crop, rotate, compress, convert, watermark, color adjustments, and more in one place.
+- **37+ image tools** in one place — resize, crop, rotate, compress, convert, watermark, color adjustments, and the rest.
 
-- **AI-powered processing** — Background removal (rembg), image upscaling (Real-ESRGAN), OCR text extraction, face/PII auto-blurring, and smart cropping — all running locally.
+- **AI tools that run locally** — background removal (rembg), upscaling (Real-ESRGAN), OCR (PaddleOCR), face blurring (MediaPipe), object erasing (LaMa). No external API calls.
 
-- **Privacy first** — Every operation runs on your hardware. No files are sent to external servers. No telemetry, no tracking, no cloud dependencies.
+- **Your hardware, your data** — no telemetry, no tracking, no cloud. Files stay on your machine.
 
-- **Batch processing** — Drop 200 images, apply any tool, download results as a ZIP. Concurrent processing with configurable limits.
+- **Batch processing** — drop up to 200 images, apply any tool, get a ZIP back. Configurable concurrency.
 
-- **Automation pipelines** — Chain tools into reusable workflows (e.g., Resize, Compress, Convert to WebP, Strip Metadata). Save and reuse pipelines.
+- **Pipelines** — chain tools into reusable workflows (resize, then compress, then convert to WebP, then strip metadata). Save them and rerun later.
 
-- **Full API** — Every tool is available via REST API with Swagger documentation at `/api/docs`. Automate image processing from scripts, CI/CD, or other tools.
+- **REST API** — every tool is exposed at `/api/v1/tools/:toolId`. Swagger docs at `/api/docs`.
 
-- **Self-hosted & portable** — Single Docker container. Works on Intel, AMD, and Apple Silicon (multi-arch: `linux/amd64` + `linux/arm64`).
+- **Persistent file storage** — save processed images server-side with version tracking. Pick up where you left off.
+
+- **Teams and admin settings** — manage users, toggle tool visibility, configure cleanup, upload a custom logo.
+
+- **Single container** — runs on Intel, AMD, and Apple Silicon (`linux/amd64` + `linux/arm64`).
 
 ## Tools
 
@@ -57,27 +61,28 @@ Then open [http://localhost:1349](http://localhost:1349).
 | **Format** | SVG to Raster, Image to SVG, GIF Tools |
 | **Automation** | Pipeline Builder, Batch Processing |
 
-## Supported Formats
+## Supported formats
 
-**Input:** JPG, PNG, WebP, AVIF, TIFF, BMP, GIF (animated), SVG, HEIC/HEIF, JPEG XL, ICO, RAW (CR2, NEF, ARW, DNG)
+**In:** JPG, PNG, WebP, AVIF, TIFF, BMP, GIF (animated), SVG, HEIC/HEIF, JPEG XL, ICO, RAW (CR2, NEF, ARW, DNG)
 
-**Output:** JPG, PNG, WebP, AVIF, TIFF, GIF, JPEG XL, SVG, ICO, PDF
+**Out:** JPG, PNG, WebP, AVIF, TIFF, GIF, JPEG XL, SVG, ICO, PDF
 
 ## Configuration
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PORT` | `1349` | Application port |
-| `AUTH_ENABLED` | `true` | Enable login (default credentials: `admin` / `admin`) |
-| `MAX_UPLOAD_SIZE_MB` | `100` | Maximum file upload size |
-| `MAX_BATCH_SIZE` | `200` | Maximum files per batch |
+| `PORT` | `1349` | Server port |
+| `AUTH_ENABLED` | `true` | Require login (`admin` / `admin` by default) |
+| `MAX_UPLOAD_SIZE_MB` | `100` | Max file upload size |
+| `MAX_BATCH_SIZE` | `200` | Max files per batch |
 | `CONCURRENT_JOBS` | `3` | Parallel processing limit |
-| `FILE_MAX_AGE_HOURS` | `24` | Auto-cleanup temp files after this duration |
+| `FILE_MAX_AGE_HOURS` | `24` | Auto-delete temp files after this many hours |
+| `FILES_STORAGE_PATH` | `./data/files` | Where persistent user files are stored |
 | `STORAGE_MODE` | `local` | Storage backend (`local` or `s3`) |
 
 See [`.env.example`](.env.example) for the full list.
 
-## Docker Compose
+## Docker Compose example
 
 ```yaml
 services:
@@ -106,16 +111,13 @@ pnpm dev
 
 Requires Node.js 22+ and pnpm 9+.
 
-## Tech Stack
+## Tech stack
 
-- **Frontend:** React 19, Vite, Tailwind CSS 4, shadcn/ui
-- **Backend:** Fastify, Sharp (libvips), Drizzle ORM, SQLite
-- **AI/ML:** Python (rembg, Real-ESRGAN, PaddleOCR, MediaPipe)
-- **Infrastructure:** Turborepo monorepo, Docker multi-arch
+React 19 + Vite frontend, Fastify + Sharp backend, SQLite via Drizzle ORM, Python sidecar for AI/ML models. Monorepo with pnpm workspaces. Multi-arch Docker builds.
 
-## Support This Project
+## Support this project
 
-If Stirling Image is useful to you, consider supporting its development:
+If you find this useful, consider supporting development:
 
 <p align="center">
   <a href="https://github.com/sponsors/siddharthksah"><img src="https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?logo=github-sponsors" alt="GitHub Sponsors"></a>
@@ -124,7 +126,7 @@ If Stirling Image is useful to you, consider supporting its development:
 
 ## Contributing
 
-Contributions are welcome. Please open an issue first to discuss what you'd like to change.
+Contributions welcome. Open an issue first so we can talk about what you have in mind.
 
 ## License
 

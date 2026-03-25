@@ -55,6 +55,7 @@ export function HomePage() {
               {files.length > 1 && ` — ${files.length} files`}
             </p>
             <button
+              type="button"
               onClick={reset}
               className="text-xs text-muted-foreground hover:text-foreground mt-2"
             >
@@ -78,6 +79,7 @@ export function HomePage() {
                 return (
                   <button
                     key={id}
+                    type="button"
                     onClick={() => handleToolClick(tool.route)}
                     className="flex items-center gap-2 p-3 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-colors text-left"
                   >
@@ -119,6 +121,7 @@ export function HomePage() {
                       return (
                         <button
                           key={tool.id}
+                          type="button"
                           onClick={() => handleToolClick(tool.route)}
                           className={cn(
                             "flex items-center gap-2.5 w-full py-1.5 px-2 rounded-lg text-left transition-colors",

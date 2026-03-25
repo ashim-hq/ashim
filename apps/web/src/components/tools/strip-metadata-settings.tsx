@@ -229,7 +229,7 @@ export function StripMetadataSettings() {
         }
         const data: MetadataResult = await res.json();
         setMetadata(data);
-        setMetadataCache((prev) => new Map(prev).set(fileKey!, data));
+        if (fileKey) setMetadataCache((prev) => new Map(prev).set(fileKey, data));
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
         setInspectError(err instanceof Error ? err.message : "Failed to inspect metadata");
@@ -239,7 +239,7 @@ export function StripMetadataSettings() {
     })();
 
     return () => controller.abort();
-  }, [currentFile, fileKey, metadataCache.get]);
+  }, [currentFile, fileKey, metadataCache]);
 
   const handleStripAllChange = (checked: boolean) => {
     setStripAll(checked);
@@ -278,7 +278,7 @@ export function StripMetadataSettings() {
       {/* Metadata Display */}
       {hasFile && (
         <div className="space-y-2">
-          <label className="text-xs font-medium text-muted-foreground">Current Metadata</label>
+          <p className="text-xs font-medium text-muted-foreground">Current Metadata</p>
 
           {inspecting && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
@@ -307,13 +307,13 @@ export function StripMetadataSettings() {
                 </div>
               )}
 
-              {hasExif && (
+              {hasExif && metadata.exif && (
                 <CollapsibleSection
                   title="EXIF"
-                  badge={`${Object.keys(metadata.exif!).filter((k) => !SKIP_KEYS.has(k) && !k.startsWith("_")).length} fields`}
+                  badge={`${Object.keys(metadata.exif).filter((k) => !SKIP_KEYS.has(k) && !k.startsWith("_")).length} fields`}
                   defaultOpen
                 >
-                  <MetadataGrid data={metadata.exif!} labelMap={EXIF_LABELS} />
+                  <MetadataGrid data={metadata.exif} labelMap={EXIF_LABELS} />
                 </CollapsibleSection>
               )}
 
@@ -321,31 +321,31 @@ export function StripMetadataSettings() {
                 <p className="text-[11px] text-muted-foreground">EXIF: {metadata.exifError}</p>
               )}
 
-              {hasGps && (
+              {hasGps && metadata.gps && (
                 <CollapsibleSection
                   title="GPS"
                   warning
-                  badge={`${Object.keys(metadata.gps!).filter((k) => !k.startsWith("_")).length} fields`}
+                  badge={`${Object.keys(metadata.gps).filter((k) => !k.startsWith("_")).length} fields`}
                 >
-                  <MetadataGrid data={metadata.gps!} />
+                  <MetadataGrid data={metadata.gps} />
                 </CollapsibleSection>
               )}
 
-              {hasIcc && (
+              {hasIcc && metadata.icc && (
                 <CollapsibleSection
                   title="ICC Profile"
-                  badge={`${Object.keys(metadata.icc!).length} fields`}
+                  badge={`${Object.keys(metadata.icc).length} fields`}
                 >
-                  <MetadataGrid data={metadata.icc!} />
+                  <MetadataGrid data={metadata.icc} />
                 </CollapsibleSection>
               )}
 
-              {hasXmp && (
+              {hasXmp && metadata.xmp && (
                 <CollapsibleSection
                   title="XMP"
-                  badge={`${Object.keys(metadata.xmp!).length} fields`}
+                  badge={`${Object.keys(metadata.xmp).length} fields`}
                 >
-                  <MetadataGrid data={metadata.xmp!} />
+                  <MetadataGrid data={metadata.xmp} />
                 </CollapsibleSection>
               )}
 
@@ -374,7 +374,7 @@ export function StripMetadataSettings() {
 
       {/* Individual options */}
       <div className="space-y-2">
-        <label className="text-xs text-muted-foreground">Or select specific metadata:</label>
+        <p className="text-xs text-muted-foreground">Or select specific metadata:</p>
 
         <label
           className={`flex items-center gap-2 text-sm ${stripAll ? "text-muted-foreground" : "text-foreground"}`}
@@ -389,7 +389,7 @@ export function StripMetadataSettings() {
           Strip EXIF (camera info, date, exposure)
           {hasExif && !stripAll && (
             <span className="ml-auto text-[10px] text-muted-foreground">
-              {Object.keys(metadata?.exif!).filter((k) => !SKIP_KEYS.has(k)).length} fields
+              {Object.keys(metadata?.exif ?? {}).filter((k) => !SKIP_KEYS.has(k)).length} fields
             </span>
           )}
         </label>

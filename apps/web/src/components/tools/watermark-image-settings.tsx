@@ -63,7 +63,7 @@ export function WatermarkImageSettings() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-xs text-muted-foreground">Watermark Image</label>
+        <p className="text-xs text-muted-foreground">Watermark Image</p>
         <input
           ref={watermarkInputRef}
           type="file"
@@ -72,6 +72,7 @@ export function WatermarkImageSettings() {
           className="hidden"
         />
         <button
+          type="button"
           onClick={() => watermarkInputRef.current?.click()}
           className="w-full mt-0.5 px-2 py-2 rounded border border-dashed border-border bg-background text-sm text-muted-foreground hover:text-foreground flex items-center justify-center gap-2"
         >
@@ -81,8 +82,11 @@ export function WatermarkImageSettings() {
       </div>
 
       <div>
-        <label className="text-xs text-muted-foreground">Position</label>
+        <label htmlFor="watermark-image-position" className="text-xs text-muted-foreground">
+          Position
+        </label>
         <select
+          id="watermark-image-position"
           value={position}
           onChange={(e) => setPosition(e.target.value as Position)}
           className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
@@ -97,10 +101,13 @@ export function WatermarkImageSettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Opacity</label>
+          <label htmlFor="watermark-image-opacity" className="text-xs text-muted-foreground">
+            Opacity
+          </label>
           <span className="text-xs font-mono text-foreground">{opacity}%</span>
         </div>
         <input
+          id="watermark-image-opacity"
           type="range"
           min={0}
           max={100}
@@ -112,10 +119,13 @@ export function WatermarkImageSettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Scale</label>
+          <label htmlFor="watermark-image-scale" className="text-xs text-muted-foreground">
+            Scale
+          </label>
           <span className="text-xs font-mono text-foreground">{scale}%</span>
         </div>
         <input
+          id="watermark-image-scale"
           type="range"
           min={5}
           max={100}
@@ -135,6 +145,7 @@ export function WatermarkImageSettings() {
       )}
 
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFile || !watermarkFile || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

@@ -49,7 +49,7 @@ export function CompressSettings() {
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Mode toggle */}
       <div>
-        <label className="text-sm font-medium text-muted-foreground">Compression Mode</label>
+        <p className="text-sm font-medium text-muted-foreground">Compression Mode</p>
         <div className="flex gap-1 mt-1">
           <button
             type="button"
@@ -71,10 +71,13 @@ export function CompressSettings() {
       {mode === "quality" ? (
         <div>
           <div className="flex justify-between items-center">
-            <label className="text-xs text-muted-foreground">Quality</label>
+            <label htmlFor="compress-quality" className="text-xs text-muted-foreground">
+              Quality
+            </label>
             <span className="text-xs font-mono text-foreground">{quality}</span>
           </div>
           <input
+            id="compress-quality"
             type="range"
             min={1}
             max={100}
@@ -89,8 +92,11 @@ export function CompressSettings() {
         </div>
       ) : (
         <div>
-          <label className="text-xs text-muted-foreground">Target Size (KB)</label>
+          <label htmlFor="compress-target-size" className="text-xs text-muted-foreground">
+            Target Size (KB)
+          </label>
           <input
+            id="compress-target-size"
             type="number"
             value={targetSizeKb}
             onChange={(e) => setTargetSizeKb(e.target.value)}

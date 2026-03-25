@@ -21,11 +21,12 @@ export function UpscaleSettings() {
     <div className="space-y-4">
       {/* Scale factor */}
       <div>
-        <label className="text-sm font-medium text-muted-foreground">Scale Factor</label>
+        <p className="text-sm font-medium text-muted-foreground">Scale Factor</p>
         <div className="flex gap-1 mt-1">
           {[2, 4].map((s) => (
             <button
               key={s}
+              type="button"
               onClick={() => setScale(s)}
               className={`flex-1 text-xs py-1.5 rounded ${
                 scale === s
@@ -68,6 +69,7 @@ export function UpscaleSettings() {
         />
       ) : (
         <button
+          type="button"
           onClick={handleProcess}
           disabled={!hasFile || processing}
           className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

@@ -38,10 +38,13 @@ export function BorderSettings() {
     <div className="space-y-4">
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Border Width</label>
+          <label htmlFor="border-border-width" className="text-xs text-muted-foreground">
+            Border Width
+          </label>
           <span className="text-xs font-mono text-foreground">{borderWidth}px</span>
         </div>
         <input
+          id="border-border-width"
           type="range"
           min={0}
           max={100}
@@ -52,8 +55,11 @@ export function BorderSettings() {
       </div>
 
       <div>
-        <label className="text-xs text-muted-foreground">Border Color</label>
+        <label htmlFor="border-border-color" className="text-xs text-muted-foreground">
+          Border Color
+        </label>
         <input
+          id="border-border-color"
           type="color"
           value={borderColor}
           onChange={(e) => setBorderColor(e.target.value)}
@@ -63,10 +69,13 @@ export function BorderSettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Corner Radius</label>
+          <label htmlFor="border-corner-radius" className="text-xs text-muted-foreground">
+            Corner Radius
+          </label>
           <span className="text-xs font-mono text-foreground">{cornerRadius}px</span>
         </div>
         <input
+          id="border-corner-radius"
           type="range"
           min={0}
           max={200}
@@ -78,10 +87,13 @@ export function BorderSettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Padding</label>
+          <label htmlFor="border-padding" className="text-xs text-muted-foreground">
+            Padding
+          </label>
           <span className="text-xs font-mono text-foreground">{padding}px</span>
         </div>
         <input
+          id="border-padding"
           type="range"
           min={0}
           max={100}
@@ -93,10 +105,13 @@ export function BorderSettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Shadow</label>
+          <label htmlFor="border-shadow" className="text-xs text-muted-foreground">
+            Shadow
+          </label>
           <span className="text-xs font-mono text-foreground">{shadowBlur}px</span>
         </div>
         <input
+          id="border-shadow"
           type="range"
           min={0}
           max={50}
@@ -126,6 +141,7 @@ export function BorderSettings() {
         />
       ) : (
         <button
+          type="button"
           onClick={handleProcess}
           disabled={!hasFile || processing}
           className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

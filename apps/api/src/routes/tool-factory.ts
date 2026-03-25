@@ -24,18 +24,27 @@ export interface ToolRouteConfig<T> {
   ) => Promise<{ buffer: Buffer; filename: string; contentType: string }>;
 }
 
+/** Type-erased config stored in the registry (settings type is widened to avoid variance issues). */
+export interface AnyToolRouteConfig {
+  toolId: string;
+  settingsSchema: z.ZodType<unknown, z.ZodTypeDef, unknown>;
+  process: (
+    inputBuffer: Buffer,
+    settings: unknown,
+    filename: string,
+  ) => Promise<{ buffer: Buffer; filename: string; contentType: string }>;
+}
+
 /**
  * In-memory registry of all tool configs, keyed by toolId.
  * Populated by createToolRoute() calls; used by batch processing.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const toolRegistry = new Map<string, ToolRouteConfig<any>>();
+const toolRegistry = new Map<string, AnyToolRouteConfig>();
 
 /**
  * Retrieve a registered tool config by its ID.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getToolConfig(toolId: string): ToolRouteConfig<any> | undefined {
+export function getToolConfig(toolId: string): AnyToolRouteConfig | undefined {
   return toolRegistry.get(toolId);
 }
 
@@ -55,8 +64,8 @@ export function getToolConfig(toolId: string): ToolRouteConfig<any> | undefined 
  *   - Response formatting
  */
 export function createToolRoute<T>(app: FastifyInstance, config: ToolRouteConfig<T>): void {
-  // Register in the tool registry for batch processing
-  toolRegistry.set(config.toolId, config);
+  // Register in the tool registry for batch processing (cast to type-erased form)
+  toolRegistry.set(config.toolId, config as AnyToolRouteConfig);
 
   app.post(
     `/api/v1/tools/${config.toolId}`,

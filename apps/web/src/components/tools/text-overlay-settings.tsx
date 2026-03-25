@@ -39,8 +39,11 @@ export function TextOverlaySettings() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-xs text-muted-foreground">Text</label>
+        <label htmlFor="text-overlay-text" className="text-xs text-muted-foreground">
+          Text
+        </label>
         <input
+          id="text-overlay-text"
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -50,10 +53,13 @@ export function TextOverlaySettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Font Size</label>
+          <label htmlFor="text-overlay-font-size" className="text-xs text-muted-foreground">
+            Font Size
+          </label>
           <span className="text-xs font-mono text-foreground">{fontSize}px</span>
         </div>
         <input
+          id="text-overlay-font-size"
           type="range"
           min={8}
           max={200}
@@ -64,8 +70,11 @@ export function TextOverlaySettings() {
       </div>
 
       <div>
-        <label className="text-xs text-muted-foreground">Text Color</label>
+        <label htmlFor="text-overlay-color" className="text-xs text-muted-foreground">
+          Text Color
+        </label>
         <input
+          id="text-overlay-color"
           type="color"
           value={color}
           onChange={(e) => setColor(e.target.value)}
@@ -74,8 +83,11 @@ export function TextOverlaySettings() {
       </div>
 
       <div>
-        <label className="text-xs text-muted-foreground">Position</label>
+        <label htmlFor="text-overlay-position" className="text-xs text-muted-foreground">
+          Position
+        </label>
         <select
+          id="text-overlay-position"
           value={position}
           onChange={(e) => setPosition(e.target.value as "top" | "center" | "bottom")}
           className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
@@ -108,8 +120,11 @@ export function TextOverlaySettings() {
 
       {backgroundBox && (
         <div>
-          <label className="text-xs text-muted-foreground">Box Color</label>
+          <label htmlFor="text-overlay-box-color" className="text-xs text-muted-foreground">
+            Box Color
+          </label>
           <input
+            id="text-overlay-box-color"
             type="color"
             value={backgroundColor}
             onChange={(e) => setBackgroundColor(e.target.value)}
@@ -138,6 +153,7 @@ export function TextOverlaySettings() {
         />
       ) : (
         <button
+          type="button"
           onClick={handleProcess}
           disabled={!hasFile || processing || !text}
           className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

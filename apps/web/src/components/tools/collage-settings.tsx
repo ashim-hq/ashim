@@ -71,10 +71,11 @@ export function CollageSettings() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-xs text-muted-foreground">Layout</label>
+        <p className="text-xs text-muted-foreground">Layout</p>
         <div className="grid grid-cols-3 gap-1 mt-1">
           {LAYOUTS.map((l) => (
             <button
+              type="button"
               key={l.value}
               onClick={() => setLayout(l.value)}
               className={`text-xs py-1.5 rounded ${layout === l.value ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
@@ -87,10 +88,13 @@ export function CollageSettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Gap</label>
+          <label htmlFor="collage-gap" className="text-xs text-muted-foreground">
+            Gap
+          </label>
           <span className="text-xs font-mono text-foreground">{gap}px</span>
         </div>
         <input
+          id="collage-gap"
           type="range"
           min={0}
           max={50}
@@ -101,8 +105,11 @@ export function CollageSettings() {
       </div>
 
       <div>
-        <label className="text-xs text-muted-foreground">Background Color</label>
+        <label htmlFor="collage-background-color" className="text-xs text-muted-foreground">
+          Background Color
+        </label>
         <input
+          id="collage-background-color"
           type="color"
           value={backgroundColor}
           onChange={(e) => setBackgroundColor(e.target.value)}
@@ -120,6 +127,7 @@ export function CollageSettings() {
       )}
 
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFiles || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

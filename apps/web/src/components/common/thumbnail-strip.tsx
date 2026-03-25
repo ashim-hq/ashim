@@ -32,7 +32,8 @@ export function ThumbnailStrip({ entries, selectedIndex, onSelect }: ThumbnailSt
         const isFailed = entry.status === "failed";
         return (
           <button
-            key={`${entry.file.name}-${i}`}
+            key={entry.file.name}
+            type="button"
             ref={isSelected ? selectedRef : undefined}
             onClick={() => onSelect(i)}
             className={`relative shrink-0 rounded overflow-hidden transition-all ${

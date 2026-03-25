@@ -84,12 +84,22 @@ export function BeforeAfterSlider({
       {/* Slider container */}
       <div
         ref={containerRef}
+        role="slider"
+        aria-label="Before/after comparison slider"
+        aria-valuenow={Math.round(position)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        tabIndex={0}
         className="relative w-full overflow-hidden rounded-lg border border-border select-none touch-none"
         style={{ cursor: isDragging ? "ew-resize" : "default" }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowLeft") setPosition((p) => Math.max(0, p - 1));
+          else if (e.key === "ArrowRight") setPosition((p) => Math.min(100, p + 1));
+        }}
       >
         {/* Before image (full width, bottom layer) */}
         <img src={beforeSrc} alt="Original" className="block w-full h-auto" draggable={false} />
@@ -116,7 +126,14 @@ export function BeforeAfterSlider({
         >
           {/* Handle grip */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white border-2 border-primary shadow-lg flex items-center justify-center pointer-events-none">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-primary">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              className="text-primary"
+              aria-hidden="true"
+            >
               <path
                 d="M4 3L1 7L4 11"
                 stroke="currentColor"

@@ -26,10 +26,13 @@ export function BlurFacesSettings() {
       {/* Blur radius */}
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Blur Radius</label>
+          <label htmlFor="blur-faces-blur-radius" className="text-xs text-muted-foreground">
+            Blur Radius
+          </label>
           <span className="text-xs font-mono text-foreground">{blurRadius}</span>
         </div>
         <input
+          id="blur-faces-blur-radius"
           type="range"
           min={5}
           max={80}
@@ -46,10 +49,13 @@ export function BlurFacesSettings() {
       {/* Sensitivity */}
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Detection Sensitivity</label>
+          <label htmlFor="blur-faces-sensitivity" className="text-xs text-muted-foreground">
+            Detection Sensitivity
+          </label>
           <span className="text-xs font-mono text-foreground">{sensitivity}%</span>
         </div>
         <input
+          id="blur-faces-sensitivity"
           type="range"
           min={10}
           max={90}
@@ -91,6 +97,7 @@ export function BlurFacesSettings() {
         />
       ) : (
         <button
+          type="button"
           onClick={handleProcess}
           disabled={!hasFile || processing}
           className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

@@ -72,8 +72,11 @@ export function BulkRenameSettings() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-xs text-muted-foreground">Pattern</label>
+        <label htmlFor="bulk-rename-pattern" className="text-xs text-muted-foreground">
+          Pattern
+        </label>
         <input
+          id="bulk-rename-pattern"
           type="text"
           value={pattern}
           onChange={(e) => setPattern(e.target.value)}
@@ -85,8 +88,11 @@ export function BulkRenameSettings() {
       </div>
 
       <div>
-        <label className="text-xs text-muted-foreground">Start Index</label>
+        <label htmlFor="bulk-rename-start-index" className="text-xs text-muted-foreground">
+          Start Index
+        </label>
         <input
+          id="bulk-rename-start-index"
           type="number"
           value={startIndex}
           onChange={(e) => setStartIndex(Number(e.target.value))}
@@ -97,11 +103,11 @@ export function BulkRenameSettings() {
 
       {previewNames.length > 0 && (
         <div>
-          <label className="text-xs text-muted-foreground">Preview</label>
+          <p className="text-xs text-muted-foreground">Preview</p>
           <div className="mt-1 space-y-0.5">
-            {previewNames.map((name, i) => (
+            {previewNames.map((name) => (
               <div
-                key={i}
+                key={name}
                 className="text-xs font-mono text-foreground bg-muted px-2 py-0.5 rounded truncate"
               >
                 {name}
@@ -117,6 +123,7 @@ export function BulkRenameSettings() {
       {error && <p className="text-xs text-red-500">{error}</p>}
 
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFiles || processing || !pattern}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

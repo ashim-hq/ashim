@@ -57,7 +57,7 @@ export async function teamsRoutes(app: FastifyInstance): Promise<void> {
       return reply.status(400).send({ error: nameError, code: "VALIDATION_ERROR" });
     }
 
-    const trimmedName = (body!.name as string).trim();
+    const trimmedName = (body?.name ?? "").trim();
 
     // Check for duplicate name (case-insensitive)
     const existing = db
@@ -97,7 +97,7 @@ export async function teamsRoutes(app: FastifyInstance): Promise<void> {
         return reply.status(400).send({ error: nameError, code: "VALIDATION_ERROR" });
       }
 
-      const trimmedName = (body!.name as string).trim();
+      const trimmedName = (body?.name ?? "").trim();
 
       // Check for duplicate name (case-insensitive), excluding current team
       const duplicate = db

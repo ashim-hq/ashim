@@ -67,8 +67,11 @@ export function SvgToRasterSettings() {
     <div className="space-y-4">
       <div className="flex gap-2">
         <div className="flex-1">
-          <label className="text-xs text-muted-foreground">Width (px)</label>
+          <label htmlFor="svg-raster-width" className="text-xs text-muted-foreground">
+            Width (px)
+          </label>
           <input
+            id="svg-raster-width"
             type="number"
             value={width}
             onChange={(e) => setWidth(Number(e.target.value))}
@@ -78,8 +81,11 @@ export function SvgToRasterSettings() {
           />
         </div>
         <div className="flex-1">
-          <label className="text-xs text-muted-foreground">Height (px)</label>
+          <label htmlFor="svg-raster-height" className="text-xs text-muted-foreground">
+            Height (px)
+          </label>
           <input
+            id="svg-raster-height"
             type="number"
             value={height}
             onChange={(e) => setHeight(e.target.value)}
@@ -90,8 +96,11 @@ export function SvgToRasterSettings() {
       </div>
 
       <div>
-        <label className="text-xs text-muted-foreground">Output Format</label>
+        <label htmlFor="svg-raster-format" className="text-xs text-muted-foreground">
+          Output Format
+        </label>
         <select
+          id="svg-raster-format"
           value={outputFormat}
           onChange={(e) => setOutputFormat(e.target.value as "png" | "jpg" | "webp")}
           className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
@@ -115,8 +124,11 @@ export function SvgToRasterSettings() {
 
       {!transparent && (
         <div>
-          <label className="text-xs text-muted-foreground">Background Color</label>
+          <label htmlFor="svg-raster-bg-color" className="text-xs text-muted-foreground">
+            Background Color
+          </label>
           <input
+            id="svg-raster-bg-color"
             type="color"
             value={backgroundColor.slice(0, 7)}
             onChange={(e) => setBackgroundColor(e.target.value)}
@@ -135,6 +147,7 @@ export function SvgToRasterSettings() {
       )}
 
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFile || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
