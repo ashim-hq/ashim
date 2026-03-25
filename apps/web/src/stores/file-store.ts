@@ -87,8 +87,7 @@ function deriveCompat(entries: FileEntry[], selectedIndex: number) {
     files: entries.map((e) => e.file),
     currentEntry: entry,
     hasFiles: entries.length > 0,
-    allProcessed:
-      entries.length > 0 && entries.every((e) => e.status === "completed"),
+    allProcessed: entries.length > 0 && entries.every((e) => e.status === "completed"),
     selectedFileName: entry ? entry.file.name : null,
     selectedFileSize: entry ? entry.file.size : null,
     originalBlobUrl: entry ? entry.blobUrl : null,
@@ -183,8 +182,7 @@ export const useFileStore = create<FileState>((set, get) => ({
     set({ entries, ...deriveCompat(entries, idx) });
   },
 
-  setBatchZip: (blob, filename) =>
-    set({ batchZipBlob: blob, batchZipFilename: filename }),
+  setBatchZip: (blob, filename) => set({ batchZipBlob: blob, batchZipFilename: filename }),
 
   setProcessing: (v) => set({ processing: v }),
 

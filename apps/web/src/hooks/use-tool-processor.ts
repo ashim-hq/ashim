@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useFileStore } from "@/stores/file-store";
 
 function getToken(): string {
@@ -29,7 +29,11 @@ const IDLE_PROGRESS: ToolProgress = {
 // AI tools that go through Python/bridge.ts and can emit SSE progress.
 // smart-crop is category "ai" but uses Sharp (no Python), so it's excluded.
 const AI_PYTHON_TOOLS = new Set([
-  "remove-background", "upscale", "blur-faces", "erase-object", "ocr",
+  "remove-background",
+  "upscale",
+  "blur-faces",
+  "erase-object",
+  "ocr",
 ]);
 
 export function useToolProcessor(toolId: string) {
@@ -89,9 +93,7 @@ export function useToolProcessor(toolId: string) {
       // For AI tools, open SSE before uploading
       if (isAiTool) {
         try {
-          const es = new EventSource(
-            `/api/v1/jobs/${clientJobId}/progress`,
-          );
+          const es = new EventSource(`/api/v1/jobs/${clientJobId}/progress`);
           eventSourceRef.current = es;
 
           es.onmessage = (event) => {
@@ -251,7 +253,8 @@ export function useToolProcessor(toolId: string) {
           try {
             const data = JSON.parse(event.data);
             if (data.type === "batch") {
-              const pct = data.totalFiles > 0 ? 15 + (data.completedFiles / data.totalFiles) * 85 : 15;
+              const pct =
+                data.totalFiles > 0 ? 15 + (data.completedFiles / data.totalFiles) * 85 : 15;
               setProgress((prev) => ({
                 ...prev,
                 phase: "processing",
@@ -261,10 +264,17 @@ export function useToolProcessor(toolId: string) {
                   : `Processing ${data.completedFiles}/${data.totalFiles}`,
               }));
             }
-          } catch { /* ignore malformed SSE */ }
+          } catch {
+            /* ignore malformed SSE */
+          }
         };
-        es.onerror = () => { es.close(); eventSourceRef.current = null; };
-      } catch { /* SSE failed, proceed without */ }
+        es.onerror = () => {
+          es.close();
+          eventSourceRef.current = null;
+        };
+      } catch {
+        /* SSE failed, proceed without */
+      }
 
       const formData = new FormData();
       for (const file of files) formData.append("file", file);
@@ -280,7 +290,10 @@ export function useToolProcessor(toolId: string) {
         });
 
         if (elapsedRef.current) clearInterval(elapsedRef.current);
-        if (eventSourceRef.current) { eventSourceRef.current.close(); eventSourceRef.current = null; }
+        if (eventSourceRef.current) {
+          eventSourceRef.current.close();
+          eventSourceRef.current = null;
+        }
 
         if (!response.ok) {
           const text = await response.text();
@@ -288,7 +301,9 @@ export function useToolProcessor(toolId: string) {
           try {
             const body = JSON.parse(text);
             errorMsg = body.error || body.details || `Batch processing failed: ${response.status}`;
-          } catch { errorMsg = `Batch processing failed: ${response.status}`; }
+          } catch {
+            errorMsg = `Batch processing failed: ${response.status}`;
+          }
           setError(errorMsg);
           setProcessing(false);
           setProgress(IDLE_PROGRESS);
@@ -300,10 +315,12 @@ export function useToolProcessor(toolId: string) {
 
         // Extract files from ZIP using fflate
         const { unzipSync } = await import("fflate");
-        const zipBuffer = new Uint8Array(await zipBlob.arrayBuffer() as ArrayBuffer);
+        const zipBuffer = new Uint8Array((await zipBlob.arrayBuffer()) as ArrayBuffer);
         const extracted = unzipSync(zipBuffer);
 
-        const fileOrder = (response.headers.get("X-File-Order")?.split(",") ?? []).map(decodeURIComponent);
+        const fileOrder = (response.headers.get("X-File-Order")?.split(",") ?? []).map(
+          decodeURIComponent,
+        );
         const entries = useFileStore.getState().entries;
         const extractedNames = Object.keys(extracted);
 
@@ -316,7 +333,11 @@ export function useToolProcessor(toolId: string) {
           }
           if (zipName && extracted[zipName]) {
             const blob = new Blob([extracted[zipName] as BlobPart]);
-            updateEntry(i, { processedUrl: URL.createObjectURL(blob), processedSize: blob.size, status: "completed" });
+            updateEntry(i, {
+              processedUrl: URL.createObjectURL(blob),
+              processedSize: blob.size,
+              status: "completed",
+            });
           } else {
             updateEntry(i, { status: "failed", error: "File not found in batch results" });
           }
@@ -326,7 +347,10 @@ export function useToolProcessor(toolId: string) {
         setProgress(IDLE_PROGRESS);
       } catch (err) {
         if (elapsedRef.current) clearInterval(elapsedRef.current);
-        if (eventSourceRef.current) { eventSourceRef.current.close(); eventSourceRef.current = null; }
+        if (eventSourceRef.current) {
+          eventSourceRef.current.close();
+          eventSourceRef.current = null;
+        }
         setError(err instanceof Error ? err.message : "Batch processing failed");
         setProcessing(false);
         setProgress(IDLE_PROGRESS);

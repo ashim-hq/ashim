@@ -1,4 +1,4 @@
-import { Clock, Upload, Cloud } from "lucide-react";
+import { Clock, Cloud, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFilesPageStore } from "@/stores/files-page-store";
 
@@ -16,6 +16,7 @@ export function FilesNav() {
         {items.map((item) => (
           <button
             key={item.id}
+            type="button"
             onClick={() => setActiveTab(item.id)}
             className={cn(
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",

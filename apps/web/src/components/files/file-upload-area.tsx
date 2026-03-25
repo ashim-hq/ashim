@@ -1,12 +1,11 @@
-import { useRef, useState } from "react";
 import { Upload } from "lucide-react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useFilesPageStore } from "@/stores/files-page-store";
 
 export function FileUploadArea() {
   const { uploadFiles, loading } = useFilesPageStore();
   const [dragging, setDragging] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
@@ -20,9 +19,7 @@ export function FileUploadArea() {
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     setDragging(false);
-    const files = Array.from(e.dataTransfer.files).filter((f) =>
-      f.type.startsWith("image/"),
-    );
+    const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith("image/"));
     if (files.length > 0) uploadFiles(files);
   }
 
@@ -35,11 +32,10 @@ export function FileUploadArea() {
 
   return (
     <div className="flex-1 flex items-center justify-center p-8">
-      <div
+      <label
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={() => !loading && inputRef.current?.click()}
         className={cn(
           "w-full max-w-lg flex flex-col items-center justify-center gap-4 p-12 rounded-xl border-2 border-dashed transition-colors cursor-pointer",
           dragging
@@ -57,19 +53,16 @@ export function FileUploadArea() {
           <p className="text-sm font-medium text-foreground">
             {loading ? "Uploading..." : "Drop images here"}
           </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            or click to select files
-          </p>
+          <p className="text-xs text-muted-foreground mt-1">or click to select files</p>
         </div>
         <input
-          ref={inputRef}
           type="file"
           accept="image/*"
           multiple
           className="hidden"
           onChange={handleInputChange}
         />
-      </div>
+      </label>
     </div>
   );
 }

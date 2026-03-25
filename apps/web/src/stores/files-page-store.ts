@@ -1,10 +1,5 @@
 import { create } from "zustand";
-import {
-  apiListFiles,
-  apiUploadUserFiles,
-  apiDeleteUserFiles,
-  type UserFile,
-} from "@/lib/api";
+import { apiDeleteUserFiles, apiListFiles, apiUploadUserFiles, type UserFile } from "@/lib/api";
 
 interface FilesPageState {
   files: UserFile[];
@@ -75,12 +70,15 @@ export const useFilesPageStore = create<FilesPageState>((set, get) => ({
   toggleChecked: (id) => {
     const { checkedIds } = get();
     const next = new Set(checkedIds);
-    if (next.has(id)) next.delete(id); else next.add(id);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
     set({ checkedIds: next });
   },
   toggleCheckAll: () => {
     const { files, checkedIds } = get();
-    set({ checkedIds: checkedIds.size === files.length ? new Set() : new Set(files.map(f => f.id)) });
+    set({
+      checkedIds: checkedIds.size === files.length ? new Set() : new Set(files.map((f) => f.id)),
+    });
   },
   setSearchQuery: (q) => set({ searchQuery: q }),
   setActiveTab: (tab) => set({ activeTab: tab }),

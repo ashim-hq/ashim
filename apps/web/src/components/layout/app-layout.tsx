@@ -1,21 +1,14 @@
+import { FolderOpen, LayoutGrid, Menu, Settings as SettingsIcon, Workflow, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  LayoutGrid,
-  Workflow,
-  FolderOpen,
-  Settings as SettingsIcon,
-  Menu,
-  X,
-} from "lucide-react";
-import { Sidebar } from "./sidebar";
-import { ToolPanel } from "./tool-panel";
-import { Footer } from "./footer";
-import { Dropzone } from "../common/dropzone";
-import { SettingsDialog } from "../settings/settings-dialog";
-import { HelpDialog } from "../help/help-dialog";
 import { useMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { Dropzone } from "../common/dropzone";
+import { HelpDialog } from "../help/help-dialog";
+import { SettingsDialog } from "../settings/settings-dialog";
+import { Footer } from "./footer";
+import { Sidebar } from "./sidebar";
+import { ToolPanel } from "./tool-panel";
 
 interface AppLayoutProps {
   children?: React.ReactNode;
@@ -33,7 +26,10 @@ export function AppLayout({ children, showToolPanel = true, onFiles }: AppLayout
     <div className="flex h-screen bg-background text-foreground overflow-hidden">
       {/* Desktop sidebar */}
       {!isMobile && (
-        <Sidebar onSettingsClick={() => setSettingsOpen(true)} onHelpClick={() => setHelpOpen(true)} />
+        <Sidebar
+          onSettingsClick={() => setSettingsOpen(true)}
+          onHelpClick={() => setHelpOpen(true)}
+        />
       )}
 
       {/* Mobile sidebar overlay */}
@@ -89,12 +85,7 @@ export function AppLayout({ children, showToolPanel = true, onFiles }: AppLayout
 
       {showToolPanel && !isMobile && <ToolPanel />}
 
-      <main
-        className={cn(
-          "flex-1 flex flex-col overflow-hidden",
-          isMobile && "pt-12 pb-16"
-        )}
-      >
+      <main className={cn("flex-1 flex flex-col overflow-hidden", isMobile && "pt-12 pb-16")}>
         <div className="flex-1 overflow-y-auto p-6 flex items-center justify-center">
           {children || <Dropzone onFiles={onFiles} accept="image/*" />}
         </div>
@@ -124,16 +115,10 @@ export function AppLayout({ children, showToolPanel = true, onFiles }: AppLayout
       )}
 
       {/* Settings dialog */}
-      <SettingsDialog
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-      />
+      <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
 
       {/* Help dialog */}
-      <HelpDialog
-        open={helpOpen}
-        onClose={() => setHelpOpen(false)}
-      />
+      <HelpDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
   );
 }

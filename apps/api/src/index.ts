@@ -1,22 +1,23 @@
-import Fastify from "fastify";
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
-import { env } from "./config.js";
 import { APP_VERSION } from "@stirling-image/shared";
+import Fastify from "fastify";
+import { env } from "./config.js";
+import { db, schema } from "./db/index.js";
 import { runMigrations } from "./db/migrate.js";
-import { ensureDefaultAdmin, authRoutes, authMiddleware } from "./plugins/auth.js";
-import { registerUpload } from "./plugins/upload.js";
-import { registerStatic } from "./plugins/static.js";
 import { startCleanupCron } from "./lib/cleanup.js";
-import { fileRoutes } from "./routes/files.js";
-import { registerToolRoutes } from "./routes/tools/index.js";
+import { authMiddleware, authRoutes, ensureDefaultAdmin } from "./plugins/auth.js";
+import { registerStatic } from "./plugins/static.js";
+import { registerUpload } from "./plugins/upload.js";
+import { apiKeyRoutes } from "./routes/api-keys.js";
 import { registerBatchRoutes } from "./routes/batch.js";
+import { fileRoutes } from "./routes/files.js";
 import { registerPipelineRoutes } from "./routes/pipeline.js";
 import { registerProgressRoutes } from "./routes/progress.js";
-import { apiKeyRoutes } from "./routes/api-keys.js";
 import { settingsRoutes } from "./routes/settings.js";
+import { teamsRoutes } from "./routes/teams.js";
+import { registerToolRoutes } from "./routes/tools/index.js";
 import { userFileRoutes } from "./routes/user-files.js";
-import { db, schema } from "./db/index.js";
 
 // Run before anything else
 runMigrations();
@@ -34,7 +35,7 @@ const app = Fastify({
 await app.register(cors, {
   origin: env.CORS_ORIGIN
     ? env.CORS_ORIGIN.split(",").map((s) => s.trim())
-    : process.env.NODE_ENV === "production" ? false : true,
+    : process.env.NODE_ENV !== "production",
 });
 
 // Security headers
@@ -91,17 +92,22 @@ await apiKeyRoutes(app);
 // Settings routes
 await settingsRoutes(app);
 
+// Teams routes
+await teamsRoutes(app);
+
 // Health check
 app.get("/api/v1/health", async () => {
   let dbOk = false;
   try {
     db.select().from(schema.settings).limit(1).all();
     dbOk = true;
-  } catch { /* db unreachable */ }
+  } catch {
+    /* db unreachable */
+  }
   return {
     status: dbOk ? "healthy" : "degraded",
     version: APP_VERSION,
-    uptime: process.uptime().toFixed(0) + "s",
+    uptime: `${process.uptime().toFixed(0)}s`,
     storage: { mode: env.STORAGE_MODE, available: "N/A" },
     database: dbOk ? "ok" : "error",
     queue: { active: 0, pending: 0 },

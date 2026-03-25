@@ -1,16 +1,16 @@
+import { TOOLS } from "@stirling-image/shared";
+import { FileImage } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileImage } from "lucide-react";
-import { TOOLS } from "@stirling-image/shared";
 import {
   apiGetFileDetails,
-  getFileThumbnailUrl,
   getFileDownloadUrl,
+  getFileThumbnailUrl,
   type UserFileDetail,
 } from "@/lib/api";
-import { useFilesPageStore } from "@/stores/files-page-store";
-import { useFileStore } from "@/stores/file-store";
 import { cn } from "@/lib/utils";
+import { useFileStore } from "@/stores/file-store";
+import { useFilesPageStore } from "@/stores/files-page-store";
 
 function toolName(toolId: string): string {
   return TOOLS.find((t) => t.id === toolId)?.name ?? toolId;
@@ -124,23 +124,20 @@ export function FileDetails({ mobile = false }: FileDetailsProps) {
           </div>
           <div className="divide-y divide-border">
             <DetailRow label="Name" value={details.originalName} />
-            <DetailRow label="Format" value={details.mimeType.replace("image/", "").toUpperCase()} />
+            <DetailRow
+              label="Format"
+              value={details.mimeType.replace("image/", "").toUpperCase()}
+            />
             <DetailRow label="Size" value={formatSize(details.size)} />
             <DetailRow
               label="Dimensions"
-              value={
-                details.width && details.height
-                  ? `${details.width} × ${details.height}`
-                  : "—"
-              }
+              value={details.width && details.height ? `${details.width} × ${details.height}` : "—"}
             />
             <DetailRow label="Version" value={`V${details.version}`} />
             <DetailRow
               label="Tools Used"
               value={
-                details.toolChain.length > 0
-                  ? details.toolChain.map(toolName).join(", ")
-                  : "None"
+                details.toolChain.length > 0 ? details.toolChain.map(toolName).join(", ") : "None"
               }
             />
           </div>
@@ -150,6 +147,7 @@ export function FileDetails({ mobile = false }: FileDetailsProps) {
       {/* Open File button */}
       <div className={cn("border-t border-border", mobile ? "pt-3" : "pt-4")}>
         <button
+          type="button"
           onClick={handleOpenFile}
           className="w-full px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors"
         >

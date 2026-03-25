@@ -1,15 +1,15 @@
 import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { z } from "zod";
 import { eq } from "drizzle-orm";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import sharp from "sharp";
-import { createWorkspace } from "../lib/workspace.js";
+import type { z } from "zod";
+import { db, schema } from "../db/index.js";
+import { autoOrient } from "../lib/auto-orient.js";
 import { validateImageBuffer } from "../lib/file-validation.js";
 import { sanitizeFilename } from "../lib/filename.js";
-import { autoOrient } from "../lib/auto-orient.js";
-import { db, schema } from "../db/index.js";
+import { createWorkspace } from "../lib/workspace.js";
 
 export interface ToolRouteConfig<T> {
   /** Unique tool identifier, used as the URL path segment. */
@@ -54,10 +54,7 @@ export function getToolConfig(toolId: string): ToolRouteConfig<any> | undefined 
  *   - Error handling
  *   - Response formatting
  */
-export function createToolRoute<T>(
-  app: FastifyInstance,
-  config: ToolRouteConfig<T>,
-): void {
+export function createToolRoute<T>(app: FastifyInstance, config: ToolRouteConfig<T>): void {
   // Register in the tool registry for batch processing
   toolRegistry.set(config.toolId, config);
 
@@ -101,17 +98,13 @@ export function createToolRoute<T>(
 
       // Require a file
       if (!fileBuffer || fileBuffer.length === 0) {
-        return reply
-          .status(400)
-          .send({ error: "No image file provided" });
+        return reply.status(400).send({ error: "No image file provided" });
       }
 
       // Validate the uploaded image
       const validation = await validateImageBuffer(fileBuffer);
       if (!validation.valid) {
-        return reply
-          .status(400)
-          .send({ error: `Invalid image: ${validation.reason}` });
+        return reply.status(400).send({ error: `Invalid image: ${validation.reason}` });
       }
 
       // Parse and validate settings
@@ -162,9 +155,7 @@ export function createToolRoute<T>(
               .get();
             if (parent) {
               const newVersion = parent.version + 1;
-              const parentChain: string[] = parent.toolChain
-                ? JSON.parse(parent.toolChain)
-                : [];
+              const parentChain: string[] = parent.toolChain ? JSON.parse(parent.toolChain) : [];
               const newToolChain = [...parentChain, config.toolId];
               const storedName = await saveFile(result.buffer, result.filename);
               // Get image dimensions from the processed output

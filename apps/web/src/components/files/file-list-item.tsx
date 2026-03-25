@@ -1,6 +1,6 @@
 import { TOOLS } from "@stirling-image/shared";
-import { cn } from "@/lib/utils";
 import type { UserFile } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { useFilesPageStore } from "@/stores/files-page-store";
 
 function formatSize(bytes: number): string {
@@ -32,7 +32,13 @@ export function FileListItem({ file }: FileListItemProps) {
 
   return (
     <div
+      role="option"
+      aria-selected={isSelected}
+      tabIndex={0}
       onClick={() => selectFile(file.id)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") selectFile(file.id);
+      }}
       className={cn(
         "flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors",
         isSelected

@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `team` text NOT NULL DEFAULT 'Default';

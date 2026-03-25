@@ -59,14 +59,12 @@ export function clearToken() {
 
 // ── File Upload / Download ──────────────────────────────────────
 
-export async function apiUpload(
-  files: File[],
-): Promise<{
+export async function apiUpload(files: File[]): Promise<{
   jobId: string;
   files: Array<{ name: string; size: number; format: string }>;
 }> {
   const formData = new FormData();
-  files.forEach((f) => formData.append("files", f));
+  for (const f of files) formData.append("files", f);
   const res = await fetch("/api/v1/upload", {
     method: "POST",
     headers: { Authorization: `Bearer ${getToken()}` },
@@ -118,14 +116,17 @@ export async function apiListFiles(params?: {
 }
 
 export async function apiGetFileDetails(id: string): Promise<UserFileDetail> {
-  return apiGet(`/v1/files/${id}`);
+  const res = await apiGet<{ file: UserFile; versions: UserFileDetail["versions"] }>(
+    `/v1/files/${id}`,
+  );
+  return { ...res.file, versions: res.versions };
 }
 
 export async function apiUploadUserFiles(
   files: File[],
 ): Promise<{ files: Array<{ id: string; originalName: string; size: number; version: number }> }> {
   const formData = new FormData();
-  files.forEach((f) => formData.append("files", f));
+  for (const f of files) formData.append("files", f);
   const res = await fetch("/api/v1/files/upload", {
     method: "POST",
     headers: { Authorization: `Bearer ${getToken()}` },
@@ -156,10 +157,7 @@ export function getFileDownloadUrl(id: string): string {
   return `/api/v1/files/${id}/download`;
 }
 
-export async function apiDownloadBlob(
-  jobId: string,
-  filename: string,
-): Promise<Blob> {
+export async function apiDownloadBlob(jobId: string, filename: string): Promise<Blob> {
   const res = await fetch(getDownloadUrl(jobId, filename), {
     headers: { Authorization: `Bearer ${getToken()}` },
   });

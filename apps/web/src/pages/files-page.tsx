@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { X } from "lucide-react";
-import { AppLayout } from "@/components/layout/app-layout";
-import { FilesNav } from "@/components/files/files-nav";
-import { FileList } from "@/components/files/file-list";
+import { useState } from "react";
 import { FileDetails } from "@/components/files/file-details";
+import { FileList } from "@/components/files/file-list";
 import { FileUploadArea } from "@/components/files/file-upload-area";
-import { useFilesPageStore } from "@/stores/files-page-store";
+import { FilesNav } from "@/components/files/files-nav";
+import { AppLayout } from "@/components/layout/app-layout";
 import { useMobile } from "@/hooks/use-mobile";
+import { useFilesPageStore } from "@/stores/files-page-store";
 
 export function FilesPage() {
   const { activeTab, setActiveTab, selectedFileId } = useFilesPageStore();
@@ -20,6 +20,7 @@ export function FilesPage() {
           {/* Mobile tabs */}
           <div className="flex border-b border-border">
             <button
+              type="button"
               onClick={() => setActiveTab("recent")}
               className={`flex-1 py-2.5 text-sm font-medium text-center transition-colors ${
                 activeTab === "recent"
@@ -30,6 +31,7 @@ export function FilesPage() {
               Recent
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab("upload")}
               className={`flex-1 py-2.5 text-sm font-medium text-center transition-colors ${
                 activeTab === "upload"
@@ -42,7 +44,17 @@ export function FilesPage() {
           </div>
 
           {activeTab === "recent" ? (
-            <div className="flex-1 overflow-hidden" onClick={() => { if (selectedFileId) setShowDetails(true); }}>
+            <div
+              role="listbox"
+              tabIndex={0}
+              className="flex-1 overflow-hidden"
+              onClick={() => {
+                if (selectedFileId) setShowDetails(true);
+              }}
+              onKeyDown={(e) => {
+                if ((e.key === "Enter" || e.key === " ") && selectedFileId) setShowDetails(true);
+              }}
+            >
               <FileList />
             </div>
           ) : (
@@ -51,14 +63,22 @@ export function FilesPage() {
 
           {/* Mobile detail bottom sheet */}
           {showDetails && selectedFileId && (
-            <div className="fixed inset-0 z-50 bg-black/50" onClick={() => setShowDetails(false)}>
-              <div
-                className="absolute bottom-0 left-0 right-0 bg-background rounded-t-xl p-4 max-h-[70vh] overflow-y-auto"
-                onClick={(e) => e.stopPropagation()}
-              >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="File Details"
+              className="fixed inset-0 z-50 bg-black/50"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setShowDetails(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") setShowDetails(false);
+              }}
+            >
+              <div className="absolute bottom-0 left-0 right-0 bg-background rounded-t-xl p-4 max-h-[70vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-sm font-semibold">File Details</span>
-                  <button onClick={() => setShowDetails(false)}>
+                  <button type="button" onClick={() => setShowDetails(false)}>
                     <X className="h-5 w-5 text-muted-foreground" />
                   </button>
                 </div>

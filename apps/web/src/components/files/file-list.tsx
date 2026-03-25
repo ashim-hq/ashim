@@ -1,7 +1,7 @@
+import { Download, Search, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Search, Trash2, Download } from "lucide-react";
-import { useFilesPageStore } from "@/stores/files-page-store";
 import { getFileDownloadUrl } from "@/lib/api";
+import { useFilesPageStore } from "@/stores/files-page-store";
 import { FileListItem } from "./file-list-item";
 
 export function FileList() {
@@ -77,6 +77,7 @@ export function FileList() {
         {someChecked && (
           <>
             <button
+              type="button"
               onClick={deleteChecked}
               className="flex items-center gap-1 px-2 py-1 text-xs text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
             >
@@ -84,6 +85,7 @@ export function FileList() {
               Delete
             </button>
             <button
+              type="button"
               onClick={handleBulkDownload}
               className="flex items-center gap-1 px-2 py-1 text-xs text-foreground hover:bg-muted rounded-lg transition-colors"
             >
@@ -111,9 +113,7 @@ export function FileList() {
             <p className="text-sm text-muted-foreground">No files found</p>
           </div>
         )}
-        {!loading && !error && files.map((file) => (
-          <FileListItem key={file.id} file={file} />
-        ))}
+        {!loading && !error && files.map((file) => <FileListItem key={file.id} file={file} />)}
       </div>
     </div>
   );
