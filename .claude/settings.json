@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "command": "node .claude/hooks/block-no-verify.js"
+      },
+      {
+        "matcher": "Bash",
+        "command": "node .claude/hooks/auto-tmux-dev.js"
+      },
+      {
+        "matcher": "Edit|Write",
+        "command": "node .claude/hooks/config-protection.js"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "command": "node .claude/hooks/post-edit-format.js"
+      },
+      {
+        "matcher": "Edit|Write|Bash",
+        "command": "node .claude/hooks/suggest-compact.js"
+      }
+    ]
+  }
+}

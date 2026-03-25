@@ -1,4 +1,4 @@
-import type { Sharp, ConvertOptions, OutputFormat } from "../types.js";
+import type { ConvertOptions, OutputFormat, Sharp } from "../types.js";
 
 const FORMAT_MAP: Record<OutputFormat, string> = {
   jpg: "jpeg",

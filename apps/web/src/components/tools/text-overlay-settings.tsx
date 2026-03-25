@@ -1,13 +1,21 @@
-import { useState } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
 import { Download } from "lucide-react";
+import { useState } from "react";
 import { ProgressCard } from "@/components/common/progress-card";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 export function TextOverlaySettings() {
   const { files } = useFileStore();
-  const { processFiles, processAllFiles, processing, error, downloadUrl, originalSize, processedSize, progress } =
-    useToolProcessor("text-overlay");
+  const {
+    processFiles,
+    processAllFiles,
+    processing,
+    error,
+    downloadUrl,
+    originalSize,
+    processedSize,
+    progress,
+  } = useToolProcessor("text-overlay");
 
   const [text, setText] = useState("Your Text Here");
   const [fontSize, setFontSize] = useState(48);
@@ -45,12 +53,24 @@ export function TextOverlaySettings() {
           <label className="text-xs text-muted-foreground">Font Size</label>
           <span className="text-xs font-mono text-foreground">{fontSize}px</span>
         </div>
-        <input type="range" min={8} max={200} value={fontSize} onChange={(e) => setFontSize(Number(e.target.value))} className="w-full mt-1" />
+        <input
+          type="range"
+          min={8}
+          max={200}
+          value={fontSize}
+          onChange={(e) => setFontSize(Number(e.target.value))}
+          className="w-full mt-1"
+        />
       </div>
 
       <div>
         <label className="text-xs text-muted-foreground">Text Color</label>
-        <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="w-full mt-0.5 h-8 rounded border border-border" />
+        <input
+          type="color"
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+          className="w-full mt-0.5 h-8 rounded border border-border"
+        />
       </div>
 
       <div>
@@ -67,19 +87,34 @@ export function TextOverlaySettings() {
       </div>
 
       <label className="flex items-center gap-2 text-sm text-foreground">
-        <input type="checkbox" checked={shadow} onChange={(e) => setShadow(e.target.checked)} className="rounded" />
+        <input
+          type="checkbox"
+          checked={shadow}
+          onChange={(e) => setShadow(e.target.checked)}
+          className="rounded"
+        />
         Drop Shadow
       </label>
 
       <label className="flex items-center gap-2 text-sm text-foreground">
-        <input type="checkbox" checked={backgroundBox} onChange={(e) => setBackgroundBox(e.target.checked)} className="rounded" />
+        <input
+          type="checkbox"
+          checked={backgroundBox}
+          onChange={(e) => setBackgroundBox(e.target.checked)}
+          className="rounded"
+        />
         Background Box
       </label>
 
       {backgroundBox && (
         <div>
           <label className="text-xs text-muted-foreground">Box Color</label>
-          <input type="color" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} className="w-full mt-0.5 h-8 rounded border border-border" />
+          <input
+            type="color"
+            value={backgroundColor}
+            onChange={(e) => setBackgroundColor(e.target.value)}
+            className="w-full mt-0.5 h-8 rounded border border-border"
+          />
         </div>
       )}
 
@@ -112,7 +147,11 @@ export function TextOverlaySettings() {
       )}
 
       {downloadUrl && (
-        <a href={downloadUrl} download className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5">
+        <a
+          href={downloadUrl}
+          download
+          className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5"
+        >
           <Download className="h-4 w-4" />
           Download
         </a>

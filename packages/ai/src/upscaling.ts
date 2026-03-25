@@ -1,6 +1,6 @@
-import { runPythonWithProgress, type ProgressCallback } from "./bridge.js";
-import { writeFile, readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { type ProgressCallback, runPythonWithProgress } from "./bridge.js";
 
 export interface UpscaleOptions {
   scale?: number;
@@ -23,11 +23,11 @@ export async function upscale(
   const outputPath = join(outputDir, "output_upscale.png");
 
   await writeFile(inputPath, inputBuffer);
-  const { stdout } = await runPythonWithProgress("upscale.py", [
-    inputPath,
-    outputPath,
-    JSON.stringify(options),
-  ], { onProgress });
+  const { stdout } = await runPythonWithProgress(
+    "upscale.py",
+    [inputPath, outputPath, JSON.stringify(options)],
+    { onProgress },
+  );
 
   const result = JSON.parse(stdout);
   if (!result.success) {

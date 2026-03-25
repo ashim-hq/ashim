@@ -1,7 +1,7 @@
-import { defineConfig } from "vitest/config";
-import path from "node:path";
-import os from "node:os";
 import crypto from "node:crypto";
+import os from "node:os";
+import path from "node:path";
+import { defineConfig } from "vitest/config";
 
 // Resolve api-workspace packages that pnpm only exposes under apps/api/node_modules.
 const apiNodeModules = path.resolve(__dirname, "apps/api/node_modules");
@@ -51,17 +51,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "apps/web/src"),
-      "@stirling-image/image-engine": path.resolve(
-        __dirname,
-        "packages/image-engine/src/index.ts",
-      ),
-      "@stirling-image/shared": path.resolve(
-        __dirname,
-        "packages/shared/src/index.ts",
-      ),
+      "@stirling-image/image-engine": path.resolve(__dirname, "packages/image-engine/src/index.ts"),
+      "@stirling-image/shared": path.resolve(__dirname, "packages/shared/src/index.ts"),
       // Map api-only dependencies so integration tests (and transitive imports
       // from apps/api/src) can resolve them from the root vitest runner.
-      "fastify": path.join(apiNodeModules, "fastify"),
+      fastify: path.join(apiNodeModules, "fastify"),
       "@fastify/cors": path.join(apiNodeModules, "@fastify/cors"),
       "@fastify/multipart": path.join(apiNodeModules, "@fastify/multipart"),
       "@fastify/rate-limit": path.join(apiNodeModules, "@fastify/rate-limit"),
@@ -70,13 +64,13 @@ export default defineConfig({
       "@fastify/swagger-ui": path.join(apiNodeModules, "@fastify/swagger-ui"),
       "better-sqlite3": path.join(apiNodeModules, "better-sqlite3"),
       "drizzle-orm": path.join(apiNodeModules, "drizzle-orm"),
-      "archiver": path.join(apiNodeModules, "archiver"),
+      archiver: path.join(apiNodeModules, "archiver"),
       "p-queue": path.join(apiNodeModules, "p-queue"),
-      "dotenv": path.join(apiNodeModules, "dotenv"),
-      "potrace": path.join(apiNodeModules, "potrace"),
-      "qrcode": path.join(apiNodeModules, "qrcode"),
-      "jsqr": path.join(apiNodeModules, "jsqr"),
-      "pdfkit": path.join(apiNodeModules, "pdfkit"),
+      dotenv: path.join(apiNodeModules, "dotenv"),
+      potrace: path.join(apiNodeModules, "potrace"),
+      qrcode: path.join(apiNodeModules, "qrcode"),
+      jsqr: path.join(apiNodeModules, "jsqr"),
+      pdfkit: path.join(apiNodeModules, "pdfkit"),
     },
   },
 });

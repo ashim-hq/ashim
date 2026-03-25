@@ -17,7 +17,13 @@ const TOOL_FIELDS: Record<string, FieldDef[]> = {
   resize: [
     { key: "width", label: "Width (px)", type: "number", min: 1, placeholder: "Auto" },
     { key: "height", label: "Height (px)", type: "number", min: 1, placeholder: "Auto" },
-    { key: "percentage", label: "Scale (%)", type: "number", min: 1, placeholder: "Use instead of width/height" },
+    {
+      key: "percentage",
+      label: "Scale (%)",
+      type: "number",
+      min: 1,
+      placeholder: "Use instead of width/height",
+    },
     {
       key: "fit",
       label: "Fit Mode",
@@ -40,7 +46,15 @@ const TOOL_FIELDS: Record<string, FieldDef[]> = {
   ],
 
   rotate: [
-    { key: "angle", label: "Angle (degrees)", type: "number", min: -360, max: 360, step: 90, defaultValue: 0 },
+    {
+      key: "angle",
+      label: "Angle (degrees)",
+      type: "number",
+      min: -360,
+      max: 360,
+      step: 90,
+      defaultValue: 0,
+    },
     { key: "horizontal", label: "Flip horizontal", type: "boolean", defaultValue: false },
     { key: "vertical", label: "Flip vertical", type: "boolean", defaultValue: false },
   ],
@@ -59,7 +73,14 @@ const TOOL_FIELDS: Record<string, FieldDef[]> = {
         { value: "gif", label: "GIF" },
       ],
     },
-    { key: "quality", label: "Quality (1-100)", type: "number", min: 1, max: 100, placeholder: "Auto" },
+    {
+      key: "quality",
+      label: "Quality (1-100)",
+      type: "number",
+      min: 1,
+      max: 100,
+      placeholder: "Auto",
+    },
   ],
 
   compress: [
@@ -125,12 +146,26 @@ const TOOL_FIELDS: Record<string, FieldDef[]> = {
   ],
 
   "brightness-contrast": [
-    { key: "brightness", label: "Brightness", type: "number", min: -100, max: 100, defaultValue: 0 },
+    {
+      key: "brightness",
+      label: "Brightness",
+      type: "number",
+      min: -100,
+      max: 100,
+      defaultValue: 0,
+    },
     { key: "contrast", label: "Contrast", type: "number", min: -100, max: 100, defaultValue: 0 },
   ],
 
   saturation: [
-    { key: "saturation", label: "Saturation", type: "number", min: -100, max: 100, defaultValue: 0 },
+    {
+      key: "saturation",
+      label: "Saturation",
+      type: "number",
+      min: -100,
+      max: 100,
+      defaultValue: 0,
+    },
   ],
 
   "color-channels": [
@@ -157,8 +192,20 @@ const TOOL_FIELDS: Record<string, FieldDef[]> = {
   "replace-color": [
     { key: "sourceColor", label: "Source color", type: "color", defaultValue: "#FF0000" },
     { key: "targetColor", label: "Target color", type: "color", defaultValue: "#00FF00" },
-    { key: "makeTransparent", label: "Make transparent instead", type: "boolean", defaultValue: false },
-    { key: "tolerance", label: "Tolerance (0-255)", type: "number", min: 0, max: 255, defaultValue: 30 },
+    {
+      key: "makeTransparent",
+      label: "Make transparent instead",
+      type: "boolean",
+      defaultValue: false,
+    },
+    {
+      key: "tolerance",
+      label: "Tolerance (0-255)",
+      type: "number",
+      min: 0,
+      max: 255,
+      defaultValue: 30,
+    },
   ],
 
   "watermark-text": [
@@ -180,7 +227,14 @@ const TOOL_FIELDS: Record<string, FieldDef[]> = {
         { value: "tiled", label: "Tiled" },
       ],
     },
-    { key: "rotation", label: "Rotation (degrees)", type: "number", min: -360, max: 360, defaultValue: 0 },
+    {
+      key: "rotation",
+      label: "Rotation (degrees)",
+      type: "number",
+      min: -360,
+      max: 360,
+      defaultValue: 0,
+    },
   ],
 
   "watermark-image": [
@@ -230,7 +284,14 @@ const TOOL_FIELDS: Record<string, FieldDef[]> = {
   border: [
     { key: "borderWidth", label: "Width (px)", type: "number", min: 0, max: 200, defaultValue: 10 },
     { key: "borderColor", label: "Color", type: "color", defaultValue: "#000000" },
-    { key: "cornerRadius", label: "Corner radius", type: "number", min: 0, max: 500, defaultValue: 0 },
+    {
+      key: "cornerRadius",
+      label: "Corner radius",
+      type: "number",
+      min: 0,
+      max: 500,
+      defaultValue: 0,
+    },
     { key: "padding", label: "Padding (px)", type: "number", min: 0, max: 200, defaultValue: 0 },
     { key: "shadowBlur", label: "Shadow blur", type: "number", min: 0, max: 50, defaultValue: 0 },
     { key: "shadowColor", label: "Shadow color", type: "color", defaultValue: "#00000080" },
@@ -243,7 +304,15 @@ const TOOL_FIELDS: Record<string, FieldDef[]> = {
 
   "blur-faces": [
     { key: "blurRadius", label: "Blur radius", type: "number", min: 1, max: 100, defaultValue: 30 },
-    { key: "sensitivity", label: "Sensitivity (0-1)", type: "number", min: 0, max: 1, step: 0.1, defaultValue: 0.5 },
+    {
+      key: "sensitivity",
+      label: "Sensitivity (0-1)",
+      type: "number",
+      min: 0,
+      max: 1,
+      step: 0.1,
+      defaultValue: 0.5,
+    },
   ],
 
   upscale: [
@@ -276,7 +345,14 @@ const TOOL_FIELDS: Record<string, FieldDef[]> = {
         { value: "color", label: "Color" },
       ],
     },
-    { key: "threshold", label: "Threshold (0-255)", type: "number", min: 0, max: 255, defaultValue: 128 },
+    {
+      key: "threshold",
+      label: "Threshold (0-255)",
+      type: "number",
+      min: 0,
+      max: 255,
+      defaultValue: 128,
+    },
     {
       key: "detail",
       label: "Detail",
@@ -309,7 +385,13 @@ const TOOL_FIELDS: Record<string, FieldDef[]> = {
   "gif-tools": [
     { key: "width", label: "Width (px)", type: "number", min: 1, max: 4096, placeholder: "Auto" },
     { key: "height", label: "Height (px)", type: "number", min: 1, max: 4096, placeholder: "Auto" },
-    { key: "extractFrame", label: "Extract frame #", type: "number", min: 0, placeholder: "All frames" },
+    {
+      key: "extractFrame",
+      label: "Extract frame #",
+      type: "number",
+      min: 0,
+      placeholder: "All frames",
+    },
     { key: "optimize", label: "Optimize", type: "boolean", defaultValue: false },
   ],
 
@@ -340,7 +422,13 @@ const TOOL_FIELDS: Record<string, FieldDef[]> = {
   ],
 
   "bulk-rename": [
-    { key: "pattern", label: "Pattern", type: "text", placeholder: "image-{{index}}", defaultValue: "image-{{index}}" },
+    {
+      key: "pattern",
+      label: "Pattern",
+      type: "text",
+      placeholder: "image-{{index}}",
+      defaultValue: "image-{{index}}",
+    },
     { key: "startIndex", label: "Start index", type: "number", min: 0, defaultValue: 1 },
   ],
 
@@ -443,7 +531,10 @@ export function PipelineStepSettings({ toolId, settings, onChange }: PipelineSte
                   type="number"
                   value={value != null && value !== "" ? Number(value) : ""}
                   onChange={(e) =>
-                    updateField(field.key, e.target.value === "" ? undefined : Number(e.target.value))
+                    updateField(
+                      field.key,
+                      e.target.value === "" ? undefined : Number(e.target.value),
+                    )
                   }
                   min={field.min}
                   max={field.max}
@@ -515,7 +606,10 @@ export function PipelineStepSettings({ toolId, settings, onChange }: PipelineSte
 
           case "boolean":
             return (
-              <label key={field.key} className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+              <label
+                key={field.key}
+                className="flex items-center gap-2 text-sm text-foreground cursor-pointer"
+              >
                 <input
                   type="checkbox"
                   checked={Boolean(value)}

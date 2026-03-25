@@ -1,8 +1,8 @@
+import { flip, rotate } from "@stirling-image/image-engine";
+import type { FastifyInstance } from "fastify";
+import sharp from "sharp";
 import { z } from "zod";
 import { createToolRoute } from "../tool-factory.js";
-import { rotate, flip } from "@stirling-image/image-engine";
-import sharp from "sharp";
-import type { FastifyInstance } from "fastify";
 
 const settingsSchema = z.object({
   angle: z.number().default(0),

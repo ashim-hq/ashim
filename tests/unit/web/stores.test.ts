@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Global mocks that must exist BEFORE the modules under test are imported
@@ -36,18 +36,18 @@ vi.stubGlobal("localStorage", localStorageMock);
 // Imports (after mocks)
 // ---------------------------------------------------------------------------
 
-import { useFileStore } from "@/stores/file-store";
 import {
+  apiDelete,
+  apiDownloadBlob,
   apiGet,
   apiPost,
+  apiPut,
   apiUpload,
-  apiDownloadBlob,
-  setToken,
   clearToken,
   getDownloadUrl,
-  apiPut,
-  apiDelete,
+  setToken,
 } from "@/lib/api";
+import { useFileStore } from "@/stores/file-store";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -88,9 +88,7 @@ describe("FileStore", () => {
     revokeObjectURL.mockClear();
     // Reset the mock to return incrementing URLs
     let urlCounter = 0;
-    createObjectURL.mockImplementation(
-      (_obj: Blob | MediaSource) => `blob:url-${++urlCounter}`,
-    );
+    createObjectURL.mockImplementation((_obj: Blob | MediaSource) => `blob:url-${++urlCounter}`);
   });
 
   // -- Initial state -------------------------------------------------------
@@ -190,11 +188,7 @@ describe("FileStore", () => {
   });
 
   it("removeFile adjusts selectedIndex when removing before it", () => {
-    useFileStore.getState().setFiles([
-      makeFile("a.png"),
-      makeFile("b.png"),
-      makeFile("c.png"),
-    ]);
+    useFileStore.getState().setFiles([makeFile("a.png"), makeFile("b.png"), makeFile("c.png")]);
     useFileStore.getState().setSelectedIndex(2);
 
     useFileStore.getState().removeFile(0);
@@ -500,19 +494,14 @@ describe("API lib", () => {
   describe("token management", () => {
     it("setToken stores in localStorage under 'stirling-token'", () => {
       setToken("my-secret");
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        "stirling-token",
-        "my-secret",
-      );
+      expect(localStorageMock.setItem).toHaveBeenCalledWith("stirling-token", "my-secret");
       expect(storageMap.get("stirling-token")).toBe("my-secret");
     });
 
     it("clearToken removes 'stirling-token' from localStorage", () => {
       setToken("to-remove");
       clearToken();
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith(
-        "stirling-token",
-      );
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith("stirling-token");
       expect(storageMap.has("stirling-token")).toBe(false);
     });
 
@@ -612,9 +601,7 @@ describe("API lib", () => {
 
     it("throws on non-ok response", async () => {
       fetchMock.mockReturnValueOnce(failResponse(404));
-      await expect(apiPut("/v1/items/999", {})).rejects.toThrow(
-        "API error: 404",
-      );
+      await expect(apiPut("/v1/items/999", {})).rejects.toThrow("API error: 404");
     });
   });
 
@@ -667,9 +654,7 @@ describe("API lib", () => {
     });
 
     it("appends multiple files to FormData under the same 'files' key", async () => {
-      fetchMock.mockReturnValueOnce(
-        okJson({ jobId: "j2", files: [{}, {}] }),
-      );
+      fetchMock.mockReturnValueOnce(okJson({ jobId: "j2", files: [{}, {}] }));
 
       await apiUpload([makeFile("a.png"), makeFile("b.jpg")]);
 
@@ -687,9 +672,7 @@ describe("API lib", () => {
 
     it("throws on non-ok response with status in message", async () => {
       fetchMock.mockReturnValueOnce(failResponse(413));
-      await expect(apiUpload([makeFile("big.png")])).rejects.toThrow(
-        "Upload failed: 413",
-      );
+      await expect(apiUpload([makeFile("big.png")])).rejects.toThrow("Upload failed: 413");
     });
 
     it("sends empty FormData when given empty file array", async () => {
@@ -725,9 +708,7 @@ describe("API lib", () => {
 
     it("throws on non-ok response", async () => {
       fetchMock.mockReturnValueOnce(failResponse(404));
-      await expect(apiDownloadBlob("job-x", "gone.png")).rejects.toThrow(
-        "Download failed: 404",
-      );
+      await expect(apiDownloadBlob("job-x", "gone.png")).rejects.toThrow("Download failed: 404");
     });
 
     it("handles special characters in filename", async () => {
@@ -750,9 +731,7 @@ describe("API lib", () => {
 
   describe("getDownloadUrl", () => {
     it("constructs the correct URL", () => {
-      expect(getDownloadUrl("abc", "out.png")).toBe(
-        "/api/v1/download/abc/out.png",
-      );
+      expect(getDownloadUrl("abc", "out.png")).toBe("/api/v1/download/abc/out.png");
     });
   });
 
@@ -763,16 +742,12 @@ describe("API lib", () => {
       setToken("first-token");
       fetchMock.mockReturnValueOnce(okJson({}));
       await apiGet("/v1/a");
-      expect(fetchMock.mock.calls[0][1].headers.Authorization).toBe(
-        "Bearer first-token",
-      );
+      expect(fetchMock.mock.calls[0][1].headers.Authorization).toBe("Bearer first-token");
 
       setToken("second-token");
       fetchMock.mockReturnValueOnce(okJson({}));
       await apiGet("/v1/b");
-      expect(fetchMock.mock.calls[1][1].headers.Authorization).toBe(
-        "Bearer second-token",
-      );
+      expect(fetchMock.mock.calls[1][1].headers.Authorization).toBe("Bearer second-token");
     });
 
     it("uses empty Bearer immediately after clearToken", async () => {
@@ -780,9 +755,7 @@ describe("API lib", () => {
       clearToken();
       fetchMock.mockReturnValueOnce(okJson({}));
       await apiGet("/v1/c");
-      expect(fetchMock.mock.calls[0][1].headers.Authorization).toBe(
-        "Bearer ",
-      );
+      expect(fetchMock.mock.calls[0][1].headers.Authorization).toBe("Bearer ");
     });
   });
 });

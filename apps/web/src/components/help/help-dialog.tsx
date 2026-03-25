@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { X, Keyboard, BookOpen, Github, ExternalLink } from "lucide-react";
 import { APP_VERSION } from "@stirling-image/shared";
+import { BookOpen, ExternalLink, Github, Keyboard, X } from "lucide-react";
+import { useEffect } from "react";
 import { formatShortcut } from "@/hooks/use-keyboard-shortcuts";
 
 interface HelpDialogProps {
@@ -36,10 +36,7 @@ export function HelpDialog({ open, onClose }: HelpDialogProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       <div className="relative bg-background border border-border rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
         {/* Header */}
@@ -62,10 +59,9 @@ export function HelpDialog({ open, onClose }: HelpDialogProps) {
               <h3 className="text-sm font-semibold">Getting Started</h3>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Select a tool from the sidebar or search for one with{" "}
-              <Kbd keys="mod+k" />. Upload an image by dragging it onto the
-              page or clicking the upload area. Adjust settings and download
-              your result.
+              Select a tool from the sidebar or search for one with <Kbd keys="mod+k" />. Upload an
+              image by dragging it onto the page or clicking the upload area. Adjust settings and
+              download your result.
             </p>
           </section>
 
@@ -80,14 +76,10 @@ export function HelpDialog({ open, onClose }: HelpDialogProps) {
                 <div
                   key={s.keys}
                   className={`flex items-center justify-between px-3 py-2 text-sm ${
-                    i !== SHORTCUTS.length - 1
-                      ? "border-b border-border"
-                      : ""
+                    i !== SHORTCUTS.length - 1 ? "border-b border-border" : ""
                   }`}
                 >
-                  <span className="text-muted-foreground">
-                    {s.description}
-                  </span>
+                  <span className="text-muted-foreground">{s.description}</span>
                   <Kbd keys={s.keys} />
                 </div>
               ))}

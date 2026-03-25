@@ -6,15 +6,11 @@
  * The goal is adversarial: we try to BREAK the system with invalid inputs,
  * path traversal, missing auth, type confusion, and boundary conditions.
  */
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
+
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import {
-  buildTestApp,
-  loginAsAdmin,
-  createMultipartPayload,
-  type TestApp,
-} from "./test-server.js";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { buildTestApp, createMultipartPayload, loginAsAdmin, type TestApp } from "./test-server.js";
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -942,7 +938,10 @@ describe("Tool processing", () => {
     it("returns 422 when crop exceeds image bounds", async () => {
       const { body: payload, contentType } = createMultipartPayload([
         { name: "file", filename: "crop.png", contentType: "image/png", content: PNG_200x150 },
-        { name: "settings", content: JSON.stringify({ left: 0, top: 0, width: 9999, height: 9999 }) },
+        {
+          name: "settings",
+          content: JSON.stringify({ left: 0, top: 0, width: 9999, height: 9999 }),
+        },
       ]);
 
       const res = await app.inject({
@@ -2021,7 +2020,12 @@ describe("Pipeline", () => {
       };
 
       const { body: payload, contentType } = createMultipartPayload([
-        { name: "file", filename: "downloadable.png", contentType: "image/png", content: PNG_200x150 },
+        {
+          name: "file",
+          filename: "downloadable.png",
+          contentType: "image/png",
+          content: PNG_200x150,
+        },
         { name: "pipeline", content: JSON.stringify(pipeline) },
       ]);
 
@@ -2645,7 +2649,12 @@ describe("Edge cases & adversarial inputs", () => {
   it("handles concurrent requests without corruption", async () => {
     const requests = Array.from({ length: 5 }, (_, i) => {
       const { body: payload, contentType } = createMultipartPayload([
-        { name: "file", filename: `concurrent-${i}.png`, contentType: "image/png", content: PNG_1x1 },
+        {
+          name: "file",
+          filename: `concurrent-${i}.png`,
+          contentType: "image/png",
+          content: PNG_1x1,
+        },
         { name: "settings", content: JSON.stringify({ width: 1 }) },
       ]);
 

@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import ReactCrop, { type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
@@ -68,9 +68,7 @@ export function CropCanvas({
         return;
       } else if (e.key === "Enter") {
         // Submit the crop form (find and submit closest form)
-        const form = document.querySelector<HTMLFormElement>(
-          'form[data-crop-form]',
-        );
+        const form = document.querySelector<HTMLFormElement>("form[data-crop-form]");
         if (form) form.requestSubmit();
         e.preventDefault();
         return;
@@ -94,17 +92,11 @@ export function CropCanvas({
   }, []);
 
   // Calculate pixel dimensions for the badge
-  const pixelWidth =
-    imgDimensions ? Math.round((crop.width / 100) * imgDimensions.width) : 0;
-  const pixelHeight =
-    imgDimensions ? Math.round((crop.height / 100) * imgDimensions.height) : 0;
+  const pixelWidth = imgDimensions ? Math.round((crop.width / 100) * imgDimensions.width) : 0;
+  const pixelHeight = imgDimensions ? Math.round((crop.height / 100) * imgDimensions.height) : 0;
 
   return (
-    <div
-      ref={containerRef}
-      className="flex flex-col w-full h-full max-w-4xl mx-auto outline-none"
-      tabIndex={0}
-    >
+    <div ref={containerRef} className="flex flex-col w-full h-full max-w-4xl mx-auto outline-none">
       {/* Crop area */}
       <div className="flex-1 flex items-center justify-center overflow-hidden bg-muted/20 p-4">
         <ReactCrop

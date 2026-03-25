@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
 import { Download } from "lucide-react";
+import { useState } from "react";
 import { ProgressCard } from "@/components/common/progress-card";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 export function GifToolsSettings() {
   const { files } = useFileStore();
@@ -54,26 +54,46 @@ export function GifToolsSettings() {
           <div className="flex gap-2">
             <div className="flex-1">
               <label className="text-xs text-muted-foreground">Width (px)</label>
-              <input type="number" value={width} onChange={(e) => setWidth(e.target.value)} placeholder="Auto"
-                className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground" />
+              <input
+                type="number"
+                value={width}
+                onChange={(e) => setWidth(e.target.value)}
+                placeholder="Auto"
+                className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
+              />
             </div>
             <div className="flex-1">
               <label className="text-xs text-muted-foreground">Height (px)</label>
-              <input type="number" value={height} onChange={(e) => setHeight(e.target.value)} placeholder="Auto"
-                className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground" />
+              <input
+                type="number"
+                value={height}
+                onChange={(e) => setHeight(e.target.value)}
+                placeholder="Auto"
+                className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
+              />
             </div>
           </div>
 
           <label className="flex items-center gap-2 text-sm text-foreground">
-            <input type="checkbox" checked={optimize} onChange={(e) => setOptimize(e.target.checked)} className="rounded" />
+            <input
+              type="checkbox"
+              checked={optimize}
+              onChange={(e) => setOptimize(e.target.checked)}
+              className="rounded"
+            />
             Optimize file size
           </label>
         </>
       ) : (
         <div>
           <label className="text-xs text-muted-foreground">Frame Number</label>
-          <input type="number" value={extractFrame} onChange={(e) => setExtractFrame(e.target.value)} min={0}
-            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground" />
+          <input
+            type="number"
+            value={extractFrame}
+            onChange={(e) => setExtractFrame(e.target.value)}
+            min={0}
+            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
+          />
           <p className="text-[10px] text-muted-foreground mt-0.5">Frame 0 is the first frame</p>
         </div>
       )}
@@ -107,7 +127,11 @@ export function GifToolsSettings() {
       )}
 
       {downloadUrl && (
-        <a href={downloadUrl} download className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5">
+        <a
+          href={downloadUrl}
+          download
+          className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5"
+        >
           <Download className="h-4 w-4" />
           Download
         </a>

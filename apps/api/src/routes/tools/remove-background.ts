@@ -1,11 +1,11 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
-import { join, basename } from "node:path";
+import { basename, join } from "node:path";
 import { removeBackground } from "@stirling-image/ai";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { validateImageBuffer } from "../../lib/file-validation.js";
 import { createWorkspace } from "../../lib/workspace.js";
 import { updateSingleFileProgress } from "../progress.js";
-import { validateImageBuffer } from "../../lib/file-validation.js";
 
 /**
  * AI background removal route.
@@ -81,7 +81,7 @@ export function registerRemoveBackground(app: FastifyInstance) {
         );
 
         // Save output
-        const outputFilename = filename.replace(/\.[^.]+$/, "") + "_nobg.png";
+        const outputFilename = `${filename.replace(/\.[^.]+$/, "")}_nobg.png`;
         const outputPath = join(workspacePath, "output", outputFilename);
         await writeFile(outputPath, resultBuffer);
 

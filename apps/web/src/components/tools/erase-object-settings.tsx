@@ -1,7 +1,7 @@
-import { useState, useRef } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { ProgressCard } from "@/components/common/progress-card";
 import { Download, Upload } from "lucide-react";
+import { useRef, useState } from "react";
+import { ProgressCard } from "@/components/common/progress-card";
+import { useFileStore } from "@/stores/file-store";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
@@ -116,19 +116,15 @@ export function EraseObjectSettings() {
       <div>
         <label className="text-sm font-medium text-muted-foreground">Mask Image</label>
         <p className="text-[10px] text-muted-foreground mt-0.5 mb-1.5">
-          Upload a black &amp; white mask where white areas will be erased. Create the mask in any image editor.
+          Upload a black &amp; white mask where white areas will be erased. Create the mask in any
+          image editor.
         </p>
         <label className="flex items-center gap-2 px-3 py-2 rounded border border-dashed border-border cursor-pointer hover:border-primary">
           <Upload className="h-4 w-4 text-muted-foreground" />
           <span className="text-xs text-muted-foreground">
             {maskFile ? maskFile.name : "Select mask image..."}
           </span>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleMaskSelect}
-            className="hidden"
-          />
+          <input type="file" accept="image/*" onChange={handleMaskSelect} className="hidden" />
         </label>
       </div>
 

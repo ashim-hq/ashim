@@ -7,7 +7,7 @@ export interface Tool {
   route: string;
   shortcut?: string;
   disabled?: boolean;
-  alpha?: boolean;
+  experimental?: boolean;
 }
 
 export type ToolCategory =

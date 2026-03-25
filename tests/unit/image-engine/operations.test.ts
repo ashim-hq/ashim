@@ -1,30 +1,30 @@
-import { describe, it, expect, beforeAll } from "vitest";
-import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
+import { beforeAll, describe, expect, it } from "vitest";
 
 // sharp is only installed in the image-engine package, so resolve it from there
 const require = createRequire(
-  path.resolve(__dirname, "../../../packages/image-engine/src/index.ts")
+  path.resolve(__dirname, "../../../packages/image-engine/src/index.ts"),
 );
 const sharp = require("sharp") as typeof import("sharp").default;
 
 import {
-  resize,
-  crop,
-  rotate,
-  flip,
-  convert,
-  compress,
-  stripMetadata,
   brightness,
-  contrast,
-  saturation,
   colorChannels,
+  compress,
+  contrast,
+  convert,
+  crop,
+  flip,
   grayscale,
-  sepia,
   invert,
   processImage,
+  resize,
+  rotate,
+  saturation,
+  sepia,
+  stripMetadata,
 } from "@stirling-image/image-engine";
 
 const FIXTURES_DIR = path.resolve(__dirname, "../../fixtures");
@@ -141,50 +141,46 @@ describe("resize", () => {
 
   it("throws on width = 0", async () => {
     const img = sharp(png200x150);
-    await expect(resize(img, { width: 0 })).rejects.toThrow(
-      "Resize width must be greater than 0"
-    );
+    await expect(resize(img, { width: 0 })).rejects.toThrow("Resize width must be greater than 0");
   });
 
   it("throws on negative width", async () => {
     const img = sharp(png200x150);
     await expect(resize(img, { width: -10, height: 50 })).rejects.toThrow(
-      "Resize width must be greater than 0"
+      "Resize width must be greater than 0",
     );
   });
 
   it("throws on negative height", async () => {
     const img = sharp(png200x150);
     await expect(resize(img, { width: 50, height: -1 })).rejects.toThrow(
-      "Resize height must be greater than 0"
+      "Resize height must be greater than 0",
     );
   });
 
   it("throws on height = 0", async () => {
     const img = sharp(png200x150);
     await expect(resize(img, { height: 0 })).rejects.toThrow(
-      "Resize height must be greater than 0"
+      "Resize height must be greater than 0",
     );
   });
 
   it("throws when neither width, height, nor percentage given", async () => {
     const img = sharp(png200x150);
-    await expect(resize(img, {})).rejects.toThrow(
-      "Resize requires width, height, or percentage"
-    );
+    await expect(resize(img, {})).rejects.toThrow("Resize requires width, height, or percentage");
   });
 
   it("throws on percentage = 0", async () => {
     const img = sharp(png200x150);
     await expect(resize(img, { percentage: 0 })).rejects.toThrow(
-      "Resize percentage must be greater than 0"
+      "Resize percentage must be greater than 0",
     );
   });
 
   it("throws on negative percentage", async () => {
     const img = sharp(png200x150);
     await expect(resize(img, { percentage: -50 })).rejects.toThrow(
-      "Resize percentage must be greater than 0"
+      "Resize percentage must be greater than 0",
     );
   });
 
@@ -202,7 +198,7 @@ describe("resize", () => {
     // Then the check width <= 0 should throw
     const img = sharp(png1x1);
     await expect(resize(img, { percentage: 1 })).rejects.toThrow(
-      "Resize width must be greater than 0"
+      "Resize width must be greater than 0",
     );
   });
 });
@@ -247,66 +243,66 @@ describe("crop", () => {
 
   it("throws on width = 0", async () => {
     const img = sharp(png200x150);
-    await expect(
-      crop(img, { left: 0, top: 0, width: 0, height: 50 })
-    ).rejects.toThrow("Crop width and height must be greater than 0");
+    await expect(crop(img, { left: 0, top: 0, width: 0, height: 50 })).rejects.toThrow(
+      "Crop width and height must be greater than 0",
+    );
   });
 
   it("throws on height = 0", async () => {
     const img = sharp(png200x150);
-    await expect(
-      crop(img, { left: 0, top: 0, width: 50, height: 0 })
-    ).rejects.toThrow("Crop width and height must be greater than 0");
+    await expect(crop(img, { left: 0, top: 0, width: 50, height: 0 })).rejects.toThrow(
+      "Crop width and height must be greater than 0",
+    );
   });
 
   it("throws on negative width", async () => {
     const img = sharp(png200x150);
-    await expect(
-      crop(img, { left: 0, top: 0, width: -10, height: 50 })
-    ).rejects.toThrow("Crop width and height must be greater than 0");
+    await expect(crop(img, { left: 0, top: 0, width: -10, height: 50 })).rejects.toThrow(
+      "Crop width and height must be greater than 0",
+    );
   });
 
   it("throws on negative left", async () => {
     const img = sharp(png200x150);
-    await expect(
-      crop(img, { left: -1, top: 0, width: 10, height: 10 })
-    ).rejects.toThrow("Crop left and top must be non-negative");
+    await expect(crop(img, { left: -1, top: 0, width: 10, height: 10 })).rejects.toThrow(
+      "Crop left and top must be non-negative",
+    );
   });
 
   it("throws on negative top", async () => {
     const img = sharp(png200x150);
-    await expect(
-      crop(img, { left: 0, top: -5, width: 10, height: 10 })
-    ).rejects.toThrow("Crop left and top must be non-negative");
+    await expect(crop(img, { left: 0, top: -5, width: 10, height: 10 })).rejects.toThrow(
+      "Crop left and top must be non-negative",
+    );
   });
 
   it("throws when crop region exceeds image width", async () => {
     const img = sharp(png200x150);
-    await expect(
-      crop(img, { left: 150, top: 0, width: 100, height: 10 })
-    ).rejects.toThrow("Crop region exceeds image width");
+    await expect(crop(img, { left: 150, top: 0, width: 100, height: 10 })).rejects.toThrow(
+      "Crop region exceeds image width",
+    );
   });
 
   it("throws when crop region exceeds image height", async () => {
     const img = sharp(png200x150);
-    await expect(
-      crop(img, { left: 0, top: 100, width: 10, height: 100 })
-    ).rejects.toThrow("Crop region exceeds image height");
+    await expect(crop(img, { left: 0, top: 100, width: 10, height: 100 })).rejects.toThrow(
+      "Crop region exceeds image height",
+    );
   });
 
   it("throws when left alone puts region out of bounds", async () => {
     const img = sharp(png200x150);
-    await expect(
-      crop(img, { left: 200, top: 0, width: 1, height: 1 })
-    ).rejects.toThrow("Crop region exceeds image width");
+    await expect(crop(img, { left: 200, top: 0, width: 1, height: 1 })).rejects.toThrow(
+      "Crop region exceeds image width",
+    );
   });
 
   it("throws when crop is 1px past the boundary", async () => {
     // left=199, width=2 -> 201 > 200
     const img = sharp(png200x150);
-    await expect(
-      crop(img, { left: 199, top: 0, width: 2, height: 1 })
-    ).rejects.toThrow("Crop region exceeds image width");
+    await expect(crop(img, { left: 199, top: 0, width: 2, height: 1 })).rejects.toThrow(
+      "Crop region exceeds image width",
+    );
   });
 });
 
@@ -377,7 +373,7 @@ describe("rotate", () => {
     const img = sharp(
       await sharp({ create: { width: 10, height: 10, channels: 3, background: "#ffffff" } })
         .png()
-        .toBuffer()
+        .toBuffer(),
     );
     const result = await rotate(img, { angle: 45 });
     const { data, info } = await result.raw().toBuffer({ resolveWithObject: true });
@@ -445,8 +441,8 @@ describe("flip", () => {
     const result = await flip(img, { horizontal: true });
     const { data } = await result.raw().toBuffer({ resolveWithObject: true });
     // After horizontal flip: pixel 0 should be blue, pixel 1 should be red
-    expect(data[0]).toBe(0);   // R of first pixel
-    expect(data[1]).toBe(0);   // G
+    expect(data[0]).toBe(0); // R of first pixel
+    expect(data[1]).toBe(0); // G
     expect(data[2]).toBe(255); // B
     expect(data[3]).toBe(255); // R of second pixel
     expect(data[4]).toBe(0);
@@ -476,15 +472,15 @@ describe("flip", () => {
   it("throws when neither horizontal nor vertical specified", async () => {
     const img = sharp(png200x150);
     await expect(flip(img, {})).rejects.toThrow(
-      "Flip requires at least one of horizontal or vertical"
+      "Flip requires at least one of horizontal or vertical",
     );
   });
 
   it("throws when both are explicitly false", async () => {
     const img = sharp(png200x150);
-    await expect(
-      flip(img, { horizontal: false, vertical: false })
-    ).rejects.toThrow("Flip requires at least one of horizontal or vertical");
+    await expect(flip(img, { horizontal: false, vertical: false })).rejects.toThrow(
+      "Flip requires at least one of horizontal or vertical",
+    );
   });
 });
 
@@ -543,37 +539,37 @@ describe("convert", () => {
 
   it("throws on invalid format", async () => {
     const img = sharp(png200x150);
-    await expect(
-      convert(img, { format: "bmp" as any })
-    ).rejects.toThrow("Unsupported output format: bmp");
+    await expect(convert(img, { format: "bmp" as any })).rejects.toThrow(
+      "Unsupported output format: bmp",
+    );
   });
 
   it("throws on quality = 0", async () => {
     const img = sharp(png200x150);
-    await expect(
-      convert(img, { format: "jpg", quality: 0 })
-    ).rejects.toThrow("Quality must be between 1 and 100");
+    await expect(convert(img, { format: "jpg", quality: 0 })).rejects.toThrow(
+      "Quality must be between 1 and 100",
+    );
   });
 
   it("throws on quality = 101", async () => {
     const img = sharp(png200x150);
-    await expect(
-      convert(img, { format: "jpg", quality: 101 })
-    ).rejects.toThrow("Quality must be between 1 and 100");
+    await expect(convert(img, { format: "jpg", quality: 101 })).rejects.toThrow(
+      "Quality must be between 1 and 100",
+    );
   });
 
   it("throws on negative quality", async () => {
     const img = sharp(png200x150);
-    await expect(
-      convert(img, { format: "jpg", quality: -5 })
-    ).rejects.toThrow("Quality must be between 1 and 100");
+    await expect(convert(img, { format: "jpg", quality: -5 })).rejects.toThrow(
+      "Quality must be between 1 and 100",
+    );
   });
 
   it("throws on quality = 999", async () => {
     const img = sharp(png200x150);
-    await expect(
-      convert(img, { format: "png", quality: 999 })
-    ).rejects.toThrow("Quality must be between 1 and 100");
+    await expect(convert(img, { format: "png", quality: 999 })).rejects.toThrow(
+      "Quality must be between 1 and 100",
+    );
   });
 });
 
@@ -646,37 +642,37 @@ describe("compress", () => {
 
   it("throws on quality = 0", async () => {
     const img = sharp(png200x150);
-    await expect(
-      compress(img, { quality: 0, format: "jpg" })
-    ).rejects.toThrow("Quality must be between 1 and 100");
+    await expect(compress(img, { quality: 0, format: "jpg" })).rejects.toThrow(
+      "Quality must be between 1 and 100",
+    );
   });
 
   it("throws on quality = 101", async () => {
     const img = sharp(png200x150);
-    await expect(
-      compress(img, { quality: 101, format: "jpg" })
-    ).rejects.toThrow("Quality must be between 1 and 100");
+    await expect(compress(img, { quality: 101, format: "jpg" })).rejects.toThrow(
+      "Quality must be between 1 and 100",
+    );
   });
 
   it("throws on negative quality", async () => {
     const img = sharp(png200x150);
-    await expect(
-      compress(img, { quality: -10, format: "jpg" })
-    ).rejects.toThrow("Quality must be between 1 and 100");
+    await expect(compress(img, { quality: -10, format: "jpg" })).rejects.toThrow(
+      "Quality must be between 1 and 100",
+    );
   });
 
   it("throws on targetSizeBytes = 0", async () => {
     const img = sharp(png200x150);
-    await expect(
-      compress(img, { targetSizeBytes: 0, format: "jpg" })
-    ).rejects.toThrow("Target size must be greater than 0");
+    await expect(compress(img, { targetSizeBytes: 0, format: "jpg" })).rejects.toThrow(
+      "Target size must be greater than 0",
+    );
   });
 
   it("throws on negative targetSizeBytes", async () => {
     const img = sharp(png200x150);
-    await expect(
-      compress(img, { targetSizeBytes: -100, format: "jpg" })
-    ).rejects.toThrow("Target size must be greater than 0");
+    await expect(compress(img, { targetSizeBytes: -100, format: "jpg" })).rejects.toThrow(
+      "Target size must be greater than 0",
+    );
   });
 });
 
@@ -791,21 +787,21 @@ describe("brightness", () => {
   it("throws on value = -101", async () => {
     const img = sharp(png200x150);
     await expect(brightness(img, { value: -101 })).rejects.toThrow(
-      "Brightness value must be between -100 and +100"
+      "Brightness value must be between -100 and +100",
     );
   });
 
   it("throws on value = 101", async () => {
     const img = sharp(png200x150);
     await expect(brightness(img, { value: 101 })).rejects.toThrow(
-      "Brightness value must be between -100 and +100"
+      "Brightness value must be between -100 and +100",
     );
   });
 
   it("throws on extreme values", async () => {
     const img = sharp(png200x150);
     await expect(brightness(img, { value: 1000 })).rejects.toThrow(
-      "Brightness value must be between -100 and +100"
+      "Brightness value must be between -100 and +100",
     );
   });
 });
@@ -853,14 +849,14 @@ describe("contrast", () => {
   it("throws on value = -101", async () => {
     const img = sharp(png200x150);
     await expect(contrast(img, { value: -101 })).rejects.toThrow(
-      "Contrast value must be between -100 and +100"
+      "Contrast value must be between -100 and +100",
     );
   });
 
   it("throws on value = 101", async () => {
     const img = sharp(png200x150);
     await expect(contrast(img, { value: 101 })).rejects.toThrow(
-      "Contrast value must be between -100 and +100"
+      "Contrast value must be between -100 and +100",
     );
   });
 });
@@ -902,14 +898,14 @@ describe("saturation", () => {
   it("throws on value = -101", async () => {
     const img = sharp(png200x150);
     await expect(saturation(img, { value: -101 })).rejects.toThrow(
-      "Saturation value must be between -100 and +100"
+      "Saturation value must be between -100 and +100",
     );
   });
 
   it("throws on value = 101", async () => {
     const img = sharp(png200x150);
     await expect(saturation(img, { value: 101 })).rejects.toThrow(
-      "Saturation value must be between -100 and +100"
+      "Saturation value must be between -100 and +100",
     );
   });
 });
@@ -974,44 +970,44 @@ describe("colorChannels", () => {
 
   it("throws when red < 0", async () => {
     const img = sharp(png200x150);
-    await expect(
-      colorChannels(img, { red: -1, green: 100, blue: 100 })
-    ).rejects.toThrow("Red channel value must be between 0 and 200");
+    await expect(colorChannels(img, { red: -1, green: 100, blue: 100 })).rejects.toThrow(
+      "Red channel value must be between 0 and 200",
+    );
   });
 
   it("throws when red > 200", async () => {
     const img = sharp(png200x150);
-    await expect(
-      colorChannels(img, { red: 201, green: 100, blue: 100 })
-    ).rejects.toThrow("Red channel value must be between 0 and 200");
+    await expect(colorChannels(img, { red: 201, green: 100, blue: 100 })).rejects.toThrow(
+      "Red channel value must be between 0 and 200",
+    );
   });
 
   it("throws when green < 0", async () => {
     const img = sharp(png200x150);
-    await expect(
-      colorChannels(img, { red: 100, green: -1, blue: 100 })
-    ).rejects.toThrow("Green channel value must be between 0 and 200");
+    await expect(colorChannels(img, { red: 100, green: -1, blue: 100 })).rejects.toThrow(
+      "Green channel value must be between 0 and 200",
+    );
   });
 
   it("throws when green > 200", async () => {
     const img = sharp(png200x150);
-    await expect(
-      colorChannels(img, { red: 100, green: 201, blue: 100 })
-    ).rejects.toThrow("Green channel value must be between 0 and 200");
+    await expect(colorChannels(img, { red: 100, green: 201, blue: 100 })).rejects.toThrow(
+      "Green channel value must be between 0 and 200",
+    );
   });
 
   it("throws when blue < 0", async () => {
     const img = sharp(png200x150);
-    await expect(
-      colorChannels(img, { red: 100, green: 100, blue: -1 })
-    ).rejects.toThrow("Blue channel value must be between 0 and 200");
+    await expect(colorChannels(img, { red: 100, green: 100, blue: -1 })).rejects.toThrow(
+      "Blue channel value must be between 0 and 200",
+    );
   });
 
   it("throws when blue > 200", async () => {
     const img = sharp(png200x150);
-    await expect(
-      colorChannels(img, { red: 100, green: 100, blue: 201 })
-    ).rejects.toThrow("Blue channel value must be between 0 and 200");
+    await expect(colorChannels(img, { red: 100, green: 100, blue: 201 })).rejects.toThrow(
+      "Blue channel value must be between 0 and 200",
+    );
   });
 });
 
@@ -1202,7 +1198,7 @@ describe("processImage", () => {
     const result = await processImage(
       png200x150,
       [{ type: "resize", options: { width: 50 } }],
-      "webp"
+      "webp",
     );
     expect(result.info.format).toBe("webp");
   });
@@ -1292,16 +1288,14 @@ describe("processImage", () => {
 
   it("throws on unknown operation type", async () => {
     await expect(
-      processImage(png200x150, [
-        { type: "nonexistent-op", options: {} },
-      ])
+      processImage(png200x150, [{ type: "nonexistent-op", options: {} }]),
     ).rejects.toThrow("Unknown operation: nonexistent-op");
   });
 
   it("throws on unknown output format", async () => {
-    await expect(
-      processImage(png200x150, [], "bmp" as any)
-    ).rejects.toThrow("Unsupported output format: bmp");
+    await expect(processImage(png200x150, [], "bmp" as any)).rejects.toThrow(
+      "Unsupported output format: bmp",
+    );
   });
 
   it("propagates operation-level errors through pipeline", async () => {
@@ -1309,7 +1303,7 @@ describe("processImage", () => {
     await expect(
       processImage(png200x150, [
         { type: "crop", options: { left: 0, top: 0, width: 999, height: 999 } },
-      ])
+      ]),
     ).rejects.toThrow("Crop region exceeds");
   });
 
@@ -1321,29 +1315,25 @@ describe("processImage", () => {
       processImage(png200x150, [
         { type: "resize", options: { width: 50, height: 50 } },
         { type: "crop", options: { left: 0, top: 0, width: 100, height: 100 } },
-      ])
+      ]),
     ).rejects.toThrow();
   });
 
   it("invalid buffer input throws", async () => {
     const garbage = Buffer.from("this is not an image");
-    await expect(
-      processImage(garbage, [{ type: "grayscale", options: {} }])
-    ).rejects.toThrow();
+    await expect(processImage(garbage, [{ type: "grayscale", options: {} }])).rejects.toThrow();
   });
 
   it("empty buffer throws", async () => {
     const empty = Buffer.alloc(0);
-    await expect(
-      processImage(empty, [{ type: "invert", options: {} }])
-    ).rejects.toThrow();
+    await expect(processImage(empty, [{ type: "invert", options: {} }])).rejects.toThrow();
   });
 
   it("result contains accurate ImageInfo metadata", async () => {
     const result = await processImage(
       png200x150,
       [{ type: "resize", options: { width: 80, height: 60 } }],
-      "png"
+      "png",
     );
     expect(result.info.width).toBe(80);
     expect(result.info.height).toBe(60);

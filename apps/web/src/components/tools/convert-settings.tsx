@@ -1,16 +1,24 @@
-import { useState } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
 import { Download } from "lucide-react";
+import { useState } from "react";
 import { ProgressCard } from "@/components/common/progress-card";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 const OUTPUT_FORMATS = ["jpg", "png", "webp", "avif", "tiff", "gif"] as const;
 const LOSSY_FORMATS = new Set(["jpg", "webp", "avif"]);
 
 export function ConvertSettings() {
   const { files } = useFileStore();
-  const { processFiles, processAllFiles, processing, error, downloadUrl, originalSize, processedSize, progress } =
-    useToolProcessor("convert");
+  const {
+    processFiles,
+    processAllFiles,
+    processing,
+    error,
+    downloadUrl,
+    originalSize,
+    processedSize,
+    progress,
+  } = useToolProcessor("convert");
 
   const [format, setFormat] = useState<string>("png");
   const [quality, setQuality] = useState(85);
@@ -98,10 +106,7 @@ export function ConvertSettings() {
           <p>Processed: {(processedSize / 1024).toFixed(1)} KB</p>
           <p>
             Savings:{" "}
-            {originalSize > 0
-              ? ((1 - processedSize / originalSize) * 100).toFixed(1)
-              : "0"}
-            %
+            {originalSize > 0 ? ((1 - processedSize / originalSize) * 100).toFixed(1) : "0"}%
           </p>
         </div>
       )}

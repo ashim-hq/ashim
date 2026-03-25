@@ -1,11 +1,17 @@
+import type { FastifyInstance } from "fastify";
+import sharp from "sharp";
 import { z } from "zod";
 import { createToolRoute } from "../tool-factory.js";
-import sharp from "sharp";
-import type { FastifyInstance } from "fastify";
 
 const settingsSchema = z.object({
-  sourceColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#FF0000"),
-  targetColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#00FF00"),
+  sourceColor: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default("#FF0000"),
+  targetColor: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default("#00FF00"),
   makeTransparent: z.boolean().default(false),
   tolerance: z.number().min(0).max(255).default(30),
 });
@@ -19,8 +25,12 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
 }
 
 function colorDistance(
-  r1: number, g1: number, b1: number,
-  r2: number, g2: number, b2: number,
+  r1: number,
+  g1: number,
+  b1: number,
+  r2: number,
+  g2: number,
+  b2: number,
 ): number {
   return Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2);
 }
@@ -42,8 +52,12 @@ export function registerReplaceColor(app: FastifyInstance) {
 
       for (let i = 0; i < pixels.length; i += 4) {
         const dist = colorDistance(
-          pixels[i], pixels[i + 1], pixels[i + 2],
-          source.r, source.g, source.b,
+          pixels[i],
+          pixels[i + 1],
+          pixels[i + 2],
+          source.r,
+          source.g,
+          source.b,
         );
 
         if (dist <= maxDist) {

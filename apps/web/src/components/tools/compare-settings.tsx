@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
-import { useFileStore } from "@/stores/file-store";
 import { Download, Loader2, Upload } from "lucide-react";
+import { useRef, useState } from "react";
+import { useFileStore } from "@/stores/file-store";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
@@ -78,10 +78,7 @@ export function CompareSettings() {
             Similarity: {similarity.toFixed(1)}%
           </p>
           <div className="mt-1 h-2 bg-background rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full bg-primary"
-              style={{ width: `${similarity}%` }}
-            />
+            <div className="h-full rounded-full bg-primary" style={{ width: `${similarity}%` }} />
           </div>
         </div>
       )}
@@ -96,7 +93,11 @@ export function CompareSettings() {
       </button>
 
       {downloadUrl && (
-        <a href={downloadUrl} download className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5">
+        <a
+          href={downloadUrl}
+          download
+          className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5"
+        >
           <Download className="h-4 w-4" />
           Download Diff Image
         </a>

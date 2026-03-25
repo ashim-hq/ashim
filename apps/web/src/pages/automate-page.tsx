@@ -1,19 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
-import {
-  Workflow,
-  Trash2,
-  Play,
-  Zap,
-  ShieldOff,
-  Globe,
-  User,
-  Stamp,
-} from "lucide-react";
+import { Globe, Play, ShieldOff, Stamp, Trash2, User, Workflow, Zap } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
-import {
-  PipelineBuilder,
-  type PipelineStep,
-} from "@/components/tools/pipeline-builder";
+import { PipelineBuilder, type PipelineStep } from "@/components/tools/pipeline-builder";
 import { cn } from "@/lib/utils";
 
 /** Pipeline template definition. */
@@ -151,7 +139,7 @@ export function AutomatePage() {
         setSaving(false);
       }
     },
-    [steps, loadPipelines]
+    [steps, loadPipelines],
   );
 
   // Delete pipeline
@@ -167,7 +155,7 @@ export function AutomatePage() {
         // ignore
       }
     },
-    [loadPipelines]
+    [loadPipelines],
   );
 
   // Execute pipeline
@@ -185,7 +173,7 @@ export function AutomatePage() {
               toolId: s.toolId,
               settings: s.settings,
             })),
-          })
+          }),
         );
 
         const res = await fetch("/api/v1/pipeline/execute", {
@@ -209,22 +197,19 @@ export function AutomatePage() {
         setExecuting(false);
       }
     },
-    [steps]
+    [steps],
   );
 
   // Load template into builder
-  const loadTemplate = useCallback(
-    (template: PipelineTemplate) => {
-      const newSteps: PipelineStep[] = template.steps.map((s) => ({
-        id: crypto.randomUUID(),
-        toolId: s.toolId,
-        settings: { ...s.settings },
-      }));
-      setSteps(newSteps);
-      setExecutionResult(null);
-    },
-    []
-  );
+  const loadTemplate = useCallback((template: PipelineTemplate) => {
+    const newSteps: PipelineStep[] = template.steps.map((s) => ({
+      id: crypto.randomUUID(),
+      toolId: s.toolId,
+      settings: { ...s.settings },
+    }));
+    setSteps(newSteps);
+    setExecutionResult(null);
+  }, []);
 
   // Load saved pipeline into builder
   const loadSaved = useCallback((pipeline: SavedPipeline) => {
@@ -258,13 +243,9 @@ export function AutomatePage() {
                     <div className={cn("p-1.5 rounded-md", tpl.color)}>
                       <tpl.icon className="h-3.5 w-3.5" />
                     </div>
-                    <span className="text-sm font-medium text-foreground">
-                      {tpl.name}
-                    </span>
+                    <span className="text-sm font-medium text-foreground">{tpl.name}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {tpl.description}
-                  </p>
+                  <p className="text-xs text-muted-foreground line-clamp-2">{tpl.description}</p>
                 </button>
               ))}
             </div>
@@ -320,9 +301,7 @@ export function AutomatePage() {
                 <Workflow className="h-5 w-5" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-foreground">
-                  Automation Pipeline
-                </h1>
+                <h1 className="text-xl font-semibold text-foreground">Automation Pipeline</h1>
                 <p className="text-sm text-muted-foreground">
                   Chain multiple tools into a single workflow
                 </p>

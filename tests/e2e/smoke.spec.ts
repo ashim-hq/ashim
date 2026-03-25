@@ -1,4 +1,4 @@
-import { test, expect } from "./helpers";
+import { expect, test } from "./helpers";
 
 test.describe("Smoke tests", () => {
   test("login page renders correctly", async ({ page }) => {
@@ -7,9 +7,7 @@ test.describe("Smoke tests", () => {
     await expect(page.getByRole("heading", { name: /login/i })).toBeVisible();
     await expect(page.getByLabel("Username")).toBeVisible();
     await expect(page.getByLabel("Password")).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: /login/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /login/i })).toBeVisible();
     // Right panel marketing text
     await expect(page.getByText("Your one-stop-shop")).toBeVisible();
   });

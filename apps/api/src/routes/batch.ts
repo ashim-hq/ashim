@@ -8,30 +8,25 @@
  * Returns a ZIP file containing all processed images.
  */
 import { randomUUID } from "node:crypto";
-import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import archiver from "archiver";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import PQueue from "p-queue";
-import { getToolConfig } from "./tool-factory.js";
+import { env } from "../config.js";
+import { autoOrient } from "../lib/auto-orient.js";
 import { validateImageBuffer } from "../lib/file-validation.js";
 import { sanitizeFilename } from "../lib/filename.js";
-import { autoOrient } from "../lib/auto-orient.js";
-import { env } from "../config.js";
-import { updateJobProgress, type JobProgress } from "./progress.js";
+import { type JobProgress, updateJobProgress } from "./progress.js";
+import { getToolConfig } from "./tool-factory.js";
 
 interface ParsedFile {
   buffer: Buffer;
   filename: string;
 }
 
-export async function registerBatchRoutes(
-  app: FastifyInstance,
-): Promise<void> {
+export async function registerBatchRoutes(app: FastifyInstance): Promise<void> {
   app.post(
     "/api/v1/tools/:toolId/batch",
-    async (
-      request: FastifyRequest<{ Params: { toolId: string } }>,
-      reply: FastifyReply,
-    ) => {
+    async (request: FastifyRequest<{ Params: { toolId: string } }>, reply: FastifyReply) => {
       const { toolId } = request.params;
 
       // Look up the tool config from the registry
@@ -131,7 +126,7 @@ export async function registerBatchRoutes(
         "Content-Disposition": `attachment; filename="batch-${toolId}-${jobId.slice(0, 8)}.zip"`,
         "Transfer-Encoding": "chunked",
         "X-Job-Id": jobId,
-        "X-File-Order": files.map(f => encodeURIComponent(f.filename)).join(","),
+        "X-File-Order": files.map((f) => encodeURIComponent(f.filename)).join(","),
       });
 
       // Create ZIP archive that pipes directly to the response
@@ -193,11 +188,7 @@ export async function registerBatchRoutes(
 
             try {
               const orientedBuffer = await autoOrient(file.buffer);
-              const result = await toolConfig.process(
-                orientedBuffer,
-                settings,
-                file.filename,
-              );
+              const result = await toolConfig.process(orientedBuffer, settings, file.filename);
 
               const zipFilename = getUniqueName(result.filename);
               archive.append(result.buffer, { name: zipFilename });
@@ -223,8 +214,7 @@ export async function registerBatchRoutes(
       }
 
       // Finalize progress
-      progress.status =
-        progress.failedFiles === progress.totalFiles ? "failed" : "completed";
+      progress.status = progress.failedFiles === progress.totalFiles ? "failed" : "completed";
       progress.currentFile = undefined;
       updateJobProgress({ ...progress });
 

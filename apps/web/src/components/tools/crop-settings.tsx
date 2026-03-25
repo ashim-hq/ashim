@@ -1,9 +1,9 @@
+import { ArrowLeftRight, Download, Grid3x3 } from "lucide-react";
 import { useCallback } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
-import { Download, ArrowLeftRight, Grid3x3 } from "lucide-react";
-import { ProgressCard } from "@/components/common/progress-card";
 import type { Crop } from "react-image-crop";
+import { ProgressCard } from "@/components/common/progress-card";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 const ASPECT_PRESETS = [
   { label: "Free", value: undefined as number | undefined },
@@ -35,14 +35,8 @@ export function CropSettings({
   onGridToggle,
 }: CropSettingsProps) {
   const { files } = useFileStore();
-  const {
-    processFiles,
-    processAllFiles,
-    processing,
-    error,
-    downloadUrl,
-    progress,
-  } = useToolProcessor("crop");
+  const { processFiles, processAllFiles, processing, error, downloadUrl, progress } =
+    useToolProcessor("crop");
 
   const { crop, aspect, showGrid, imgDimensions } = cropState;
 
@@ -66,10 +60,7 @@ export function CropSettings({
       if (!imgDimensions) return;
       const newCrop = { ...crop };
       if (field === "left") {
-        newCrop.x = Math.max(
-          0,
-          Math.min((value / imgDimensions.width) * 100, 100 - newCrop.width),
-        );
+        newCrop.x = Math.max(0, Math.min((value / imgDimensions.width) * 100, 100 - newCrop.width));
       } else if (field === "top") {
         newCrop.y = Math.max(
           0,
@@ -116,7 +107,7 @@ export function CropSettings({
         } else {
           // Desired ratio is taller than image — use full height, shrink width
           newHeight = 100;
-          newWidth = (imgDimensions.height * value / imgDimensions.width) * 100;
+          newWidth = ((imgDimensions.height * value) / imgDimensions.width) * 100;
         }
         onCropChange({
           unit: "%",
@@ -215,9 +206,7 @@ export function CropSettings({
             <input
               type="number"
               value={pixels.left}
-              onChange={(e) =>
-                handlePixelChange("left", Number(e.target.value))
-              }
+              onChange={(e) => handlePixelChange("left", Number(e.target.value))}
               min={0}
               max={imgDimensions ? imgDimensions.width - 1 : undefined}
               className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground tabular-nums"
@@ -230,9 +219,7 @@ export function CropSettings({
             <input
               type="number"
               value={pixels.top}
-              onChange={(e) =>
-                handlePixelChange("top", Number(e.target.value))
-              }
+              onChange={(e) => handlePixelChange("top", Number(e.target.value))}
               min={0}
               max={imgDimensions ? imgDimensions.height - 1 : undefined}
               className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground tabular-nums"
@@ -245,9 +232,7 @@ export function CropSettings({
             <input
               type="number"
               value={pixels.width}
-              onChange={(e) =>
-                handlePixelChange("width", Number(e.target.value))
-              }
+              onChange={(e) => handlePixelChange("width", Number(e.target.value))}
               min={1}
               max={imgDimensions ? imgDimensions.width : undefined}
               className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground tabular-nums"
@@ -260,9 +245,7 @@ export function CropSettings({
             <input
               type="number"
               value={pixels.height}
-              onChange={(e) =>
-                handlePixelChange("height", Number(e.target.value))
-              }
+              onChange={(e) => handlePixelChange("height", Number(e.target.value))}
               min={1}
               max={imgDimensions ? imgDimensions.height : undefined}
               className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground tabular-nums"

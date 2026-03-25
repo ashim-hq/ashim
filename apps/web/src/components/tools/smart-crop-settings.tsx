@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
 import { Download } from "lucide-react";
+import { useState } from "react";
 import { ProgressCard } from "@/components/common/progress-card";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 const ASPECT_PRESETS = [
   { label: "1:1 Square", w: 1080, h: 1080 },
@@ -92,7 +92,8 @@ export function SmartCropSettings() {
 
       {/* Info */}
       <p className="text-[10px] text-muted-foreground">
-        Uses entropy-based attention detection to find the most interesting region of the image and crops to it.
+        Uses entropy-based attention detection to find the most interesting region of the image and
+        crops to it.
       </p>
 
       {/* Error */}

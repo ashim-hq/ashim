@@ -1,13 +1,14 @@
+import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useFileStore } from "@/stores/file-store";
-import { Download, Loader2 } from "lucide-react";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
 }
 
 export function VectorizeSettings() {
-  const { files, processing, error, setProcessing, setError, setProcessedUrl, setSizes, setJobId } = useFileStore();
+  const { files, processing, error, setProcessing, setError, setProcessedUrl, setSizes, setJobId } =
+    useFileStore();
   const [colorMode, setColorMode] = useState<"bw" | "color">("bw");
   const [threshold, setThreshold] = useState(128);
   const [detail, setDetail] = useState<"low" | "medium" | "high">("medium");
@@ -79,7 +80,14 @@ export function VectorizeSettings() {
           <label className="text-xs text-muted-foreground">Threshold</label>
           <span className="text-xs font-mono text-foreground">{threshold}</span>
         </div>
-        <input type="range" min={0} max={255} value={threshold} onChange={(e) => setThreshold(Number(e.target.value))} className="w-full mt-1" />
+        <input
+          type="range"
+          min={0}
+          max={255}
+          value={threshold}
+          onChange={(e) => setThreshold(Number(e.target.value))}
+          className="w-full mt-1"
+        />
       </div>
 
       <div>
@@ -114,7 +122,11 @@ export function VectorizeSettings() {
       </button>
 
       {downloadUrl && (
-        <a href={downloadUrl} download className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5">
+        <a
+          href={downloadUrl}
+          download
+          className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5"
+        >
           <Download className="h-4 w-4" />
           Download SVG
         </a>

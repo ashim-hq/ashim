@@ -1,13 +1,8 @@
-import { useState, useEffect, useRef } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
-import {
-  RotateCcw,
-  RotateCw,
-  FlipHorizontal,
-  FlipVertical,
-} from "lucide-react";
+import { FlipHorizontal, FlipVertical, RotateCcw, RotateCw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { ProgressCard } from "@/components/common/progress-card";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 export interface PreviewTransform {
   rotate: number;
@@ -21,8 +16,7 @@ interface RotateSettingsProps {
 
 export function RotateSettings({ onPreviewTransform }: RotateSettingsProps) {
   const { files } = useFileStore();
-  const { processFiles, processAllFiles, processing, error, progress } =
-    useToolProcessor("rotate");
+  const { processFiles, processAllFiles, processing, error, progress } = useToolProcessor("rotate");
 
   // Quick rotation in 90° steps: 0, 90, 180, 270
   const [rotation, setRotation] = useState(0);
@@ -101,9 +95,7 @@ export function RotateSettings({ onPreviewTransform }: RotateSettingsProps) {
             Left
           </button>
           <div className="px-3 py-1.5 rounded-md bg-background border border-border text-center min-w-[4rem]">
-            <span className="text-sm font-mono font-medium tabular-nums">
-              {displayAngle}°
-            </span>
+            <span className="text-sm font-mono font-medium tabular-nums">{displayAngle}°</span>
           </div>
           <button
             type="button"

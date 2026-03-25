@@ -1,15 +1,13 @@
+import { resize } from "@stirling-image/image-engine";
+import type { FastifyInstance } from "fastify";
+import sharp from "sharp";
 import { z } from "zod";
 import { createToolRoute } from "../tool-factory.js";
-import { resize } from "@stirling-image/image-engine";
-import sharp from "sharp";
-import type { FastifyInstance } from "fastify";
 
 const settingsSchema = z.object({
   width: z.number().positive().optional(),
   height: z.number().positive().optional(),
-  fit: z
-    .enum(["contain", "cover", "fill", "inside", "outside"])
-    .default("contain"),
+  fit: z.enum(["contain", "cover", "fill", "inside", "outside"]).default("contain"),
   withoutEnlargement: z.boolean().default(false),
   percentage: z.number().positive().optional(),
 });

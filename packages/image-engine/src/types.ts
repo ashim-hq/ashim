@@ -76,7 +76,7 @@ export interface SaturationOptions {
 }
 
 export interface ColorChannelOptions {
-  red: number;   // 0-200 (100 = no change)
+  red: number; // 0-200 (100 = no change)
   green: number; // 0-200
-  blue: number;  // 0-200
+  blue: number; // 0-200
 }

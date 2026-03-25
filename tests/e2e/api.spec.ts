@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
 import fs from "node:fs";
+import { expect, test } from "@playwright/test";
 import { getTestImagePath } from "./helpers";
 
 const API = "http://localhost:13490";

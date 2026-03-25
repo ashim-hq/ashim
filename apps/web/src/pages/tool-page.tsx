@@ -1,61 +1,61 @@
-import { useParams } from "react-router-dom";
-import { useMemo, useCallback, useState, useEffect } from "react";
-import type { Crop } from "react-image-crop";
 import { TOOLS } from "@stirling-image/shared";
-import { AppLayout } from "@/components/layout/app-layout";
+import * as icons from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { Crop } from "react-image-crop";
+import { useParams } from "react-router-dom";
+import { BeforeAfterSlider } from "@/components/common/before-after-slider";
 import { Dropzone } from "@/components/common/dropzone";
 import { ImageViewer } from "@/components/common/image-viewer";
-import { ThumbnailStrip } from "@/components/common/thumbnail-strip";
-import { BeforeAfterSlider } from "@/components/common/before-after-slider";
-import { SideBySideComparison } from "@/components/common/side-by-side-comparison";
 import { ReviewPanel } from "@/components/common/review-panel";
-import type { PreviewTransform } from "@/components/tools/rotate-settings";
-import { useFileStore } from "@/stores/file-store";
-import { useMobile } from "@/hooks/use-mobile";
-import { formatFileSize } from "@/lib/download";
-import { ResizeSettings } from "@/components/tools/resize-settings";
-import { CropSettings } from "@/components/tools/crop-settings";
-import { CropCanvas } from "@/components/tools/crop-canvas";
-import { RotateSettings } from "@/components/tools/rotate-settings";
-import { ConvertSettings } from "@/components/tools/convert-settings";
-import { CompressSettings } from "@/components/tools/compress-settings";
-import { StripMetadataSettings } from "@/components/tools/strip-metadata-settings";
-import { ColorSettings } from "@/components/tools/color-settings";
-// Phase 3: Watermark & Overlay
-import { WatermarkTextSettings } from "@/components/tools/watermark-text-settings";
-import { WatermarkImageSettings } from "@/components/tools/watermark-image-settings";
-import { TextOverlaySettings } from "@/components/tools/text-overlay-settings";
-import { ComposeSettings } from "@/components/tools/compose-settings";
-// Phase 3: Utilities
-import { InfoSettings } from "@/components/tools/info-settings";
-import { CompareSettings } from "@/components/tools/compare-settings";
-import { FindDuplicatesSettings } from "@/components/tools/find-duplicates-settings";
-import { ColorPaletteSettings } from "@/components/tools/color-palette-settings";
-import { QrGenerateSettings } from "@/components/tools/qr-generate-settings";
+import { SideBySideComparison } from "@/components/common/side-by-side-comparison";
+import { ThumbnailStrip } from "@/components/common/thumbnail-strip";
+import { AppLayout } from "@/components/layout/app-layout";
 import { BarcodeReadSettings } from "@/components/tools/barcode-read-settings";
-// Phase 3: Layout & Composition
-import { CollageSettings } from "@/components/tools/collage-settings";
-import { SplitSettings } from "@/components/tools/split-settings";
+import { BlurFacesSettings } from "@/components/tools/blur-faces-settings";
 import { BorderSettings } from "@/components/tools/border-settings";
-// Phase 3: Format & Conversion
-import { SvgToRasterSettings } from "@/components/tools/svg-to-raster-settings";
-import { VectorizeSettings } from "@/components/tools/vectorize-settings";
-import { GifToolsSettings } from "@/components/tools/gif-tools-settings";
 // Phase 3: Optimization extras
 import { BulkRenameSettings } from "@/components/tools/bulk-rename-settings";
+// Phase 3: Layout & Composition
+import { CollageSettings } from "@/components/tools/collage-settings";
+import { ColorPaletteSettings } from "@/components/tools/color-palette-settings";
+import { ColorSettings } from "@/components/tools/color-settings";
+import { CompareSettings } from "@/components/tools/compare-settings";
+import { ComposeSettings } from "@/components/tools/compose-settings";
+import { CompressSettings } from "@/components/tools/compress-settings";
+import { ConvertSettings } from "@/components/tools/convert-settings";
+import { CropCanvas } from "@/components/tools/crop-canvas";
+import { CropSettings } from "@/components/tools/crop-settings";
+import { EraseObjectSettings } from "@/components/tools/erase-object-settings";
 import { FaviconSettings } from "@/components/tools/favicon-settings";
+import { FindDuplicatesSettings } from "@/components/tools/find-duplicates-settings";
+import { GifToolsSettings } from "@/components/tools/gif-tools-settings";
 import { ImageToPdfSettings } from "@/components/tools/image-to-pdf-settings";
-// Phase 3: Adjustments extra
-import { ReplaceColorSettings } from "@/components/tools/replace-color-settings";
+// Phase 3: Utilities
+import { InfoSettings } from "@/components/tools/info-settings";
+import { OcrSettings } from "@/components/tools/ocr-settings";
+import { QrGenerateSettings } from "@/components/tools/qr-generate-settings";
 // Phase 4: AI Tools
 import { RemoveBgSettings } from "@/components/tools/remove-bg-settings";
-import { UpscaleSettings } from "@/components/tools/upscale-settings";
-import { OcrSettings } from "@/components/tools/ocr-settings";
-import { BlurFacesSettings } from "@/components/tools/blur-faces-settings";
-import { EraseObjectSettings } from "@/components/tools/erase-object-settings";
+// Phase 3: Adjustments extra
+import { ReplaceColorSettings } from "@/components/tools/replace-color-settings";
+import { ResizeSettings } from "@/components/tools/resize-settings";
+import type { PreviewTransform } from "@/components/tools/rotate-settings";
+import { RotateSettings } from "@/components/tools/rotate-settings";
 import { SmartCropSettings } from "@/components/tools/smart-crop-settings";
-import * as icons from "lucide-react";
-import { CheckCircle2, Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { SplitSettings } from "@/components/tools/split-settings";
+import { StripMetadataSettings } from "@/components/tools/strip-metadata-settings";
+// Phase 3: Format & Conversion
+import { SvgToRasterSettings } from "@/components/tools/svg-to-raster-settings";
+import { TextOverlaySettings } from "@/components/tools/text-overlay-settings";
+import { UpscaleSettings } from "@/components/tools/upscale-settings";
+import { VectorizeSettings } from "@/components/tools/vectorize-settings";
+import { WatermarkImageSettings } from "@/components/tools/watermark-image-settings";
+// Phase 3: Watermark & Overlay
+import { WatermarkTextSettings } from "@/components/tools/watermark-text-settings";
+import { useMobile } from "@/hooks/use-mobile";
+import { formatFileSize } from "@/lib/download";
+import { useFileStore } from "@/stores/file-store";
 
 const COLOR_TOOL_IDS = new Set([
   "brightness-contrast",
@@ -133,9 +133,7 @@ function ToolSettingsPanel({
   if (toolId === "smart-crop") return <SmartCropSettings />;
 
   return (
-    <p className="text-xs text-muted-foreground italic">
-      Settings for this tool are coming soon.
-    </p>
+    <p className="text-xs text-muted-foreground italic">Settings for this tool are coming soon.</p>
   );
 }
 
@@ -155,9 +153,7 @@ function FileSelectionInfo({
 }) {
   if (files.length === 0) {
     return (
-      <p className="text-xs text-muted-foreground italic">
-        Drop or upload an image to get started
-      </p>
+      <p className="text-xs text-muted-foreground italic">Drop or upload an image to get started</p>
     );
   }
 
@@ -165,14 +161,20 @@ function FileSelectionInfo({
     <div className="space-y-1">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-foreground">Files ({files.length})</span>
-        <button onClick={onAddMore} className="text-xs text-primary hover:text-primary/80">+ Add more</button>
+        <button onClick={onAddMore} className="text-xs text-primary hover:text-primary/80">
+          + Add more
+        </button>
       </div>
       <div className="flex items-center gap-1.5 text-xs text-foreground bg-muted rounded px-2 py-1.5">
         <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />
         <span className="truncate flex-1">{selectedFileName ?? files[0].name}</span>
-        <span className="text-muted-foreground shrink-0 ml-1">{formatFileSize(selectedFileSize ?? files[0].size)}</span>
+        <span className="text-muted-foreground shrink-0 ml-1">
+          {formatFileSize(selectedFileSize ?? files[0].size)}
+        </span>
       </div>
-      <button onClick={onClear} className="text-xs text-muted-foreground hover:text-foreground">Clear all</button>
+      <button onClick={onClear} className="text-xs text-muted-foreground hover:text-foreground">
+        Clear all
+      </button>
     </div>
   );
 }
@@ -205,10 +207,18 @@ export function ToolPage() {
   const hasPrev = selectedIndex > 0;
   const hasNext = selectedIndex < entries.length - 1;
 
-  const handleImageKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") { e.preventDefault(); navigatePrev(); }
-    else if (e.key === "ArrowRight") { e.preventDefault(); navigateNext(); }
-  }, [navigateNext, navigatePrev]);
+  const handleImageKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        navigatePrev();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        navigateNext();
+      }
+    },
+    [navigateNext, navigatePrev],
+  );
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(true);
   const [previewTransform, setPreviewTransform] = useState<PreviewTransform | null>(null);
 
@@ -240,7 +250,7 @@ export function ToolPage() {
   useEffect(() => {
     setCropCrop({ unit: "%", x: 0, y: 0, width: 100, height: 100 });
     setCropImgDimensions(null);
-  }, [originalBlobUrl]);
+  }, []);
 
   const handleFiles = useCallback(
     (newFiles: File[]) => {
@@ -287,21 +297,15 @@ export function ToolPage() {
   }
 
   const IconComponent =
-    (
-      icons as unknown as Record<
-        string,
-        React.ComponentType<{ className?: string }>
-      >
-    )[tool.icon] || icons.FileImage;
+    (icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[tool.icon] ||
+    icons.FileImage;
 
   const hasFile = files.length > 0;
   const hasProcessed = !!processedUrl;
   const isNoDropzone = NO_DROPZONE_TOOLS.has(tool.id);
 
   // Derive processed file info from context
-  const processedFileName = selectedFileName
-    ? `processed-${selectedFileName}`
-    : "processed-image";
+  const processedFileName = selectedFileName ? `processed-${selectedFileName}` : "processed-image";
   const processedFileType = selectedFileName
     ? selectedFileName.split(".").pop()?.toUpperCase() || "IMAGE"
     : "IMAGE";
@@ -316,9 +320,7 @@ export function ToolPage() {
             <div className="p-2 rounded-lg bg-primary text-primary-foreground">
               <IconComponent className="h-5 w-5" />
             </div>
-            <h2 className="font-semibold text-lg text-foreground flex-1">
-              {tool.name}
-            </h2>
+            <h2 className="font-semibold text-lg text-foreground flex-1">{tool.name}</h2>
             <button
               onClick={() => setMobileSettingsOpen(!mobileSettingsOpen)}
               className="px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:bg-muted"
@@ -333,9 +335,7 @@ export function ToolPage() {
               {/* File info */}
               {!isNoDropzone && (
                 <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">
-                    Files
-                  </h3>
+                  <h3 className="text-sm font-medium text-muted-foreground">Files</h3>
                   <FileSelectionInfo
                     files={files}
                     selectedFileName={selectedFileName}
@@ -349,18 +349,22 @@ export function ToolPage() {
               <div className="border-t border-border" />
 
               <div className="space-y-2">
-                <h3 className="text-sm font-medium text-muted-foreground">
-                  Settings
-                </h3>
+                <h3 className="text-sm font-medium text-muted-foreground">Settings</h3>
                 <ToolSettingsPanel
                   toolId={tool.id}
-                  onPreviewTransform={LIVE_PREVIEW_TOOLS.has(tool.id) ? setPreviewTransform : undefined}
-                  cropProps={INTERACTIVE_CROP_TOOLS.has(tool.id) ? {
-                    cropState,
-                    onCropChange: setCropCrop,
-                    onAspectChange: setCropAspect,
-                    onGridToggle: setCropShowGrid,
-                  } : undefined}
+                  onPreviewTransform={
+                    LIVE_PREVIEW_TOOLS.has(tool.id) ? setPreviewTransform : undefined
+                  }
+                  cropProps={
+                    INTERACTIVE_CROP_TOOLS.has(tool.id)
+                      ? {
+                          cropState,
+                          onCropChange: setCropCrop,
+                          onAspectChange: setCropAspect,
+                          onGridToggle: setCropShowGrid,
+                        }
+                      : undefined
+                  }
                 />
               </div>
 
@@ -380,10 +384,18 @@ export function ToolPage() {
           )}
 
           {/* Main area: Dropzone / Image Viewer / Before-After */}
-          <div className="flex-1 flex flex-col min-h-0" onKeyDown={hasMultiple ? handleImageKeyDown : undefined} tabIndex={hasMultiple ? 0 : undefined}>
+          <div
+            className="flex-1 flex flex-col min-h-0"
+            onKeyDown={hasMultiple ? handleImageKeyDown : undefined}
+            tabIndex={hasMultiple ? 0 : undefined}
+          >
             <div className="flex-1 relative flex items-center justify-center p-4 min-h-0">
               {hasMultiple && hasPrev && (
-                <button onClick={navigatePrev} className="absolute left-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors" aria-label="Previous image">
+                <button
+                  onClick={navigatePrev}
+                  className="absolute left-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors"
+                  aria-label="Previous image"
+                >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
               )}
@@ -391,7 +403,10 @@ export function ToolPage() {
                 <div className="text-center text-muted-foreground">
                   <p className="text-sm">Configure settings and generate.</p>
                 </div>
-              ) : INTERACTIVE_CROP_TOOLS.has(tool.id) && hasFile && !hasProcessed && originalBlobUrl ? (
+              ) : INTERACTIVE_CROP_TOOLS.has(tool.id) &&
+                hasFile &&
+                !hasProcessed &&
+                originalBlobUrl ? (
                 <CropCanvas
                   imageSrc={originalBlobUrl}
                   crop={cropCrop}
@@ -441,15 +456,14 @@ export function ToolPage() {
                     : {})}
                 />
               ) : (
-                <Dropzone
-                  onFiles={handleFiles}
-                  accept="image/*"
-                  multiple
-                  currentFiles={files}
-                />
+                <Dropzone onFiles={handleFiles} accept="image/*" multiple currentFiles={files} />
               )}
               {hasMultiple && hasNext && (
-                <button onClick={navigateNext} className="absolute right-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors" aria-label="Next image">
+                <button
+                  onClick={navigateNext}
+                  className="absolute right-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors"
+                  aria-label="Next image"
+                >
                   <ChevronRight className="h-4 w-4" />
                 </button>
               )}
@@ -460,7 +474,11 @@ export function ToolPage() {
               )}
             </div>
             {hasMultiple && (
-              <ThumbnailStrip entries={entries} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
+              <ThumbnailStrip
+                entries={entries}
+                selectedIndex={selectedIndex}
+                onSelect={setSelectedIndex}
+              />
             )}
           </div>
         </div>
@@ -478,17 +496,13 @@ export function ToolPage() {
             <div className="p-2 rounded-lg bg-primary text-primary-foreground">
               <IconComponent className="h-5 w-5" />
             </div>
-            <h2 className="font-semibold text-lg text-foreground">
-              {tool.name}
-            </h2>
+            <h2 className="font-semibold text-lg text-foreground">{tool.name}</h2>
           </div>
 
           {/* File info - hidden for tools that don't need files */}
           {!isNoDropzone && (
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Files
-              </h3>
+              <h3 className="text-sm font-medium text-muted-foreground">Files</h3>
               <FileSelectionInfo
                 files={files}
                 selectedFileName={selectedFileName}
@@ -503,18 +517,20 @@ export function ToolPage() {
 
           {/* Tool-specific settings */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Settings
-            </h3>
+            <h3 className="text-sm font-medium text-muted-foreground">Settings</h3>
             <ToolSettingsPanel
               toolId={tool.id}
               onPreviewTransform={LIVE_PREVIEW_TOOLS.has(tool.id) ? setPreviewTransform : undefined}
-              cropProps={INTERACTIVE_CROP_TOOLS.has(tool.id) ? {
-                cropState,
-                onCropChange: setCropCrop,
-                onAspectChange: setCropAspect,
-                onGridToggle: setCropShowGrid,
-              } : undefined}
+              cropProps={
+                INTERACTIVE_CROP_TOOLS.has(tool.id)
+                  ? {
+                      cropState,
+                      onCropChange: setCropCrop,
+                      onAspectChange: setCropAspect,
+                      onGridToggle: setCropShowGrid,
+                    }
+                  : undefined
+              }
             />
           </div>
 
@@ -547,10 +563,18 @@ export function ToolPage() {
         </div>
 
         {/* Main area: Dropzone / Image Viewer / Before-After */}
-        <div className="flex-1 flex flex-col min-h-0" onKeyDown={hasMultiple ? handleImageKeyDown : undefined} tabIndex={hasMultiple ? 0 : undefined}>
+        <div
+          className="flex-1 flex flex-col min-h-0"
+          onKeyDown={hasMultiple ? handleImageKeyDown : undefined}
+          tabIndex={hasMultiple ? 0 : undefined}
+        >
           <div className="flex-1 relative flex items-center justify-center p-6 min-h-0">
             {hasMultiple && hasPrev && (
-              <button onClick={navigatePrev} className="absolute left-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors" aria-label="Previous image">
+              <button
+                onClick={navigatePrev}
+                className="absolute left-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors"
+                aria-label="Previous image"
+              >
                 <ChevronLeft className="h-4 w-4" />
               </button>
             )}
@@ -558,7 +582,10 @@ export function ToolPage() {
               <div className="text-center text-muted-foreground">
                 <p className="text-sm">Configure settings and generate.</p>
               </div>
-            ) : INTERACTIVE_CROP_TOOLS.has(tool.id) && hasFile && !hasProcessed && originalBlobUrl ? (
+            ) : INTERACTIVE_CROP_TOOLS.has(tool.id) &&
+              hasFile &&
+              !hasProcessed &&
+              originalBlobUrl ? (
               <CropCanvas
                 imageSrc={originalBlobUrl}
                 crop={cropCrop}
@@ -608,15 +635,14 @@ export function ToolPage() {
                   : {})}
               />
             ) : (
-              <Dropzone
-                onFiles={handleFiles}
-                accept="image/*"
-                multiple
-                currentFiles={files}
-              />
+              <Dropzone onFiles={handleFiles} accept="image/*" multiple currentFiles={files} />
             )}
             {hasMultiple && hasNext && (
-              <button onClick={navigateNext} className="absolute right-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors" aria-label="Next image">
+              <button
+                onClick={navigateNext}
+                className="absolute right-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors"
+                aria-label="Next image"
+              >
                 <ChevronRight className="h-4 w-4" />
               </button>
             )}
@@ -627,7 +653,11 @@ export function ToolPage() {
             )}
           </div>
           {hasMultiple && (
-            <ThumbnailStrip entries={entries} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
+            <ThumbnailStrip
+              entries={entries}
+              selectedIndex={selectedIndex}
+              onSelect={setSelectedIndex}
+            />
           )}
         </div>
       </div>

@@ -11,9 +11,7 @@ interface ThemeStore {
 
 function getSystemTheme(): "light" | "dark" {
   if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 export const useThemeStore = create<ThemeStore>()(
@@ -27,6 +25,6 @@ export const useThemeStore = create<ThemeStore>()(
         set({ theme, resolvedTheme: resolved });
       },
     }),
-    { name: "stirling-image-theme" }
-  )
+    { name: "stirling-image-theme" },
+  ),
 );

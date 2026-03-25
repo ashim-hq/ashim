@@ -1,10 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach, afterAll } from "vitest";
-import { readFile } from "node:fs/promises";
-import { join, basename } from "node:path";
-import { existsSync } from "node:fs";
-import { mkdir, rm, readdir } from "node:fs/promises";
-import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
+import { existsSync } from "node:fs";
+import { mkdir, readdir, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { basename, join } from "node:path";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const FIXTURES = join(__dirname, "../../fixtures");
 
@@ -80,10 +79,7 @@ describe("validateImageBuffer", () => {
 
   it("accepts a GIF buffer with correct magic bytes", async () => {
     // Minimal GIF89a: header + logical screen descriptor + terminator
-    const gif = Buffer.from(
-      "474946383961010001000000002c00000000010001000002024401003b",
-      "hex",
-    );
+    const gif = Buffer.from("474946383961010001000000002c00000000010001000002024401003b", "hex");
     const result = await validateImageBuffer(gif);
     // sharp may or may not parse this minimal GIF; what matters is magic bytes pass
     // If sharp fails metadata, that is "Failed to read image metadata"

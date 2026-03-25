@@ -1,17 +1,13 @@
-import sharp from "sharp";
-import type { FastifyInstance } from "fastify";
 import { basename } from "node:path";
+import type { FastifyInstance } from "fastify";
+import sharp from "sharp";
 
 /**
  * Compute a dHash (difference hash) for perceptual duplicate detection.
  * Resize to 9x8 grayscale, compare adjacent pixels to create 64-bit hash.
  */
 async function computeDHash(buffer: Buffer): Promise<string> {
-  const pixels = await sharp(buffer)
-    .resize(9, 8, { fit: "fill" })
-    .grayscale()
-    .raw()
-    .toBuffer();
+  const pixels = await sharp(buffer).resize(9, 8, { fit: "fill" }).grayscale().raw().toBuffer();
 
   let hash = "";
   for (let y = 0; y < 8; y++) {
@@ -36,88 +32,87 @@ function hammingDistance(a: string, b: string): number {
 }
 
 export function registerFindDuplicates(app: FastifyInstance) {
-  app.post(
-    "/api/v1/tools/find-duplicates",
-    async (request, reply) => {
-      const files: Array<{ buffer: Buffer; filename: string }> = [];
+  app.post("/api/v1/tools/find-duplicates", async (request, reply) => {
+    const files: Array<{ buffer: Buffer; filename: string }> = [];
 
-      try {
-        const parts = request.parts();
-        for await (const part of parts) {
-          if (part.type === "file") {
-            const chunks: Buffer[] = [];
-            for await (const chunk of part.file) {
-              chunks.push(chunk);
-            }
-            const buf = Buffer.concat(chunks);
-            if (buf.length > 0) {
-              files.push({
-                buffer: buf,
-                filename: basename(part.filename ?? `image-${files.length}`),
-              });
-            }
+    try {
+      const parts = request.parts();
+      for await (const part of parts) {
+        if (part.type === "file") {
+          const chunks: Buffer[] = [];
+          for await (const chunk of part.file) {
+            chunks.push(chunk);
+          }
+          const buf = Buffer.concat(chunks);
+          if (buf.length > 0) {
+            files.push({
+              buffer: buf,
+              filename: basename(part.filename ?? `image-${files.length}`),
+            });
           }
         }
-      } catch (err) {
-        return reply.status(400).send({
-          error: "Failed to parse multipart request",
-          details: err instanceof Error ? err.message : String(err),
-        });
+      }
+    } catch (err) {
+      return reply.status(400).send({
+        error: "Failed to parse multipart request",
+        details: err instanceof Error ? err.message : String(err),
+      });
+    }
+
+    if (files.length < 2) {
+      return reply
+        .status(400)
+        .send({ error: "At least 2 images are required for duplicate detection" });
+    }
+
+    try {
+      // Compute hashes for all images
+      const hashes: Array<{ filename: string; hash: string }> = [];
+      for (const file of files) {
+        const hash = await computeDHash(file.buffer);
+        hashes.push({ filename: file.filename, hash });
       }
 
-      if (files.length < 2) {
-        return reply.status(400).send({ error: "At least 2 images are required for duplicate detection" });
-      }
+      // Compare all pairs, group duplicates
+      const threshold = 10; // Hamming distance threshold for "similar"
+      const groups: Array<{
+        files: Array<{ filename: string; similarity: number }>;
+      }> = [];
+      const assigned = new Set<number>();
 
-      try {
-        // Compute hashes for all images
-        const hashes: Array<{ filename: string; hash: string }> = [];
-        for (const file of files) {
-          const hash = await computeDHash(file.buffer);
-          hashes.push({ filename: file.filename, hash });
-        }
+      for (let i = 0; i < hashes.length; i++) {
+        if (assigned.has(i)) continue;
 
-        // Compare all pairs, group duplicates
-        const threshold = 10; // Hamming distance threshold for "similar"
-        const groups: Array<{
-          files: Array<{ filename: string; similarity: number }>;
-        }> = [];
-        const assigned = new Set<number>();
+        const group: Array<{ filename: string; similarity: number }> = [
+          { filename: hashes[i].filename, similarity: 100 },
+        ];
 
-        for (let i = 0; i < hashes.length; i++) {
-          if (assigned.has(i)) continue;
-
-          const group: Array<{ filename: string; similarity: number }> = [
-            { filename: hashes[i].filename, similarity: 100 },
-          ];
-
-          for (let j = i + 1; j < hashes.length; j++) {
-            if (assigned.has(j)) continue;
-            const dist = hammingDistance(hashes[i].hash, hashes[j].hash);
-            if (dist <= threshold) {
-              const similarity = Math.round((1 - dist / 64) * 10000) / 100;
-              group.push({ filename: hashes[j].filename, similarity });
-              assigned.add(j);
-            }
-          }
-
-          if (group.length > 1) {
-            assigned.add(i);
-            groups.push({ files: group });
+        for (let j = i + 1; j < hashes.length; j++) {
+          if (assigned.has(j)) continue;
+          const dist = hammingDistance(hashes[i].hash, hashes[j].hash);
+          if (dist <= threshold) {
+            const similarity = Math.round((1 - dist / 64) * 10000) / 100;
+            group.push({ filename: hashes[j].filename, similarity });
+            assigned.add(j);
           }
         }
 
-        return reply.send({
-          totalImages: files.length,
-          duplicateGroups: groups,
-          uniqueImages: files.length - assigned.size,
-        });
-      } catch (err) {
-        return reply.status(422).send({
-          error: "Duplicate detection failed",
-          details: err instanceof Error ? err.message : "Unknown error",
-        });
+        if (group.length > 1) {
+          assigned.add(i);
+          groups.push({ files: group });
+        }
       }
-    },
-  );
+
+      return reply.send({
+        totalImages: files.length,
+        duplicateGroups: groups,
+        uniqueImages: files.length - assigned.size,
+      });
+    } catch (err) {
+      return reply.status(422).send({
+        error: "Duplicate detection failed",
+        details: err instanceof Error ? err.message : "Unknown error",
+      });
+    }
+  });
 }

@@ -1,44 +1,44 @@
 import type { FastifyInstance } from "fastify";
-import { registerResize } from "./resize.js";
-import { registerCrop } from "./crop.js";
-import { registerRotate } from "./rotate.js";
-import { registerConvert } from "./convert.js";
-import { registerCompress } from "./compress.js";
-import { registerStripMetadata } from "./strip-metadata.js";
-import { registerColorAdjustments } from "./color-adjustments.js";
-// Phase 3: Watermark & Overlay
-import { registerWatermarkText } from "./watermark-text.js";
-import { registerWatermarkImage } from "./watermark-image.js";
-import { registerTextOverlay } from "./text-overlay.js";
-import { registerCompose } from "./compose.js";
-// Phase 3: Utilities
-import { registerInfo } from "./info.js";
-import { registerCompare } from "./compare.js";
-import { registerFindDuplicates } from "./find-duplicates.js";
-import { registerColorPalette } from "./color-palette.js";
-import { registerQrGenerate } from "./qr-generate.js";
 import { registerBarcodeRead } from "./barcode-read.js";
-// Phase 3: Layout & Composition
-import { registerCollage } from "./collage.js";
-import { registerSplit } from "./split.js";
+import { registerBlurFaces } from "./blur-faces.js";
 import { registerBorder } from "./border.js";
-// Phase 3: Format & Conversion
-import { registerSvgToRaster } from "./svg-to-raster.js";
-import { registerVectorize } from "./vectorize.js";
-import { registerGifTools } from "./gif-tools.js";
 // Phase 3: Optimization extras
 import { registerBulkRename } from "./bulk-rename.js";
+// Phase 3: Layout & Composition
+import { registerCollage } from "./collage.js";
+import { registerColorAdjustments } from "./color-adjustments.js";
+import { registerColorPalette } from "./color-palette.js";
+import { registerCompare } from "./compare.js";
+import { registerCompose } from "./compose.js";
+import { registerCompress } from "./compress.js";
+import { registerConvert } from "./convert.js";
+import { registerCrop } from "./crop.js";
+import { registerEraseObject } from "./erase-object.js";
 import { registerFavicon } from "./favicon.js";
+import { registerFindDuplicates } from "./find-duplicates.js";
+import { registerGifTools } from "./gif-tools.js";
 import { registerImageToPdf } from "./image-to-pdf.js";
-// Phase 3: Adjustments extra
-import { registerReplaceColor } from "./replace-color.js";
+// Phase 3: Utilities
+import { registerInfo } from "./info.js";
+import { registerOcr } from "./ocr.js";
+import { registerQrGenerate } from "./qr-generate.js";
 // Phase 4: AI Tools
 import { registerRemoveBackground } from "./remove-background.js";
-import { registerUpscale } from "./upscale.js";
-import { registerOcr } from "./ocr.js";
-import { registerBlurFaces } from "./blur-faces.js";
-import { registerEraseObject } from "./erase-object.js";
+// Phase 3: Adjustments extra
+import { registerReplaceColor } from "./replace-color.js";
+import { registerResize } from "./resize.js";
+import { registerRotate } from "./rotate.js";
 import { registerSmartCrop } from "./smart-crop.js";
+import { registerSplit } from "./split.js";
+import { registerStripMetadata } from "./strip-metadata.js";
+// Phase 3: Format & Conversion
+import { registerSvgToRaster } from "./svg-to-raster.js";
+import { registerTextOverlay } from "./text-overlay.js";
+import { registerUpscale } from "./upscale.js";
+import { registerVectorize } from "./vectorize.js";
+import { registerWatermarkImage } from "./watermark-image.js";
+// Phase 3: Watermark & Overlay
+import { registerWatermarkText } from "./watermark-text.js";
 
 /**
  * Registry that imports and registers all tool routes.

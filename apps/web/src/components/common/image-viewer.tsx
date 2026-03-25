@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { ZoomIn, ZoomOut, Maximize, Minimize2 } from "lucide-react";
+import { Maximize, Minimize2, ZoomIn, ZoomOut } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { formatFileSize } from "@/lib/download";
 
 interface ImageViewerProps {
@@ -14,7 +14,14 @@ interface ImageViewerProps {
 const ZOOM_STEPS = [25, 50, 75, 100, 125, 150, 200, 300];
 const DEFAULT_ZOOM = 100;
 
-export function ImageViewer({ src, filename, fileSize, cssRotate, cssFlipH, cssFlipV }: ImageViewerProps) {
+export function ImageViewer({
+  src,
+  filename,
+  fileSize,
+  cssRotate,
+  cssFlipH,
+  cssFlipV,
+}: ImageViewerProps) {
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [naturalWidth, setNaturalWidth] = useState<number | null>(null);
   const [naturalHeight, setNaturalHeight] = useState<number | null>(null);
@@ -63,7 +70,7 @@ export function ImageViewer({ src, filename, fileSize, cssRotate, cssFlipH, cssF
     setFitMode("fit");
     setNaturalWidth(null);
     setNaturalHeight(null);
-  }, [src]);
+  }, []);
 
   const previewTransform = [
     cssRotate ? `rotate(${cssRotate}deg)` : "",

@@ -1,8 +1,8 @@
+import { Download, ImageIcon, Package, User } from "lucide-react";
 import { useState } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
 import { ProgressCard } from "@/components/common/progress-card";
-import { Download, User, Package, ImageIcon } from "lucide-react";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 type SubjectType = "people" | "products" | "general";
 type Quality = "fast" | "balanced" | "best";
@@ -15,9 +15,9 @@ type BgModel =
   | "u2net";
 
 const MODEL_MAP: Record<SubjectType, Record<Quality, BgModel>> = {
-  people:   { fast: "u2net", balanced: "birefnet-portrait", best: "birefnet-portrait" },
-  products: { fast: "u2net", balanced: "bria-rmbg",         best: "birefnet-general" },
-  general:  { fast: "u2net", balanced: "birefnet-general-lite", best: "birefnet-general" },
+  people: { fast: "u2net", balanced: "birefnet-portrait", best: "birefnet-portrait" },
+  products: { fast: "u2net", balanced: "bria-rmbg", best: "birefnet-general" },
+  general: { fast: "u2net", balanced: "birefnet-general-lite", best: "birefnet-general" },
 };
 
 const SUBJECT_OPTIONS: { value: SubjectType; label: string; icon: typeof User }[] = [
@@ -126,9 +126,7 @@ export function RemoveBgSettings() {
 
       {/* Background color - intuitive preset buttons */}
       <div>
-        <label className="text-sm font-medium text-muted-foreground">
-          Output Background
-        </label>
+        <label className="text-sm font-medium text-muted-foreground">Output Background</label>
         <div className="flex gap-1.5 mt-1.5 flex-wrap">
           {BG_PRESETS.map((preset) => (
             <button

@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "./use-theme";
 
@@ -20,7 +20,10 @@ interface ShortcutDef {
  * Check if a keyboard event matches a shortcut definition.
  */
 function matchesShortcut(e: KeyboardEvent, keys: string): boolean {
-  const parts = keys.toLowerCase().split("+").map((s) => s.trim());
+  const parts = keys
+    .toLowerCase()
+    .split("+")
+    .map((s) => s.trim());
   const mac = isMac();
 
   const needsMod = parts.includes("mod");
@@ -52,9 +55,7 @@ export function useKeyboardShortcuts() {
   const { toggleTheme } = useTheme();
 
   const focusSearchBar = useCallback(() => {
-    const searchInput = document.querySelector<HTMLInputElement>(
-      'input[placeholder*="Search"]'
-    );
+    const searchInput = document.querySelector<HTMLInputElement>('input[placeholder*="Search"]');
     if (searchInput) {
       searchInput.focus();
       searchInput.select();
@@ -70,9 +71,21 @@ export function useKeyboardShortcuts() {
       { keys: "mod+alt+2", description: "Go to Crop", action: () => navigate("/crop") },
       { keys: "mod+alt+3", description: "Go to Compress", action: () => navigate("/compress") },
       { keys: "mod+alt+4", description: "Go to Convert", action: () => navigate("/convert") },
-      { keys: "mod+alt+5", description: "Go to Remove Background", action: () => navigate("/remove-background") },
-      { keys: "mod+alt+6", description: "Go to Watermark Text", action: () => navigate("/watermark-text") },
-      { keys: "mod+alt+7", description: "Go to Strip Metadata", action: () => navigate("/strip-metadata") },
+      {
+        keys: "mod+alt+5",
+        description: "Go to Remove Background",
+        action: () => navigate("/remove-background"),
+      },
+      {
+        keys: "mod+alt+6",
+        description: "Go to Watermark Text",
+        action: () => navigate("/watermark-text"),
+      },
+      {
+        keys: "mod+alt+7",
+        description: "Go to Strip Metadata",
+        action: () => navigate("/strip-metadata"),
+      },
       { keys: "mod+alt+8", description: "Go to Image Info", action: () => navigate("/info") },
     ];
 

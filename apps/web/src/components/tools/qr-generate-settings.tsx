@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
@@ -67,7 +67,15 @@ export function QrGenerateSettings() {
           <label className="text-xs text-muted-foreground">Size</label>
           <span className="text-xs font-mono text-foreground">{size}px</span>
         </div>
-        <input type="range" min={100} max={2000} step={50} value={size} onChange={(e) => setSize(Number(e.target.value))} className="w-full mt-1" />
+        <input
+          type="range"
+          min={100}
+          max={2000}
+          step={50}
+          value={size}
+          onChange={(e) => setSize(Number(e.target.value))}
+          className="w-full mt-1"
+        />
       </div>
 
       <div>
@@ -87,11 +95,21 @@ export function QrGenerateSettings() {
       <div className="flex gap-2">
         <div className="flex-1">
           <label className="text-xs text-muted-foreground">Foreground</label>
-          <input type="color" value={foreground} onChange={(e) => setForeground(e.target.value)} className="w-full mt-0.5 h-8 rounded border border-border" />
+          <input
+            type="color"
+            value={foreground}
+            onChange={(e) => setForeground(e.target.value)}
+            className="w-full mt-0.5 h-8 rounded border border-border"
+          />
         </div>
         <div className="flex-1">
           <label className="text-xs text-muted-foreground">Background</label>
-          <input type="color" value={background} onChange={(e) => setBackground(e.target.value)} className="w-full mt-0.5 h-8 rounded border border-border" />
+          <input
+            type="color"
+            value={background}
+            onChange={(e) => setBackground(e.target.value)}
+            className="w-full mt-0.5 h-8 rounded border border-border"
+          />
         </div>
       </div>
 
@@ -108,8 +126,17 @@ export function QrGenerateSettings() {
 
       {previewUrl && (
         <div className="flex flex-col items-center gap-2">
-          <img src={previewUrl} alt="QR Code" className="max-w-full rounded border border-border" style={{ maxHeight: 200 }} />
-          <a href={downloadUrl!} download className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5">
+          <img
+            src={previewUrl}
+            alt="QR Code"
+            className="max-w-full rounded border border-border"
+            style={{ maxHeight: 200 }}
+          />
+          <a
+            href={downloadUrl!}
+            download
+            className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5"
+          >
             <Download className="h-4 w-4" />
             Download QR Code
           </a>

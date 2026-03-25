@@ -1,5 +1,5 @@
-import { useCallback, useState, type DragEvent } from "react";
-import { Upload, FileImage } from "lucide-react";
+import { FileImage, Upload } from "lucide-react";
+import { type DragEvent, useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface DropzoneProps {
@@ -28,7 +28,7 @@ export function Dropzone({ onFiles, accept, multiple = true, currentFiles = [] }
       const files = Array.from(e.dataTransfer.files);
       if (files.length > 0) onFiles?.(files);
     },
-    [onFiles]
+    [onFiles],
   );
 
   const handleClick = () => {
@@ -56,7 +56,7 @@ export function Dropzone({ onFiles, accept, multiple = true, currentFiles = [] }
         "flex flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-colors cursor-pointer min-h-[400px] mx-auto max-w-2xl w-full",
         isDragging
           ? "border-primary bg-primary/5"
-          : "border-border bg-muted/30 hover:border-primary/50 hover:bg-muted/50"
+          : "border-border bg-muted/30 hover:border-primary/50 hover:bg-muted/50",
       )}
     >
       <div className="flex flex-col items-center gap-4 p-8">
@@ -67,9 +67,7 @@ export function Dropzone({ onFiles, accept, multiple = true, currentFiles = [] }
           <Upload className="h-4 w-4" />
           Upload from computer
         </button>
-        <p className="text-sm text-muted-foreground">
-          Drop files here or click the upload button
-        </p>
+        <p className="text-sm text-muted-foreground">Drop files here or click the upload button</p>
 
         {/* Show file count badge and list when multiple files are dropped */}
         {hasMultipleFiles && (

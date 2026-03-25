@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
-import { ProgressCard } from "@/components/common/progress-card";
 import { Download } from "lucide-react";
+import { useState } from "react";
+import { ProgressCard } from "@/components/common/progress-card";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 export function BlurFacesSettings() {
   const { files } = useFileStore();

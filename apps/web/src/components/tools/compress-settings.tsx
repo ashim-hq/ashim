@@ -1,15 +1,23 @@
-import { useState } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
 import { Download } from "lucide-react";
+import { useState } from "react";
 import { ProgressCard } from "@/components/common/progress-card";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 type CompressMode = "quality" | "targetSize";
 
 export function CompressSettings() {
   const { files } = useFileStore();
-  const { processFiles, processAllFiles, processing, error, downloadUrl, originalSize, processedSize, progress } =
-    useToolProcessor("compress");
+  const {
+    processFiles,
+    processAllFiles,
+    processing,
+    error,
+    downloadUrl,
+    originalSize,
+    processedSize,
+    progress,
+  } = useToolProcessor("compress");
 
   const [mode, setMode] = useState<CompressMode>("quality");
   const [quality, setQuality] = useState(75);
@@ -30,8 +38,7 @@ export function CompressSettings() {
   };
 
   const hasFile = files.length > 0;
-  const canProcess =
-    mode === "quality" || (mode === "targetSize" && Number(targetSizeKb) > 0);
+  const canProcess = mode === "quality" || (mode === "targetSize" && Number(targetSizeKb) > 0);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,11 +110,7 @@ export function CompressSettings() {
           <p>Original: {(originalSize / 1024).toFixed(1)} KB</p>
           <p>Processed: {(processedSize / 1024).toFixed(1)} KB</p>
           <p className="font-medium text-foreground">
-            Saved:{" "}
-            {originalSize > 0
-              ? ((1 - processedSize / originalSize) * 100).toFixed(1)
-              : "0"}
-            %
+            Saved: {originalSize > 0 ? ((1 - processedSize / originalSize) * 100).toFixed(1) : "0"}%
           </p>
         </div>
       )}

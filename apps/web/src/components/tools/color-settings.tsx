@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { useFileStore } from "@/stores/file-store";
-import { useToolProcessor } from "@/hooks/use-tool-processor";
 import { Download } from "lucide-react";
+import { useState } from "react";
 import { ProgressCard } from "@/components/common/progress-card";
+import { useToolProcessor } from "@/hooks/use-tool-processor";
+import { useFileStore } from "@/stores/file-store";
 
 type Tab = "basic" | "channels" | "effects";
 type Effect = "none" | "grayscale" | "sepia" | "invert";
@@ -14,8 +14,16 @@ interface ColorSettingsProps {
 
 export function ColorSettings({ toolId }: ColorSettingsProps) {
   const { files } = useFileStore();
-  const { processFiles, processAllFiles, processing, error, downloadUrl, originalSize, processedSize, progress } =
-    useToolProcessor(toolId);
+  const {
+    processFiles,
+    processAllFiles,
+    processing,
+    error,
+    downloadUrl,
+    originalSize,
+    processedSize,
+    progress,
+  } = useToolProcessor(toolId);
 
   const [tab, setTab] = useState<Tab>(() => {
     if (toolId === "color-channels") return "channels";
@@ -84,9 +92,7 @@ export function ColorSettings({ toolId }: ColorSettingsProps) {
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`flex-1 text-xs py-1.5 rounded ${
-              tab === t.id
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground"
+              tab === t.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
             }`}
           >
             {t.label}

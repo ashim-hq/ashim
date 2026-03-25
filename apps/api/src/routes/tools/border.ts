@@ -1,15 +1,21 @@
+import type { FastifyInstance } from "fastify";
+import sharp from "sharp";
 import { z } from "zod";
 import { createToolRoute } from "../tool-factory.js";
-import sharp from "sharp";
-import type { FastifyInstance } from "fastify";
 
 const settingsSchema = z.object({
   borderWidth: z.number().min(0).max(200).default(10),
-  borderColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#000000"),
+  borderColor: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default("#000000"),
   cornerRadius: z.number().min(0).max(500).default(0),
   padding: z.number().min(0).max(200).default(0),
   shadowBlur: z.number().min(0).max(50).default(0),
-  shadowColor: z.string().regex(/^#[0-9a-fA-F]{6,8}$/).default("#00000080"),
+  shadowColor: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6,8}$/)
+    .default("#00000080"),
 });
 
 export function registerBorder(app: FastifyInstance) {
@@ -41,8 +47,8 @@ export function registerBorder(app: FastifyInstance) {
 
       // If inner padding, overlay a background-colored rectangle for padding area
       if (settings.padding > 0 && settings.borderWidth > 0) {
-        const outerW = w + totalBorder * 2 + shadowPad * 2;
-        const outerH = h + totalBorder * 2 + shadowPad * 2;
+        const _outerW = w + totalBorder * 2 + shadowPad * 2;
+        const _outerH = h + totalBorder * 2 + shadowPad * 2;
 
         // Create a white padding region behind the image
         const paddingRect = await sharp({
@@ -85,13 +91,9 @@ export function registerBorder(app: FastifyInstance) {
           </svg>`,
         );
 
-        const maskBuffer = await sharp(roundedMask)
-          .resize(maskW, maskH)
-          .toBuffer();
+        const maskBuffer = await sharp(roundedMask).resize(maskW, maskH).toBuffer();
 
-        result = sharp(buf).composite([
-          { input: maskBuffer, blend: "dest-in" },
-        ]);
+        result = sharp(buf).composite([{ input: maskBuffer, blend: "dest-in" }]);
       }
 
       const buffer = await result.png().toBuffer();

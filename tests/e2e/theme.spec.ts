@@ -1,4 +1,4 @@
-import { test, expect } from "./helpers";
+import { expect, test } from "./helpers";
 
 test.describe("Theme System", () => {
   test("page defaults to light theme", async ({ loggedInPage: page }) => {
@@ -16,9 +16,7 @@ test.describe("Theme System", () => {
     await expect(themeBtn).toBeVisible({ timeout: 10_000 });
   });
 
-  test("privacy policy link is in footer", async ({
-    loggedInPage: page,
-  }) => {
+  test("privacy policy link is in footer", async ({ loggedInPage: page }) => {
     await expect(page.getByText("Privacy Policy")).toBeVisible();
   });
 });

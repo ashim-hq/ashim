@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
-import { useFileStore } from "@/stores/file-store";
 import { Download, Loader2, Upload } from "lucide-react";
+import { useRef, useState } from "react";
+import { useFileStore } from "@/stores/file-store";
 
 type Position = "center" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
@@ -9,7 +9,8 @@ function getToken(): string {
 }
 
 export function WatermarkImageSettings() {
-  const { files, processing, error, setProcessing, setError, setProcessedUrl, setSizes, setJobId } = useFileStore();
+  const { files, processing, error, setProcessing, setError, setProcessedUrl, setSizes, setJobId } =
+    useFileStore();
   const [position, setPosition] = useState<Position>("bottom-right");
   const [opacity, setOpacity] = useState(50);
   const [scale, setScale] = useState(25);
@@ -99,7 +100,14 @@ export function WatermarkImageSettings() {
           <label className="text-xs text-muted-foreground">Opacity</label>
           <span className="text-xs font-mono text-foreground">{opacity}%</span>
         </div>
-        <input type="range" min={0} max={100} value={opacity} onChange={(e) => setOpacity(Number(e.target.value))} className="w-full mt-1" />
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={opacity}
+          onChange={(e) => setOpacity(Number(e.target.value))}
+          className="w-full mt-1"
+        />
       </div>
 
       <div>
@@ -107,7 +115,14 @@ export function WatermarkImageSettings() {
           <label className="text-xs text-muted-foreground">Scale</label>
           <span className="text-xs font-mono text-foreground">{scale}%</span>
         </div>
-        <input type="range" min={5} max={100} value={scale} onChange={(e) => setScale(Number(e.target.value))} className="w-full mt-1" />
+        <input
+          type="range"
+          min={5}
+          max={100}
+          value={scale}
+          onChange={(e) => setScale(Number(e.target.value))}
+          className="w-full mt-1"
+        />
       </div>
 
       {error && <p className="text-xs text-red-500">{error}</p>}
@@ -129,7 +144,11 @@ export function WatermarkImageSettings() {
       </button>
 
       {downloadUrl && (
-        <a href={downloadUrl} download className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5">
+        <a
+          href={downloadUrl}
+          download
+          className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5"
+        >
           <Download className="h-4 w-4" />
           Download
         </a>

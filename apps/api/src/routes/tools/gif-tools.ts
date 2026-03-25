@@ -1,7 +1,7 @@
+import type { FastifyInstance } from "fastify";
+import sharp from "sharp";
 import { z } from "zod";
 import { createToolRoute } from "../tool-factory.js";
-import sharp from "sharp";
-import type { FastifyInstance } from "fastify";
 
 const settingsSchema = z.object({
   width: z.number().min(1).max(4096).optional(),
@@ -24,7 +24,7 @@ export function registerGifTools(app: FastifyInstance) {
         }
 
         const buffer = await image.png().toBuffer();
-        const outName = filename.replace(/\.gif$/i, "") + `_frame${settings.extractFrame}.png`;
+        const outName = `${filename.replace(/\.gif$/i, "")}_frame${settings.extractFrame}.png`;
         return { buffer, filename: outName, contentType: "image/png" };
       }
 

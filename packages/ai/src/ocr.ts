@@ -1,6 +1,6 @@
-import { runPythonWithProgress, type ProgressCallback } from "./bridge.js";
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { type ProgressCallback, runPythonWithProgress } from "./bridge.js";
 
 export interface OcrOptions {
   engine?: "tesseract" | "paddleocr";
@@ -21,10 +21,9 @@ export async function extractText(
   const inputPath = join(outputDir, "input_ocr.png");
 
   await writeFile(inputPath, inputBuffer);
-  const { stdout } = await runPythonWithProgress("ocr.py", [
-    inputPath,
-    JSON.stringify(options),
-  ], { onProgress });
+  const { stdout } = await runPythonWithProgress("ocr.py", [inputPath, JSON.stringify(options)], {
+    onProgress,
+  });
 
   const result = JSON.parse(stdout);
   if (!result.success) {

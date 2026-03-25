@@ -1,16 +1,12 @@
-import { test as base, expect, type Page } from "@playwright/test";
-import path from "node:path";
-import fs from "node:fs";
 import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import { test as base, expect, type Page } from "@playwright/test";
 
 // ---------------------------------------------------------------------------
 // login() — fill the login form and submit (for tests that need fresh login)
 // ---------------------------------------------------------------------------
-export async function login(
-  page: Page,
-  username = "admin",
-  password = "admin",
-) {
+export async function login(page: Page, username = "admin", password = "admin") {
   await page.goto("/login");
   await page.getByLabel("Username").fill(username);
   await page.getByLabel("Password").fill(password);

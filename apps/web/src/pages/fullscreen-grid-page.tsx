@@ -1,16 +1,9 @@
-import { useState, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  Search,
-  Eye,
-  EyeOff,
-  LayoutGrid,
-  List,
-  FileImage,
-} from "lucide-react";
+import type { CategoryInfo, Tool } from "@stirling-image/shared";
+import { CATEGORIES, TOOLS } from "@stirling-image/shared";
 import * as icons from "lucide-react";
-import { TOOLS, CATEGORIES } from "@stirling-image/shared";
-import type { Tool, CategoryInfo } from "@stirling-image/shared";
+import { Eye, EyeOff, FileImage, LayoutGrid, List, Search } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 export function FullscreenGridPage() {
@@ -25,7 +18,7 @@ export function FullscreenGridPage() {
       (t) =>
         t.name.toLowerCase().includes(q) ||
         t.description.toLowerCase().includes(q) ||
-        t.category.toLowerCase().includes(q)
+        t.category.toLowerCase().includes(q),
     );
   }, [search]);
 
@@ -41,10 +34,7 @@ export function FullscreenGridPage() {
 
   const activeCategories = CATEGORIES.filter((cat) => groupedTools.has(cat.id));
 
-  const iconsMap = icons as unknown as Record<
-    string,
-    React.ComponentType<{ className?: string }>
-  >;
+  const iconsMap = icons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -74,7 +64,7 @@ export function FullscreenGridPage() {
               "flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm transition-colors",
               showDetails
                 ? "bg-primary text-primary-foreground border-primary"
-                : "text-muted-foreground hover:bg-muted"
+                : "text-muted-foreground hover:bg-muted",
             )}
           >
             {showDetails ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -139,23 +129,21 @@ function CategoryCard({
       {/* Header */}
       <div
         className="px-4 py-3 flex items-center gap-3"
-        style={{ backgroundColor: category.color + "15" }}
+        style={{ backgroundColor: `${category.color}15` }}
       >
         <div
           className="p-2 rounded-lg"
-          style={{ backgroundColor: category.color + "25", color: category.color }}
+          style={{ backgroundColor: `${category.color}25`, color: category.color }}
         >
           <CategoryIcon className="h-5 w-5" />
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-foreground text-sm">
-            {category.name}
-          </h3>
+          <h3 className="font-semibold text-foreground text-sm">{category.name}</h3>
         </div>
         <span
           className="text-xs font-medium px-2 py-0.5 rounded-full"
           style={{
-            backgroundColor: category.color + "20",
+            backgroundColor: `${category.color}20`,
             color: category.color,
           }}
         >
@@ -182,9 +170,9 @@ function CategoryCard({
                   </p>
                 )}
               </div>
-              {tool.alpha && (
+              {tool.experimental && (
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-medium shrink-0">
-                  Alpha
+                  Experimental
                 </span>
               )}
             </Link>

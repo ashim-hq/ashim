@@ -1,13 +1,14 @@
+import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useFileStore } from "@/stores/file-store";
-import { Download, Loader2 } from "lucide-react";
 
 function getToken(): string {
   return localStorage.getItem("stirling-token") || "";
 }
 
 export function SvgToRasterSettings() {
-  const { files, processing, error, setProcessing, setError, setProcessedUrl, setSizes, setJobId } = useFileStore();
+  const { files, processing, error, setProcessing, setError, setProcessedUrl, setSizes, setJobId } =
+    useFileStore();
   const [width, setWidth] = useState(1024);
   const [height, setHeight] = useState("");
   const [backgroundColor, setBackgroundColor] = useState("#00000000");
@@ -67,13 +68,24 @@ export function SvgToRasterSettings() {
       <div className="flex gap-2">
         <div className="flex-1">
           <label className="text-xs text-muted-foreground">Width (px)</label>
-          <input type="number" value={width} onChange={(e) => setWidth(Number(e.target.value))} min={1} max={8192}
-            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground" />
+          <input
+            type="number"
+            value={width}
+            onChange={(e) => setWidth(Number(e.target.value))}
+            min={1}
+            max={8192}
+            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
+          />
         </div>
         <div className="flex-1">
           <label className="text-xs text-muted-foreground">Height (px)</label>
-          <input type="number" value={height} onChange={(e) => setHeight(e.target.value)} placeholder="Auto"
-            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground" />
+          <input
+            type="number"
+            value={height}
+            onChange={(e) => setHeight(e.target.value)}
+            placeholder="Auto"
+            className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
+          />
         </div>
       </div>
 
@@ -104,7 +116,12 @@ export function SvgToRasterSettings() {
       {!transparent && (
         <div>
           <label className="text-xs text-muted-foreground">Background Color</label>
-          <input type="color" value={backgroundColor.slice(0, 7)} onChange={(e) => setBackgroundColor(e.target.value)} className="w-full mt-0.5 h-8 rounded border border-border" />
+          <input
+            type="color"
+            value={backgroundColor.slice(0, 7)}
+            onChange={(e) => setBackgroundColor(e.target.value)}
+            className="w-full mt-0.5 h-8 rounded border border-border"
+          />
         </div>
       )}
 
@@ -127,7 +144,11 @@ export function SvgToRasterSettings() {
       </button>
 
       {downloadUrl && (
-        <a href={downloadUrl} download className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5">
+        <a
+          href={downloadUrl}
+          download
+          className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5"
+        >
           <Download className="h-4 w-4" />
           Download
         </a>

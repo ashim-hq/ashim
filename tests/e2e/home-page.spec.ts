@@ -1,9 +1,7 @@
-import { test, expect, uploadTestImage } from "./helpers";
+import { expect, test, uploadTestImage } from "./helpers";
 
 test.describe("Home Page", () => {
-  test("shows Stirling Image branding in dropzone", async ({
-    loggedInPage: page,
-  }) => {
+  test("shows Stirling Image branding in dropzone", async ({ loggedInPage: page }) => {
     await expect(page.getByText("Stirling").first()).toBeVisible();
     await expect(page.getByText("Image").first()).toBeVisible();
   });
@@ -12,9 +10,7 @@ test.describe("Home Page", () => {
     await expect(page.getByText("Upload from computer")).toBeVisible();
   });
 
-  test("tool panel is visible on home page", async ({
-    loggedInPage: page,
-  }) => {
+  test("tool panel is visible on home page", async ({ loggedInPage: page }) => {
     // Search bar should be visible in tool panel
     await expect(page.getByPlaceholder(/search/i).first()).toBeVisible();
 
@@ -30,51 +26,35 @@ test.describe("Home Page", () => {
     await expect(page.getByText("Compress").first()).toBeVisible();
   });
 
-  test("clicking a tool in panel navigates to tool page", async ({
-    loggedInPage: page,
-  }) => {
+  test("clicking a tool in panel navigates to tool page", async ({ loggedInPage: page }) => {
     // Find and click a tool link
-    await page
-      .locator("a")
-      .filter({ hasText: "Resize" })
-      .first()
-      .click();
+    await page.locator("a").filter({ hasText: "Resize" }).first().click();
 
     await expect(page).toHaveURL("/resize");
   });
 
-  test("after upload shows quick actions and tool selector", async ({
-    loggedInPage: page,
-  }) => {
+  test("after upload shows quick actions and tool selector", async ({ loggedInPage: page }) => {
     await uploadTestImage(page);
 
     // Should show quick actions
     await expect(page.getByText("Quick Actions").first()).toBeVisible();
 
     // Should show quick action tools
-    await expect(
-      page.getByRole("button", { name: /resize/i }).first(),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: /compress/i }).first(),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /resize/i }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /compress/i }).first()).toBeVisible();
 
     // Should show all tools section
     await expect(page.getByText("All Tools").first()).toBeVisible();
   });
 
-  test("after upload shows image preview", async ({
-    loggedInPage: page,
-  }) => {
+  test("after upload shows image preview", async ({ loggedInPage: page }) => {
     await uploadTestImage(page);
 
     // Should show the image preview (file info)
     await expect(page.getByText(/test-image/i).first()).toBeVisible();
   });
 
-  test("change file button resets upload", async ({
-    loggedInPage: page,
-  }) => {
+  test("change file button resets upload", async ({ loggedInPage: page }) => {
     await uploadTestImage(page);
 
     // Click change file
@@ -84,9 +64,7 @@ test.describe("Home Page", () => {
     await expect(page.getByText("Upload from computer")).toBeVisible();
   });
 
-  test("clicking quick action tool navigates with file", async ({
-    loggedInPage: page,
-  }) => {
+  test("clicking quick action tool navigates with file", async ({ loggedInPage: page }) => {
     await uploadTestImage(page);
 
     // Click resize quick action

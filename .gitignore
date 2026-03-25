@@ -27,6 +27,7 @@ blob-report/
 
 # IDE / tool scratch
 .superpowers/
+.claude/settings.local.json
 
 # Ad-hoc test screenshots and reports
 test-*.png
