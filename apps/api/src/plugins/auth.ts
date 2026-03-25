@@ -580,6 +580,7 @@ const PUBLIC_PATHS = [
   "/api/auth/",
   "/api/v1/download/",
   "/api/v1/jobs/",
+  "/api/v1/settings/logo",
 ];
 
 function isPublicRoute(url: string): boolean {
