@@ -52,8 +52,11 @@ export function QrGenerateSettings() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-xs text-muted-foreground">Text / URL</label>
+        <label htmlFor="qr-text" className="text-xs text-muted-foreground">
+          Text / URL
+        </label>
         <textarea
+          id="qr-text"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Enter text or URL..."
@@ -64,10 +67,13 @@ export function QrGenerateSettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Size</label>
+          <label htmlFor="qr-size" className="text-xs text-muted-foreground">
+            Size
+          </label>
           <span className="text-xs font-mono text-foreground">{size}px</span>
         </div>
         <input
+          id="qr-size"
           type="range"
           min={100}
           max={2000}
@@ -79,8 +85,11 @@ export function QrGenerateSettings() {
       </div>
 
       <div>
-        <label className="text-xs text-muted-foreground">Error Correction</label>
+        <label htmlFor="qr-error-correction" className="text-xs text-muted-foreground">
+          Error Correction
+        </label>
         <select
+          id="qr-error-correction"
           value={errorCorrection}
           onChange={(e) => setErrorCorrection(e.target.value as "L" | "M" | "Q" | "H")}
           className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
@@ -94,8 +103,11 @@ export function QrGenerateSettings() {
 
       <div className="flex gap-2">
         <div className="flex-1">
-          <label className="text-xs text-muted-foreground">Foreground</label>
+          <label htmlFor="qr-foreground" className="text-xs text-muted-foreground">
+            Foreground
+          </label>
           <input
+            id="qr-foreground"
             type="color"
             value={foreground}
             onChange={(e) => setForeground(e.target.value)}
@@ -103,8 +115,11 @@ export function QrGenerateSettings() {
           />
         </div>
         <div className="flex-1">
-          <label className="text-xs text-muted-foreground">Background</label>
+          <label htmlFor="qr-background" className="text-xs text-muted-foreground">
+            Background
+          </label>
           <input
+            id="qr-background"
             type="color"
             value={background}
             onChange={(e) => setBackground(e.target.value)}
@@ -116,6 +131,7 @@ export function QrGenerateSettings() {
       {error && <p className="text-xs text-red-500">{error}</p>}
 
       <button
+        type="button"
         onClick={handleGenerate}
         disabled={!text || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -133,7 +149,7 @@ export function QrGenerateSettings() {
             style={{ maxHeight: 200 }}
           />
           <a
-            href={downloadUrl!}
+            href={downloadUrl ?? undefined}
             download
             className="w-full py-2.5 rounded-lg border border-primary text-primary font-medium flex items-center justify-center gap-2 hover:bg-primary/5"
           >

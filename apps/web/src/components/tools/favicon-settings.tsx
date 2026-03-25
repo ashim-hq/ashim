@@ -67,7 +67,7 @@ export function FaviconSettings() {
       </p>
 
       <div>
-        <label className="text-xs font-medium text-muted-foreground">Generated Sizes</label>
+        <p className="text-xs font-medium text-muted-foreground">Generated Sizes</p>
         <div className="mt-1 space-y-0.5">
           {SIZES.map((s) => (
             <div key={s.name} className="flex justify-between text-xs text-foreground">
@@ -82,6 +82,7 @@ export function FaviconSettings() {
       {error && <p className="text-xs text-red-500">{error}</p>}
 
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFile || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

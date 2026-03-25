@@ -65,13 +65,14 @@ export function RemoveBgSettings() {
     <div className="space-y-4">
       {/* Subject type */}
       <div>
-        <label className="text-sm font-medium text-muted-foreground">What's in the photo?</label>
+        <p className="text-sm font-medium text-muted-foreground">What's in the photo?</p>
         <div className="grid grid-cols-3 gap-1.5 mt-1.5">
           {SUBJECT_OPTIONS.map((opt) => {
             const Icon = opt.icon;
             return (
               <button
                 key={opt.value}
+                type="button"
                 onClick={() => {
                   setSubject(opt.value);
                   if (opt.value !== "people") setIsPassport(false);
@@ -105,11 +106,12 @@ export function RemoveBgSettings() {
 
       {/* Quality */}
       <div>
-        <label className="text-sm font-medium text-muted-foreground">Quality</label>
+        <p className="text-sm font-medium text-muted-foreground">Quality</p>
         <div className="grid grid-cols-3 gap-1.5 mt-1.5">
           {QUALITY_OPTIONS.map((opt) => (
             <button
               key={opt.value}
+              type="button"
               onClick={() => setQuality(opt.value)}
               className={`py-2 px-2 rounded-lg border text-xs font-medium transition-colors ${
                 quality === opt.value
@@ -126,11 +128,12 @@ export function RemoveBgSettings() {
 
       {/* Background color - intuitive preset buttons */}
       <div>
-        <label className="text-sm font-medium text-muted-foreground">Output Background</label>
+        <p className="text-sm font-medium text-muted-foreground">Output Background</p>
         <div className="flex gap-1.5 mt-1.5 flex-wrap">
           {BG_PRESETS.map((preset) => (
             <button
               key={preset.label}
+              type="button"
               onClick={() => setBgColor(preset.color)}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
                 bgColor === preset.color
@@ -197,6 +200,7 @@ export function RemoveBgSettings() {
         />
       ) : (
         <button
+          type="button"
           onClick={handleProcess}
           disabled={!hasFile || processing}
           className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

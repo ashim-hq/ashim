@@ -63,11 +63,12 @@ export function SplitSettings() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-xs text-muted-foreground">Grid Presets</label>
+        <p className="text-xs text-muted-foreground">Grid Presets</p>
         <div className="flex gap-1 mt-1 flex-wrap">
           {presets.map((p) => (
             <button
               key={p.label}
+              type="button"
               onClick={() => {
                 setColumns(p.c);
                 setRows(p.r);
@@ -82,8 +83,11 @@ export function SplitSettings() {
 
       <div className="flex gap-2">
         <div className="flex-1">
-          <label className="text-xs text-muted-foreground">Columns</label>
+          <label htmlFor="split-columns" className="text-xs text-muted-foreground">
+            Columns
+          </label>
           <input
+            id="split-columns"
             type="number"
             value={columns}
             onChange={(e) => setColumns(Math.max(1, Number(e.target.value)))}
@@ -93,8 +97,11 @@ export function SplitSettings() {
           />
         </div>
         <div className="flex-1">
-          <label className="text-xs text-muted-foreground">Rows</label>
+          <label htmlFor="split-rows" className="text-xs text-muted-foreground">
+            Rows
+          </label>
           <input
+            id="split-rows"
             type="number"
             value={rows}
             onChange={(e) => setRows(Math.max(1, Number(e.target.value)))}
@@ -110,6 +117,7 @@ export function SplitSettings() {
       {error && <p className="text-xs text-red-500">{error}</p>}
 
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFile || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

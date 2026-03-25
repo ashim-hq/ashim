@@ -160,7 +160,7 @@ export function ColorSettings({ toolId }: ColorSettingsProps) {
       {/* Effects */}
       {tab === "effects" && (
         <div className="space-y-2">
-          <label className="text-xs text-muted-foreground">Color Effect</label>
+          <p className="text-xs text-muted-foreground">Color Effect</p>
           <div className="grid grid-cols-2 gap-1">
             {(["none", "grayscale", "sepia", "invert"] as const).map((e) => (
               <button
@@ -261,13 +261,17 @@ function SliderControl({
   max: number;
   color?: string;
 }) {
+  const id = `color-slider-${label.toLowerCase()}`;
   return (
     <div>
       <div className="flex justify-between items-center">
-        <label className={`text-xs ${color || "text-muted-foreground"}`}>{label}</label>
+        <label htmlFor={id} className={`text-xs ${color || "text-muted-foreground"}`}>
+          {label}
+        </label>
         <span className="text-xs font-mono text-foreground">{value}</span>
       </div>
       <input
+        id={id}
         type="range"
         min={min}
         max={max}

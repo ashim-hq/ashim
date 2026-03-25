@@ -62,6 +62,7 @@ export function BarcodeReadSettings() {
       </p>
 
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFile || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -79,6 +80,7 @@ export function BarcodeReadSettings() {
               <p className="text-xs text-muted-foreground">Decoded Text:</p>
               <p className="text-sm text-foreground font-mono break-all">{result.text}</p>
               <button
+                type="button"
                 onClick={copyText}
                 className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80"
               >

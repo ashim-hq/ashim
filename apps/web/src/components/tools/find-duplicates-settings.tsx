@@ -62,6 +62,7 @@ export function FindDuplicatesSettings() {
       </p>
 
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFiles || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -84,10 +85,13 @@ export function FindDuplicatesSettings() {
             <p className="text-xs text-muted-foreground">No duplicates found.</p>
           ) : (
             result.duplicateGroups.map((group, gi) => (
-              <div key={gi} className="p-2 rounded border border-border space-y-1">
+              <div
+                key={group.files.map((f) => f.filename).join(",")}
+                className="p-2 rounded border border-border space-y-1"
+              >
                 <p className="text-xs font-medium text-foreground">Group {gi + 1}</p>
-                {group.files.map((f, fi) => (
-                  <div key={fi} className="flex justify-between text-xs">
+                {group.files.map((f) => (
+                  <div key={f.filename} className="flex justify-between text-xs">
                     <span className="text-foreground truncate">{f.filename}</span>
                     <span className="text-muted-foreground shrink-0 ml-2">{f.similarity}%</span>
                   </div>

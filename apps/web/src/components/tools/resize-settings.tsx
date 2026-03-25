@@ -144,8 +144,11 @@ export function ResizeSettings() {
         <div className="space-y-3">
           <div className="flex items-end gap-2">
             <div className="flex-1">
-              <label className="text-xs text-muted-foreground">Width (px)</label>
+              <label htmlFor="resize-width" className="text-xs text-muted-foreground">
+                Width (px)
+              </label>
               <input
+                id="resize-width"
                 type="number"
                 value={width}
                 onChange={(e) => setWidth(e.target.value)}
@@ -162,8 +165,11 @@ export function ResizeSettings() {
               {lockAspect ? <Link className="h-4 w-4" /> : <Unlink className="h-4 w-4" />}
             </button>
             <div className="flex-1">
-              <label className="text-xs text-muted-foreground">Height (px)</label>
+              <label htmlFor="resize-height" className="text-xs text-muted-foreground">
+                Height (px)
+              </label>
               <input
+                id="resize-height"
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
@@ -175,7 +181,7 @@ export function ResizeSettings() {
 
           {/* Fit mode */}
           <div>
-            <label className="text-xs text-muted-foreground">Fit Mode</label>
+            <p className="text-xs text-muted-foreground">Fit Mode</p>
             <div className="flex gap-1 mt-1">
               {(Object.keys(FIT_LABELS) as FitMode[]).map((f) => (
                 <button
@@ -207,8 +213,11 @@ export function ResizeSettings() {
       {tab === "scale" && (
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-muted-foreground">Scale (%)</label>
+            <label htmlFor="resize-scale" className="text-xs text-muted-foreground">
+              Scale (%)
+            </label>
             <input
+              id="resize-scale"
               type="number"
               value={percentage}
               onChange={(e) => setPercentage(e.target.value)}

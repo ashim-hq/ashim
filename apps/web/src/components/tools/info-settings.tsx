@@ -79,6 +79,7 @@ export function InfoSettings() {
   return (
     <div className="space-y-4">
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFile || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -122,7 +123,7 @@ export function InfoSettings() {
 
           {/* Histogram */}
           <div>
-            <label className="text-xs font-medium text-muted-foreground">Channel Stats</label>
+            <p className="text-xs font-medium text-muted-foreground">Channel Stats</p>
             <div className="mt-1 space-y-1.5">
               {info.histogram.map((ch) => (
                 <div key={ch.channel} className="space-y-0.5">

@@ -55,7 +55,7 @@ export function ConvertSettings() {
       {/* Source format */}
       {hasFile && (
         <div>
-          <label className="text-xs text-muted-foreground">Source Format</label>
+          <p className="text-xs text-muted-foreground">Source Format</p>
           <div className="mt-0.5 px-2 py-1.5 rounded bg-muted text-sm text-foreground uppercase font-mono">
             {sourceExt}
           </div>
@@ -64,8 +64,11 @@ export function ConvertSettings() {
 
       {/* Target format */}
       <div>
-        <label className="text-xs text-muted-foreground">Target Format</label>
+        <label htmlFor="convert-target-format" className="text-xs text-muted-foreground">
+          Target Format
+        </label>
         <select
+          id="convert-target-format"
           value={format}
           onChange={(e) => setFormat(e.target.value)}
           className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
@@ -82,10 +85,13 @@ export function ConvertSettings() {
       {isLossy && (
         <div>
           <div className="flex justify-between items-center">
-            <label className="text-xs text-muted-foreground">Quality</label>
+            <label htmlFor="convert-quality" className="text-xs text-muted-foreground">
+              Quality
+            </label>
             <span className="text-xs font-mono text-foreground">{quality}</span>
           </div>
           <input
+            id="convert-quality"
             type="range"
             min={1}
             max={100}

@@ -236,6 +236,7 @@ export function AutomatePage() {
               {TEMPLATES.map((tpl) => (
                 <button
                   key={tpl.name}
+                  type="button"
                   onClick={() => loadTemplate(tpl)}
                   className="w-full text-left p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
                 >
@@ -265,6 +266,7 @@ export function AutomatePage() {
                   >
                     <div className="flex items-center justify-between mb-1">
                       <button
+                        type="button"
                         onClick={() => loadSaved(pipeline)}
                         className="text-sm font-medium text-foreground hover:text-primary flex items-center gap-1.5"
                       >
@@ -272,6 +274,7 @@ export function AutomatePage() {
                         {pipeline.name}
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleDelete(pipeline.id)}
                         className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
                       >

@@ -114,17 +114,28 @@ export function EraseObjectSettings() {
     <div className="space-y-4">
       {/* Mask upload */}
       <div>
-        <label className="text-sm font-medium text-muted-foreground">Mask Image</label>
+        <label htmlFor="erase-object-mask" className="text-sm font-medium text-muted-foreground">
+          Mask Image
+        </label>
         <p className="text-[10px] text-muted-foreground mt-0.5 mb-1.5">
           Upload a black &amp; white mask where white areas will be erased. Create the mask in any
           image editor.
         </p>
-        <label className="flex items-center gap-2 px-3 py-2 rounded border border-dashed border-border cursor-pointer hover:border-primary">
+        <label
+          htmlFor="erase-object-mask"
+          className="flex items-center gap-2 px-3 py-2 rounded border border-dashed border-border cursor-pointer hover:border-primary"
+        >
           <Upload className="h-4 w-4 text-muted-foreground" />
           <span className="text-xs text-muted-foreground">
             {maskFile ? maskFile.name : "Select mask image..."}
           </span>
-          <input type="file" accept="image/*" onChange={handleMaskSelect} className="hidden" />
+          <input
+            id="erase-object-mask"
+            type="file"
+            accept="image/*"
+            onChange={handleMaskSelect}
+            className="hidden"
+          />
         </label>
       </div>
 
@@ -162,6 +173,7 @@ export function EraseObjectSettings() {
         />
       ) : (
         <button
+          type="button"
           onClick={handleProcess}
           disabled={!hasFile || !maskFile || processing}
           className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

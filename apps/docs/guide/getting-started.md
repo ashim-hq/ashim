@@ -61,18 +61,19 @@ Start the dev server:
 pnpm dev
 ```
 
-This starts both the API server and the React frontend. The app opens at `http://localhost:5173` by default during development.
+This starts both the API server and the React frontend. Open `http://localhost:1349` in your browser.
 
 ## What you can do
 
-Once logged in, the sidebar lists every available tool. Pick one, upload an image, adjust the settings, and download the result.
+The sidebar lists every tool. Pick one, upload an image, tweak the settings, download the result.
 
-A few things to try first:
+Some things to try first:
 
-- **Resize** an image to specific dimensions or a percentage
-- **Remove a background** using the AI-powered background removal tool
-- **Compress** a photo to reduce file size before uploading it somewhere
-- **Convert** between formats (JPEG, PNG, WebP, AVIF, TIFF)
-- **Batch process** a folder of images through any tool
+- Resize an image to specific dimensions or a percentage
+- Remove a background with the AI tool
+- Compress a photo before uploading it somewhere
+- Convert between formats (JPEG, PNG, WebP, AVIF, TIFF)
+- Batch process a folder of images through any tool
+- Save results to the Files page for later
 
-Every tool in the UI is also available through the [REST API](../api/rest), so you can script your workflows or integrate Stirling Image into other systems.
+Every tool is also available through the [REST API](../api/rest), so you can script workflows or plug Stirling Image into other systems.

@@ -57,8 +57,11 @@ export function ImageToPdfSettings() {
       </p>
 
       <div>
-        <label className="text-xs text-muted-foreground">Page Size</label>
+        <label htmlFor="image-to-pdf-page-size" className="text-xs text-muted-foreground">
+          Page Size
+        </label>
         <select
+          id="image-to-pdf-page-size"
           value={pageSize}
           onChange={(e) => setPageSize(e.target.value as typeof pageSize)}
           className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
@@ -71,15 +74,17 @@ export function ImageToPdfSettings() {
       </div>
 
       <div>
-        <label className="text-xs text-muted-foreground">Orientation</label>
+        <p className="text-xs text-muted-foreground">Orientation</p>
         <div className="flex gap-1 mt-1">
           <button
+            type="button"
             onClick={() => setOrientation("portrait")}
             className={`flex-1 text-xs py-1.5 rounded ${orientation === "portrait" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
           >
             Portrait
           </button>
           <button
+            type="button"
             onClick={() => setOrientation("landscape")}
             className={`flex-1 text-xs py-1.5 rounded ${orientation === "landscape" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
           >
@@ -90,10 +95,13 @@ export function ImageToPdfSettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Margin</label>
+          <label htmlFor="image-to-pdf-margin" className="text-xs text-muted-foreground">
+            Margin
+          </label>
           <span className="text-xs font-mono text-foreground">{margin}pt</span>
         </div>
         <input
+          id="image-to-pdf-margin"
           type="range"
           min={0}
           max={100}
@@ -106,6 +114,7 @@ export function ImageToPdfSettings() {
       {error && <p className="text-xs text-red-500">{error}</p>}
 
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFiles || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

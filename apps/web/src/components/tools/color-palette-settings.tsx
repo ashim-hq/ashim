@@ -57,6 +57,7 @@ export function ColorPaletteSettings() {
   return (
     <div className="space-y-4">
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFile || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -69,13 +70,14 @@ export function ColorPaletteSettings() {
 
       {colors.length > 0 && (
         <div className="space-y-2">
-          <label className="text-xs font-medium text-muted-foreground">
+          <p className="text-xs font-medium text-muted-foreground">
             Dominant Colors ({colors.length})
-          </label>
+          </p>
           <div className="grid grid-cols-2 gap-1.5">
             {colors.map((color, i) => (
               <button
-                key={i}
+                type="button"
+                key={color}
                 onClick={() => copyColor(color, i)}
                 className="flex items-center gap-2 p-1.5 rounded border border-border hover:bg-muted transition-colors"
               >

@@ -161,7 +161,11 @@ function FileSelectionInfo({
     <div className="space-y-1">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-foreground">Files ({files.length})</span>
-        <button onClick={onAddMore} className="text-xs text-primary hover:text-primary/80">
+        <button
+          type="button"
+          onClick={onAddMore}
+          className="text-xs text-primary hover:text-primary/80"
+        >
           + Add more
         </button>
       </div>
@@ -172,7 +176,11 @@ function FileSelectionInfo({
           {formatFileSize(selectedFileSize ?? files[0].size)}
         </span>
       </div>
-      <button onClick={onClear} className="text-xs text-muted-foreground hover:text-foreground">
+      <button
+        type="button"
+        onClick={onClear}
+        className="text-xs text-muted-foreground hover:text-foreground"
+      >
         Clear all
       </button>
     </div>
@@ -322,6 +330,7 @@ export function ToolPage() {
             </div>
             <h2 className="font-semibold text-lg text-foreground flex-1">{tool.name}</h2>
             <button
+              type="button"
               onClick={() => setMobileSettingsOpen(!mobileSettingsOpen)}
               className="px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:bg-muted"
             >
@@ -384,7 +393,8 @@ export function ToolPage() {
           )}
 
           {/* Main area: Dropzone / Image Viewer / Before-After */}
-          <div
+          <section
+            aria-label="Image area"
             className="flex-1 flex flex-col min-h-0"
             onKeyDown={hasMultiple ? handleImageKeyDown : undefined}
             tabIndex={hasMultiple ? 0 : undefined}
@@ -392,6 +402,7 @@ export function ToolPage() {
             <div className="flex-1 relative flex items-center justify-center p-4 min-h-0">
               {hasMultiple && hasPrev && (
                 <button
+                  type="button"
                   onClick={navigatePrev}
                   className="absolute left-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors"
                   aria-label="Previous image"
@@ -460,6 +471,7 @@ export function ToolPage() {
               )}
               {hasMultiple && hasNext && (
                 <button
+                  type="button"
                   onClick={navigateNext}
                   className="absolute right-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors"
                   aria-label="Next image"
@@ -480,7 +492,7 @@ export function ToolPage() {
                 onSelect={setSelectedIndex}
               />
             )}
-          </div>
+          </section>
         </div>
       </AppLayout>
     );
@@ -552,6 +564,7 @@ export function ToolPage() {
             <div className="space-y-2">
               <div className="border-t border-border pt-2" />
               <button
+                type="button"
                 onClick={handleDownloadAll}
                 className="w-full py-2 rounded-lg bg-primary text-primary-foreground flex items-center justify-center gap-1.5 text-xs font-medium hover:bg-primary/90"
               >
@@ -563,7 +576,8 @@ export function ToolPage() {
         </div>
 
         {/* Main area: Dropzone / Image Viewer / Before-After */}
-        <div
+        <section
+          aria-label="Image area"
           className="flex-1 flex flex-col min-h-0"
           onKeyDown={hasMultiple ? handleImageKeyDown : undefined}
           tabIndex={hasMultiple ? 0 : undefined}
@@ -571,6 +585,7 @@ export function ToolPage() {
           <div className="flex-1 relative flex items-center justify-center p-6 min-h-0">
             {hasMultiple && hasPrev && (
               <button
+                type="button"
                 onClick={navigatePrev}
                 className="absolute left-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors"
                 aria-label="Previous image"
@@ -639,6 +654,7 @@ export function ToolPage() {
             )}
             {hasMultiple && hasNext && (
               <button
+                type="button"
                 onClick={navigateNext}
                 className="absolute right-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors"
                 aria-label="Next image"
@@ -659,7 +675,7 @@ export function ToolPage() {
               onSelect={setSelectedIndex}
             />
           )}
-        </div>
+        </section>
       </div>
     </AppLayout>
   );

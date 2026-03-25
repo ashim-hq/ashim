@@ -48,19 +48,40 @@ export function FileDetails({ mobile = false }: FileDetailsProps) {
 
   async function handleOpenFile() {
     if (!details) return;
-    const res = await fetch(getFileDownloadUrl(details.id), {
-      headers: { Authorization: `Bearer ${localStorage.getItem("stirling-token") || ""}` },
-    });
-    if (!res.ok) return;
-    const blob = await res.blob();
-    const file = new File([blob], details.originalName, { type: details.mimeType });
-    setFiles([file]);
+
+    const { checkedIds, files: allFiles } = useFilesPageStore.getState();
+
+    // If multiple files are checked, open all of them; otherwise just the selected one
+    const filesToOpen =
+      checkedIds.size > 1
+        ? allFiles.filter((f) => checkedIds.has(f.id))
+        : [{ id: details.id, originalName: details.originalName, mimeType: details.mimeType }];
+
+    const token = localStorage.getItem("stirling-token") || "";
+    const downloaded = await Promise.all(
+      filesToOpen.map(async (f) => {
+        const res = await fetch(getFileDownloadUrl(f.id), {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return null;
+        const blob = await res.blob();
+        return { file: new File([blob], f.originalName, { type: f.mimeType }), serverId: f.id };
+      }),
+    );
+
+    const valid = downloaded.filter((d): d is NonNullable<typeof d> => d !== null);
+    if (valid.length === 0) return;
+
+    setFiles(valid.map((d) => d.file));
     navigate("/");
-    // Set serverFileId so tool processing creates a new version
+
+    // Set serverFileId on each entry so tool processing creates new versions
     setTimeout(() => {
-      const entries = useFileStore.getState().entries;
-      if (entries.length > 0) {
-        useFileStore.getState().updateEntry(0, { serverFileId: details.id });
+      const store = useFileStore.getState();
+      for (let i = 0; i < valid.length; i++) {
+        if (store.entries[i]) {
+          store.updateEntry(i, { serverFileId: valid[i].serverId });
+        }
       }
     }, 0);
   }

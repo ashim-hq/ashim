@@ -83,7 +83,7 @@ export function RotateSettings({ onPreviewTransform }: RotateSettingsProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Quick rotate */}
       <div>
-        <label className="text-xs text-muted-foreground">Rotate</label>
+        <p className="text-xs text-muted-foreground">Rotate</p>
         <div className="flex items-center gap-2 mt-1">
           <button
             type="button"
@@ -112,13 +112,16 @@ export function RotateSettings({ onPreviewTransform }: RotateSettingsProps) {
       {/* Straighten */}
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Straighten</label>
+          <label htmlFor="rotate-straighten" className="text-xs text-muted-foreground">
+            Straighten
+          </label>
           <span className="text-xs font-mono tabular-nums text-muted-foreground">
             {straighten > 0 ? "+" : ""}
             {straighten}°
           </span>
         </div>
         <input
+          id="rotate-straighten"
           type="range"
           min={-45}
           max={45}
@@ -136,7 +139,7 @@ export function RotateSettings({ onPreviewTransform }: RotateSettingsProps) {
 
       {/* Flip buttons */}
       <div>
-        <label className="text-xs text-muted-foreground">Flip</label>
+        <p className="text-xs text-muted-foreground">Flip</p>
         <div className="flex gap-2 mt-1">
           <button
             type="button"

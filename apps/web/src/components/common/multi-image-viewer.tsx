@@ -7,12 +7,6 @@ import { useFileStore } from "@/stores/file-store";
 
 export function MultiImageViewer() {
   const { entries, selectedIndex, setSelectedIndex, navigateNext, navigatePrev } = useFileStore();
-  const currentEntry = entries[selectedIndex];
-  if (!currentEntry) return null;
-
-  const hasMultiple = entries.length > 1;
-  const hasPrev = selectedIndex > 0;
-  const hasNext = selectedIndex < entries.length - 1;
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -27,10 +21,18 @@ export function MultiImageViewer() {
     [navigateNext, navigatePrev],
   );
 
+  const currentEntry = entries[selectedIndex];
+  if (!currentEntry) return null;
+
+  const hasMultiple = entries.length > 1;
+  const hasPrev = selectedIndex > 0;
+  const hasNext = selectedIndex < entries.length - 1;
+
   const hasProcessed = !!currentEntry.processedUrl;
 
   return (
-    <div
+    <section
+      aria-label="Image viewer"
       className="flex flex-col w-full h-full min-h-0"
       onKeyDown={hasMultiple ? handleKeyDown : undefined}
       tabIndex={hasMultiple ? 0 : undefined}
@@ -38,6 +40,7 @@ export function MultiImageViewer() {
       <div className="flex-1 relative flex items-center justify-center min-h-0">
         {hasMultiple && hasPrev && (
           <button
+            type="button"
             onClick={navigatePrev}
             className="absolute left-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors"
             aria-label="Previous image"
@@ -49,7 +52,7 @@ export function MultiImageViewer() {
           {hasProcessed ? (
             <BeforeAfterSlider
               beforeSrc={currentEntry.blobUrl}
-              afterSrc={currentEntry.processedUrl!}
+              afterSrc={currentEntry.processedUrl ?? ""}
               beforeSize={currentEntry.originalSize}
               afterSize={currentEntry.processedSize ?? undefined}
             />
@@ -63,6 +66,7 @@ export function MultiImageViewer() {
         </div>
         {hasMultiple && hasNext && (
           <button
+            type="button"
             onClick={navigateNext}
             className="absolute right-3 z-10 w-8 h-8 rounded-full bg-background/80 border border-border shadow-sm flex items-center justify-center hover:bg-background transition-colors"
             aria-label="Next image"
@@ -77,6 +81,6 @@ export function MultiImageViewer() {
         )}
       </div>
       <ThumbnailStrip entries={entries} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
-    </div>
+    </section>
   );
 }

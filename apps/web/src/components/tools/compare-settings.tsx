@@ -53,8 +53,11 @@ export function CompareSettings() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-xs text-muted-foreground">Second Image</label>
+        <label htmlFor="compare-second-image" className="text-xs text-muted-foreground">
+          Second Image
+        </label>
         <input
+          id="compare-second-image"
           ref={secondInputRef}
           type="file"
           accept="image/*"
@@ -62,6 +65,7 @@ export function CompareSettings() {
           className="hidden"
         />
         <button
+          type="button"
           onClick={() => secondInputRef.current?.click()}
           className="w-full mt-0.5 px-2 py-2 rounded border border-dashed border-border bg-background text-sm text-muted-foreground hover:text-foreground flex items-center justify-center gap-2"
         >
@@ -84,6 +88,7 @@ export function CompareSettings() {
       )}
 
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFile || !secondFile || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

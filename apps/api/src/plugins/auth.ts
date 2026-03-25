@@ -128,7 +128,7 @@ export async function ensureDefaultAdmin(): Promise<void> {
 
 // ── Login attempt limit ──────────────────────────────────────────
 
-const DEFAULT_LOGIN_ATTEMPT_LIMIT = 5;
+const DEFAULT_LOGIN_ATTEMPT_LIMIT = 10;
 
 function getLoginAttemptLimit(): number {
   const row = db
@@ -378,7 +378,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       const teamExists = db
         .select()
         .from(schema.teams)
-        .where(eq(schema.teams.id, (body as { team?: string }).team!))
+        .where(eq(schema.teams.id, (body as { team?: string }).team ?? ""))
         .get();
       if (!teamExists)
         return reply.status(400).send({ error: "Team not found", code: "VALIDATION_ERROR" });

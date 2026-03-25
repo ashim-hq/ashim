@@ -40,8 +40,11 @@ export function WatermarkTextSettings() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-xs text-muted-foreground">Watermark Text</label>
+        <label htmlFor="watermark-text-text" className="text-xs text-muted-foreground">
+          Watermark Text
+        </label>
         <input
+          id="watermark-text-text"
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -51,10 +54,13 @@ export function WatermarkTextSettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Font Size</label>
+          <label htmlFor="watermark-text-font-size" className="text-xs text-muted-foreground">
+            Font Size
+          </label>
           <span className="text-xs font-mono text-foreground">{fontSize}px</span>
         </div>
         <input
+          id="watermark-text-font-size"
           type="range"
           min={8}
           max={200}
@@ -66,8 +72,11 @@ export function WatermarkTextSettings() {
 
       <div className="flex gap-2">
         <div className="flex-1">
-          <label className="text-xs text-muted-foreground">Color</label>
+          <label htmlFor="watermark-text-color" className="text-xs text-muted-foreground">
+            Color
+          </label>
           <input
+            id="watermark-text-color"
             type="color"
             value={color}
             onChange={(e) => setColor(e.target.value)}
@@ -76,10 +85,13 @@ export function WatermarkTextSettings() {
         </div>
         <div className="flex-1">
           <div className="flex justify-between items-center">
-            <label className="text-xs text-muted-foreground">Opacity</label>
+            <label htmlFor="watermark-text-opacity" className="text-xs text-muted-foreground">
+              Opacity
+            </label>
             <span className="text-xs font-mono text-foreground">{opacity}%</span>
           </div>
           <input
+            id="watermark-text-opacity"
             type="range"
             min={0}
             max={100}
@@ -91,8 +103,11 @@ export function WatermarkTextSettings() {
       </div>
 
       <div>
-        <label className="text-xs text-muted-foreground">Position</label>
+        <label htmlFor="watermark-text-position" className="text-xs text-muted-foreground">
+          Position
+        </label>
         <select
+          id="watermark-text-position"
           value={position}
           onChange={(e) => setPosition(e.target.value as Position)}
           className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
@@ -108,10 +123,13 @@ export function WatermarkTextSettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Rotation</label>
+          <label htmlFor="watermark-text-rotation" className="text-xs text-muted-foreground">
+            Rotation
+          </label>
           <span className="text-xs font-mono text-foreground">{rotation}&deg;</span>
         </div>
         <input
+          id="watermark-text-rotation"
           type="range"
           min={-180}
           max={180}
@@ -141,6 +159,7 @@ export function WatermarkTextSettings() {
         />
       ) : (
         <button
+          type="button"
           onClick={handleProcess}
           disabled={!hasFile || processing || !text}
           className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

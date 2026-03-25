@@ -58,15 +58,17 @@ export function VectorizeSettings() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-xs text-muted-foreground">Color Mode</label>
+        <p className="text-xs text-muted-foreground">Color Mode</p>
         <div className="flex gap-1 mt-1">
           <button
+            type="button"
             onClick={() => setColorMode("bw")}
             className={`flex-1 text-xs py-1.5 rounded ${colorMode === "bw" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
           >
             Black & White
           </button>
           <button
+            type="button"
             onClick={() => setColorMode("color")}
             className={`flex-1 text-xs py-1.5 rounded ${colorMode === "color" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
           >
@@ -77,10 +79,13 @@ export function VectorizeSettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Threshold</label>
+          <label htmlFor="vectorize-threshold" className="text-xs text-muted-foreground">
+            Threshold
+          </label>
           <span className="text-xs font-mono text-foreground">{threshold}</span>
         </div>
         <input
+          id="vectorize-threshold"
           type="range"
           min={0}
           max={255}
@@ -91,8 +96,11 @@ export function VectorizeSettings() {
       </div>
 
       <div>
-        <label className="text-xs text-muted-foreground">Detail Level</label>
+        <label htmlFor="vectorize-detail" className="text-xs text-muted-foreground">
+          Detail Level
+        </label>
         <select
+          id="vectorize-detail"
           value={detail}
           onChange={(e) => setDetail(e.target.value as "low" | "medium" | "high")}
           className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
@@ -113,6 +121,7 @@ export function VectorizeSettings() {
       )}
 
       <button
+        type="button"
         onClick={handleProcess}
         disabled={!hasFile || processing}
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

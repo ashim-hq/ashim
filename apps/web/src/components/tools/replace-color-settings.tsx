@@ -36,9 +36,12 @@ export function ReplaceColorSettings() {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-xs text-muted-foreground">Source Color (to replace)</label>
+        <label htmlFor="replace-source-color" className="text-xs text-muted-foreground">
+          Source Color (to replace)
+        </label>
         <div className="flex items-center gap-2 mt-0.5">
           <input
+            id="replace-source-color"
             type="color"
             value={sourceColor}
             onChange={(e) => setSourceColor(e.target.value)}
@@ -60,9 +63,12 @@ export function ReplaceColorSettings() {
 
       {!makeTransparent && (
         <div>
-          <label className="text-xs text-muted-foreground">Target Color (replacement)</label>
+          <label htmlFor="replace-target-color" className="text-xs text-muted-foreground">
+            Target Color (replacement)
+          </label>
           <div className="flex items-center gap-2 mt-0.5">
             <input
+              id="replace-target-color"
               type="color"
               value={targetColor}
               onChange={(e) => setTargetColor(e.target.value)}
@@ -75,10 +81,13 @@ export function ReplaceColorSettings() {
 
       <div>
         <div className="flex justify-between items-center">
-          <label className="text-xs text-muted-foreground">Tolerance</label>
+          <label htmlFor="replace-tolerance" className="text-xs text-muted-foreground">
+            Tolerance
+          </label>
           <span className="text-xs font-mono text-foreground">{tolerance}</span>
         </div>
         <input
+          id="replace-tolerance"
           type="range"
           min={0}
           max={255}
@@ -112,6 +121,7 @@ export function ReplaceColorSettings() {
         />
       ) : (
         <button
+          type="button"
           onClick={handleProcess}
           disabled={!hasFile || processing}
           className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

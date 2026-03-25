@@ -73,10 +73,11 @@ export function registerOcr(app: FastifyInstance) {
       const jobId = randomUUID();
       const workspacePath = await createWorkspace(jobId);
 
-      const onProgress = clientJobId
+      const jobIdForProgress = clientJobId;
+      const onProgress = jobIdForProgress
         ? (percent: number, stage: string) => {
             updateSingleFileProgress({
-              jobId: clientJobId!,
+              jobId: jobIdForProgress,
               phase: "processing",
               stage,
               percent,

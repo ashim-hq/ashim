@@ -75,9 +75,7 @@ function parseXmp(xmpBuffer: Buffer): Record<string, string> {
   const xml = xmpBuffer.toString("utf-8");
   const result: Record<string, string> = {};
 
-  const attrRegex = /(\w+:\w+)="([^"]+)"/g;
-  let match;
-  while ((match = attrRegex.exec(xml)) !== null) {
+  for (const match of xml.matchAll(/(\w+:\w+)="([^"]+)"/g)) {
     const key = match[1];
     if (key.startsWith("xmlns:") || key.startsWith("rdf:")) continue;
     result[key] = match[2];

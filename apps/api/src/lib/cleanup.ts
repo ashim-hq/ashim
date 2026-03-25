@@ -18,7 +18,7 @@ export function getMaxAgeMs(): number {
       .get();
     if (row) {
       const hours = parseFloat(row.value);
-      if (!isNaN(hours) && hours > 0) return hours * 60 * 60 * 1000;
+      if (!Number.isNaN(hours) && hours > 0) return hours * 60 * 60 * 1000;
     }
   } catch {
     /* DB not ready yet, use env */

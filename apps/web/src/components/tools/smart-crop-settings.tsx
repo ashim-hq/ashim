@@ -46,8 +46,11 @@ export function SmartCropSettings() {
     <div className="space-y-4">
       {/* Aspect ratio preset */}
       <div>
-        <label className="text-sm font-medium text-muted-foreground">Target Aspect Ratio</label>
+        <label htmlFor="smart-crop-preset" className="text-sm font-medium text-muted-foreground">
+          Target Aspect Ratio
+        </label>
         <select
+          id="smart-crop-preset"
           value={preset}
           onChange={(e) => handlePreset(e.target.value)}
           className="w-full mt-0.5 px-2 py-1.5 rounded border border-border bg-background text-sm text-foreground"
@@ -63,8 +66,11 @@ export function SmartCropSettings() {
       {/* Width / Height */}
       <div className="flex gap-2">
         <div className="flex-1">
-          <label className="text-xs text-muted-foreground">Width (px)</label>
+          <label htmlFor="smart-crop-width" className="text-xs text-muted-foreground">
+            Width (px)
+          </label>
           <input
+            id="smart-crop-width"
             type="number"
             value={width}
             onChange={(e) => {
@@ -76,8 +82,11 @@ export function SmartCropSettings() {
           />
         </div>
         <div className="flex-1">
-          <label className="text-xs text-muted-foreground">Height (px)</label>
+          <label htmlFor="smart-crop-height" className="text-xs text-muted-foreground">
+            Height (px)
+          </label>
           <input
+            id="smart-crop-height"
             type="number"
             value={height}
             onChange={(e) => {
@@ -119,6 +128,7 @@ export function SmartCropSettings() {
         />
       ) : (
         <button
+          type="button"
           onClick={handleProcess}
           disabled={!hasFile || !canProcess || processing}
           className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

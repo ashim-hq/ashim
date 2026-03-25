@@ -24,11 +24,18 @@ const bottomItems: SidebarItem[] = [
 interface SidebarProps {
   onSettingsClick: () => void;
   onHelpClick: () => void;
+  /** Called when a nav link is clicked (e.g., to close mobile sidebar). */
+  onNavClick?: () => void;
   /** When true, renders in expanded mode (for mobile overlay). */
   expanded?: boolean;
 }
 
-export function Sidebar({ onSettingsClick, onHelpClick, expanded = false }: SidebarProps) {
+export function Sidebar({
+  onSettingsClick,
+  onHelpClick,
+  onNavClick,
+  expanded = false,
+}: SidebarProps) {
   const location = useLocation();
 
   const renderItem = (item: SidebarItem, isActive: boolean) => {
@@ -60,20 +67,20 @@ export function Sidebar({ onSettingsClick, onHelpClick, expanded = false }: Side
 
     if (item.label === "Settings") {
       return (
-        <button key={item.label} onClick={onSettingsClick} className="w-full">
+        <button key={item.label} type="button" onClick={onSettingsClick} className="w-full">
           {content}
         </button>
       );
     }
     if (item.label === "Help") {
       return (
-        <button key={item.label} onClick={onHelpClick} className="w-full">
+        <button key={item.label} type="button" onClick={onHelpClick} className="w-full">
           {content}
         </button>
       );
     }
     return (
-      <Link key={item.label} to={item.href || "/"}>
+      <Link key={item.label} to={item.href || "/"} onClick={onNavClick}>
         {content}
       </Link>
     );

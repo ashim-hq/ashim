@@ -1,6 +1,6 @@
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import Database from "better-sqlite3";
+import Database, { type Database as DatabaseType } from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { env } from "../config.js";
 import * as schema from "./schema.js";
@@ -8,7 +8,7 @@ import * as schema from "./schema.js";
 // Ensure data directory exists
 mkdirSync(dirname(env.DB_PATH), { recursive: true });
 
-const sqlite = new Database(env.DB_PATH);
+const sqlite: DatabaseType = new Database(env.DB_PATH);
 
 // Critical SQLite pragmas for reliability
 sqlite.pragma("journal_mode = WAL");
