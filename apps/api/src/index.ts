@@ -11,6 +11,7 @@ import { registerStatic } from "./plugins/static.js";
 import { registerUpload } from "./plugins/upload.js";
 import { apiKeyRoutes } from "./routes/api-keys.js";
 import { registerBatchRoutes } from "./routes/batch.js";
+import { brandingRoutes } from "./routes/branding.js";
 import { fileRoutes } from "./routes/files.js";
 import { registerPipelineRoutes } from "./routes/pipeline.js";
 import { registerProgressRoutes } from "./routes/progress.js";
@@ -91,6 +92,9 @@ await apiKeyRoutes(app);
 
 // Settings routes
 await settingsRoutes(app);
+
+// Branding routes (logo upload/serve/delete)
+await brandingRoutes(app);
 
 // Teams routes
 await teamsRoutes(app);

@@ -71,6 +71,7 @@ export default defineConfig({
       qrcode: path.join(apiNodeModules, "qrcode"),
       jsqr: path.join(apiNodeModules, "jsqr"),
       pdfkit: path.join(apiNodeModules, "pdfkit"),
+      sharp: path.join(apiNodeModules, "sharp"),
     },
   },
 });

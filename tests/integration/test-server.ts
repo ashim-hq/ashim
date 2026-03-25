@@ -33,6 +33,7 @@ import { authMiddleware, authRoutes, ensureDefaultAdmin } from "../../apps/api/s
 import { registerUpload } from "../../apps/api/src/plugins/upload.js";
 import { apiKeyRoutes } from "../../apps/api/src/routes/api-keys.js";
 import { registerBatchRoutes } from "../../apps/api/src/routes/batch.js";
+import { brandingRoutes } from "../../apps/api/src/routes/branding.js";
 import { fileRoutes } from "../../apps/api/src/routes/files.js";
 import { registerPipelineRoutes } from "../../apps/api/src/routes/pipeline.js";
 import { registerProgressRoutes } from "../../apps/api/src/routes/progress.js";
@@ -98,6 +99,9 @@ export async function buildTestApp(): Promise<TestApp> {
 
   // Settings routes
   await settingsRoutes(app);
+
+  // Branding routes
+  await brandingRoutes(app);
 
   // Teams routes
   await teamsRoutes(app);
