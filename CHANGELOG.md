@@ -1,3 +1,15 @@
+# [0.10.0](https://github.com/siddharthksah/Stirling-Image/compare/v0.9.0...v0.10.0) (2026-03-26)
+
+
+### Bug Fixes
+
+* **ocr:** update PaddleOCR for v3 API and add Tesseract fallback ([e260a93](https://github.com/siddharthksah/Stirling-Image/commit/e260a93cf65f1e7cd22b7b5d491c6125fee8c915))
+
+
+### Features
+
+* **erase-object:** replace mask upload with in-browser brush painting ([40e3081](https://github.com/siddharthksah/Stirling-Image/commit/40e30815915f18f9f7fc25c05a61c643f1dfdbe4))
+
 # [0.9.0](https://github.com/siddharthksah/Stirling-Image/compare/v0.8.2...v0.9.0) (2026-03-26)
 
 
