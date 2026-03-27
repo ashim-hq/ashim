@@ -1,3 +1,30 @@
+# [0.11.0](https://github.com/siddharthksah/Stirling-Image/compare/v0.10.0...v0.11.0) (2026-03-27)
+
+
+### Bug Fixes
+
+* **a11y:** add aria-hidden to decorative GemLogo SVG ([ae185ce](https://github.com/siddharthksah/Stirling-Image/commit/ae185ce767a480719d2f54d5675cbd7d64beb7b5))
+* **api:** allow Scalar docs through auth and CSP ([6023109](https://github.com/siddharthksah/Stirling-Image/commit/6023109df9c66c1e7b4d81f3e902f081809ed6ba))
+* **api:** use content instead of spec.content for Scalar v1.49 API ([dfcb4d5](https://github.com/siddharthksah/Stirling-Image/commit/dfcb4d579f4b44013d23dff8617d9a9f6315b452))
+* **ui:** clean up settings, automate page, fullscreen logo, and README ([b3c8ad4](https://github.com/siddharthksah/Stirling-Image/commit/b3c8ad4697000454a11aaace27d0baa37a9959d9))
+
+
+### Features
+
+* **api:** add all remaining endpoints to OpenAPI spec ([e7b38ba](https://github.com/siddharthksah/Stirling-Image/commit/e7b38ba68f8ae7fae5675bafc0f2dc2c4f22ecd2))
+* **api:** add all tool endpoints to OpenAPI spec ([753ba3e](https://github.com/siddharthksah/Stirling-Image/commit/753ba3e4689b1a3504960d15d1ebceaf2a08876e))
+* **api:** add llms.txt and llms-full.txt endpoints ([12ba52a](https://github.com/siddharthksah/Stirling-Image/commit/12ba52a6a0c1260f02a4d7787be8113383575d9e))
+* **api:** add OpenAPI 3.1 spec skeleton with common schemas ([b2189f5](https://github.com/siddharthksah/Stirling-Image/commit/b2189f556815ef8d5c781eee72b8263db09f6a1a))
+* **api:** add Scalar docs route and install dependency ([6f2c319](https://github.com/siddharthksah/Stirling-Image/commit/6f2c3190b8414d1c4c3b1a78cf7a86a96109c934))
+* **api:** register docs route in server and test helper ([bc6b389](https://github.com/siddharthksah/Stirling-Image/commit/bc6b38918ff11f1027efeb934ae0e56d6068b81f))
+* **branding:** add faceted gem SVG logo assets ([4bc9335](https://github.com/siddharthksah/Stirling-Image/commit/4bc93351541b039534197821d290d34cad12c9a7))
+* **branding:** add favicon and meta tags to index.html ([2508fd0](https://github.com/siddharthksah/Stirling-Image/commit/2508fd04871cdb776523ec9d602ad934283c6211))
+* **branding:** add OG social preview image ([c6c5b92](https://github.com/siddharthksah/Stirling-Image/commit/c6c5b926e271d457effea9aec07b70bbc7227ef5))
+* **branding:** add PWA manifest and PNG logo assets ([298567d](https://github.com/siddharthksah/Stirling-Image/commit/298567d090f298600b334184b09d35c178097362))
+* **branding:** show gem icon in app header as default logo ([dd857fb](https://github.com/siddharthksah/Stirling-Image/commit/dd857fbcc778a2425806f1d96d83f118dc92831a))
+* **docs:** add gem favicon to VitePress site ([0918f93](https://github.com/siddharthksah/Stirling-Image/commit/0918f933719ae0d8ff16cf7a8ac0e8936e90805a))
+* **docs:** add llms.txt and llms-full.txt to GitHub Pages ([5f6959a](https://github.com/siddharthksah/Stirling-Image/commit/5f6959a21e3b2708edb011a0a7ce48fbfbc64c87))
+
 # [0.10.0](https://github.com/siddharthksah/Stirling-Image/compare/v0.9.0...v0.10.0) (2026-03-26)
 
 
