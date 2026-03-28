@@ -1,3 +1,14 @@
+## [0.17.7](https://github.com/siddharthksah/Stirling-Image/compare/v0.17.6...v0.17.7) (2026-03-28)
+
+
+### Bug Fixes
+
+* move health diagnostics behind admin auth ([ee9a20f](https://github.com/siddharthksah/Stirling-Image/commit/ee9a20f6a35a0681b3688f0e206914fceed8fd8c))
+* reject HTML tags in settings API to prevent stored XSS ([d5bd011](https://github.com/siddharthksah/Stirling-Image/commit/d5bd01189766ee0797fe35ff3651f38f59a65881))
+* simplify public health to static response, add 403 test ([9c05da6](https://github.com/siddharthksah/Stirling-Image/commit/9c05da6f1372abd071e5249b102d86fa294e0d22))
+* switch README Docker references from GHCR to Docker Hub ([9e15679](https://github.com/siddharthksah/Stirling-Image/commit/9e1567971d50d755ef3b51d31e80b5a31a28ed2d))
+* use two-pass validation in settings PUT to prevent partial writes ([2dc39d3](https://github.com/siddharthksah/Stirling-Image/commit/2dc39d353320b73d9abb96ee5ae1080c2ee2f9cb))
+
 ## [0.17.6](https://github.com/siddharthksah/Stirling-Image/compare/v0.17.5...v0.17.6) (2026-03-28)
 
 
