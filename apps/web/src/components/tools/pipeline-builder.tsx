@@ -69,10 +69,9 @@ export function PipelineBuilder({
 
   // Keep a ref to steps so callbacks always read the latest value
   // without needing steps in their dependency arrays (prevents stale closures).
+  // Assigned during render (not useEffect) so it's current before child effects fire.
   const stepsRef = useRef(steps);
-  useEffect(() => {
-    stepsRef.current = steps;
-  });
+  stepsRef.current = steps;
 
   useEffect(() => {
     apiGet<{ settings: Record<string, string> }>("/v1/settings")
