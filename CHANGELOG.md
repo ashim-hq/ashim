@@ -1,3 +1,10 @@
+# [0.16.0](https://github.com/siddharthksah/Stirling-Image/compare/v0.15.0...v0.16.0) (2026-03-28)
+
+
+### Features
+
+* add password generator and browser save prompt on change-password page ([d56c644](https://github.com/siddharthksah/Stirling-Image/commit/d56c6446fee8384ab61ba180160f5e020a1e412e))
+
 # [0.15.0](https://github.com/siddharthksah/Stirling-Image/compare/v0.14.2...v0.15.0) (2026-03-28)
 
 
