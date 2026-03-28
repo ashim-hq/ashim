@@ -1,3 +1,10 @@
+## [0.17.4](https://github.com/siddharthksah/Stirling-Image/compare/v0.17.3...v0.17.4) (2026-03-28)
+
+
+### Bug Fixes
+
+* prevent stale closure in pipeline step callbacks ([c67f002](https://github.com/siddharthksah/Stirling-Image/commit/c67f0027804f167e250bd497505399c07b539c4e))
+
 ## [0.17.3](https://github.com/siddharthksah/Stirling-Image/compare/v0.17.2...v0.17.3) (2026-03-28)
 
 
