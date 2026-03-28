@@ -479,7 +479,27 @@ const TOOL_FIELDS: Record<string, FieldDef[]> = {
     { key: "background", label: "Background", type: "color", defaultValue: "#FFFFFF" },
   ],
 
-  "remove-background": [],
+  "remove-background": [
+    {
+      key: "model",
+      label: "AI Model",
+      type: "select",
+      defaultValue: "birefnet-general-lite",
+      options: [
+        { value: "u2net", label: "Fast (u2net)" },
+        { value: "birefnet-general-lite", label: "Balanced (general)" },
+        { value: "birefnet-general", label: "Best (general)" },
+        { value: "birefnet-portrait", label: "Portrait / Passport" },
+        { value: "bria-rmbg", label: "Products (bria)" },
+      ],
+    },
+    {
+      key: "backgroundColor",
+      label: "Background color",
+      type: "color",
+      defaultValue: "",
+    },
+  ],
   favicon: [],
   "color-palette": [],
   "barcode-read": [],
