@@ -1,3 +1,10 @@
+## [0.16.4](https://github.com/siddharthksah/Stirling-Image/compare/v0.16.3...v0.16.4) (2026-03-28)
+
+
+### Bug Fixes
+
+* surface hidden errors and add batch rejection tests ([2f8e2ce](https://github.com/siddharthksah/Stirling-Image/commit/2f8e2ce7e2b96613ebda249890632bc54c11980b))
+
 ## [0.16.3](https://github.com/siddharthksah/Stirling-Image/compare/v0.16.2...v0.16.3) (2026-03-28)
 
 
