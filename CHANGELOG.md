@@ -1,3 +1,10 @@
+## [0.17.2](https://github.com/siddharthksah/Stirling-Image/compare/v0.17.1...v0.17.2) (2026-03-28)
+
+
+### Bug Fixes
+
+* prevent pipeline step settings from resetting on collapse ([d899ef1](https://github.com/siddharthksah/Stirling-Image/commit/d899ef128004e46200da785a960da50894e93861))
+
 ## [0.17.1](https://github.com/siddharthksah/Stirling-Image/compare/v0.17.0...v0.17.1) (2026-03-28)
 
 
