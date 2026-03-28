@@ -2,9 +2,9 @@
   <img src="apps/web/public/logo-192.png" width="80" alt="Stirling Image logo">
 </p>
 
-<h1 align="center">Stirling Image - The Open-Source Image Processing Platform</h1>
+<h1 align="center">Stirling Image</h1>
 
-Stirling Image is a powerful, open-source image processing platform. Self-host it in a single Docker container with a private API. Resize, compress, convert, remove backgrounds, upscale, run OCR, and more — without sending images to external services.
+<p align="center">Open-source, self-hosted image processing. One Docker container, no cloud dependencies.</p>
 
 <p align="center">
   <a href="https://github.com/siddharthksah/Stirling-Image/pkgs/container/stirling-image"><img src="https://img.shields.io/badge/Docker-ghcr.io-blue?logo=docker" alt="Docker"></a>
@@ -15,44 +15,58 @@ Stirling Image is a powerful, open-source image processing platform. Self-host i
 
 ![Stirling Image - Dashboard](images/dashboard.png)
 
-## Key Capabilities
+## What it does
 
-- **33+ image tools** — Resize, crop, compress, convert, watermark, OCR, and more.
-- **AI-powered** — Background removal, upscaling, object erasing, face blurring — all running locally.
-- **Automation & workflows** — Chain tools into reusable pipelines. Batch process up to 200 images at once.
-- **Developer platform** — REST API for every tool. Swagger docs included.
-- **Your data stays yours** — No telemetry, no tracking, no cloud. Single Docker container on any architecture.
+Resize, crop, compress, convert, watermark, OCR, remove backgrounds, upscale, erase objects, blur faces, and more. 33+ tools in total, all running locally on your hardware.
 
-For a full feature list, see the docs: **https://siddharthksah.github.io/Stirling-Image/**
+You can chain tools into reusable pipelines and batch process up to 200 images at once. Every tool is also available through a REST API with Swagger docs.
 
-## Quick Start
+No telemetry, no tracking, no external calls. Your images never leave your machine.
+
+## Quick start
 
 ```bash
 docker run -d -p 1349:1349 -v stirling-data:/data ghcr.io/siddharthksah/stirling-image:latest
 ```
 
-Then open: http://localhost:1349. Default login: `admin` / `admin`.
+Open http://localhost:1349 in your browser.
 
-For full installation options, see the [Getting Started Guide](https://siddharthksah.github.io/Stirling-Image/guide/getting-started).
+**Default credentials:**
 
-## Resources
+| Field    | Value   |
+|----------|---------|
+| Username | `admin` |
+| Password | `admin` |
 
-- [**Documentation**](https://siddharthksah.github.io/Stirling-Image/)
-- [**API Docs**](https://siddharthksah.github.io/Stirling-Image/api/rest)
-- [**Configuration**](https://siddharthksah.github.io/Stirling-Image/guide/configuration)
+You will be asked to change your password on first login. This is enforced for all new accounts and cannot be skipped in production.
+
+For Docker Compose, persistent storage, and other setup options, see the [Getting Started Guide](https://siddharthksah.github.io/Stirling-Image/guide/getting-started).
+
+## Documentation
+
+- [Getting started](https://siddharthksah.github.io/Stirling-Image/guide/getting-started)
+- [Configuration](https://siddharthksah.github.io/Stirling-Image/guide/configuration)
+- [REST API](https://siddharthksah.github.io/Stirling-Image/api/rest)
+- [Architecture](https://siddharthksah.github.io/Stirling-Image/guide/architecture)
+- [Developer guide](https://siddharthksah.github.io/Stirling-Image/guide/developer)
+- [Translation guide](https://siddharthksah.github.io/Stirling-Image/guide/translations)
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+For development setup, see the [Developer Guide](https://siddharthksah.github.io/Stirling-Image/guide/developer).
+
+For adding translations, see the [Translation Guide](https://siddharthksah.github.io/Stirling-Image/guide/translations).
 
 ## Support
 
-- **Bug Reports**: [GitHub Issues](https://github.com/siddharthksah/Stirling-Image/issues)
+Bug reports and feature requests: [GitHub Issues](https://github.com/siddharthksah/Stirling-Image/issues)
 
 <p align="center">
   <a href="https://github.com/sponsors/siddharthksah"><img src="https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?logo=github-sponsors" alt="GitHub Sponsors"></a>
   <a href="https://ko-fi.com/siddharthksah"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Ko--fi-FF5E5B?logo=ko-fi" alt="Ko-fi"></a>
 </p>
-
-## Contributing
-
-Contributions welcome. Open an issue first so we can talk about what you have in mind.
 
 ## License
 

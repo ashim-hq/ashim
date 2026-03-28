@@ -32,6 +32,8 @@ export default defineConfig({
           { text: "Configuration", link: "/guide/configuration" },
           { text: "Database", link: "/guide/database" },
           { text: "Deployment", link: "/guide/deployment" },
+          { text: "Developer guide", link: "/guide/developer" },
+          { text: "Translation guide", link: "/guide/translations" },
         ],
       },
       {
