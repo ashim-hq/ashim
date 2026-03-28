@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { SearchBar } from "@/components/common/search-bar";
 import { apiGet } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { PipelineStepSettings } from "./pipeline-step-settings";
@@ -64,6 +65,7 @@ export function PipelineBuilder({
   const [disabledTools, setDisabledTools] = useState<string[]>([]);
   const [experimentalEnabled, setExperimentalEnabled] = useState(false);
   const [pipelineToolIds, setPipelineToolIds] = useState<string[] | null>(null);
+  const [toolSearch, setToolSearch] = useState("");
 
   useEffect(() => {
     apiGet<{ settings: Record<string, string> }>("/v1/settings")
@@ -82,14 +84,19 @@ export function PipelineBuilder({
   }, []);
 
   const PIPELINE_TOOLS = useMemo(() => {
+    const q = toolSearch.toLowerCase();
     return PIPELINE_TOOLS_BASE.filter((t) => {
       if (disabledTools.includes(t.id)) return false;
       if (t.experimental && !experimentalEnabled) return false;
       // Only show tools that are registered in the pipeline-compatible tool registry
       if (pipelineToolIds && !pipelineToolIds.includes(t.id)) return false;
+      // Search filter
+      if (q && !t.name.toLowerCase().includes(q) && !t.description.toLowerCase().includes(q)) {
+        return false;
+      }
       return true;
     });
-  }, [disabledTools, experimentalEnabled, pipelineToolIds]);
+  }, [disabledTools, experimentalEnabled, pipelineToolIds, toolSearch]);
 
   const addStep = useCallback(
     (toolId: string) => {
@@ -296,39 +303,50 @@ export function PipelineBuilder({
 
       {/* Add Step */}
       {showToolPicker ? (
-        <div className="rounded-lg border border-border bg-background p-3 space-y-2 max-h-64 overflow-y-auto">
+        <div className="rounded-lg border border-border bg-background p-3 space-y-2 max-h-80 overflow-y-auto">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">Add a step</span>
             <button
               type="button"
-              onClick={() => setShowToolPicker(false)}
+              onClick={() => {
+                setShowToolPicker(false);
+                setToolSearch("");
+              }}
               className="p-1 rounded hover:bg-muted text-muted-foreground"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
-          {PIPELINE_TOOLS.map((tool) => {
-            const Icon = iconsMap[tool.icon] || icons.FileImage;
-            return (
-              <button
-                key={tool.id}
-                type="button"
-                onClick={() => addStep(tool.id)}
-                className="flex items-center gap-2 w-full px-3 py-2 rounded-lg hover:bg-muted text-sm text-left transition-colors"
-              >
-                <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-foreground">{tool.name}</div>
-                  <div className="text-xs text-muted-foreground truncate">{tool.description}</div>
-                </div>
-              </button>
-            );
-          })}
+          <SearchBar value={toolSearch} onChange={setToolSearch} placeholder="Search tools..." />
+          {PIPELINE_TOOLS.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">No tools found</p>
+          ) : (
+            PIPELINE_TOOLS.map((tool) => {
+              const Icon = iconsMap[tool.icon] || icons.FileImage;
+              return (
+                <button
+                  key={tool.id}
+                  type="button"
+                  onClick={() => addStep(tool.id)}
+                  className="flex items-center gap-2 w-full px-3 py-2 rounded-lg hover:bg-muted text-sm text-left transition-colors"
+                >
+                  <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-foreground">{tool.name}</div>
+                    <div className="text-xs text-muted-foreground truncate">{tool.description}</div>
+                  </div>
+                </button>
+              );
+            })
+          )}
         </div>
       ) : (
         <button
           type="button"
-          onClick={() => setShowToolPicker(true)}
+          onClick={() => {
+            setShowToolPicker(true);
+            setToolSearch("");
+          }}
           className="flex items-center gap-2 w-full justify-center px-4 py-2.5 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors"
         >
           <Plus className="h-4 w-4" />

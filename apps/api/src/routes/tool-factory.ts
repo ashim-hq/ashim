@@ -49,11 +49,19 @@ export function getToolConfig(toolId: string): AnyToolRouteConfig | undefined {
 }
 
 /**
- * Return the IDs of all tools registered via createToolRoute().
- * These are the tools that can be used in pipelines and batch processing.
+ * Return the IDs of all tools in the pipeline/batch registry.
  */
 export function getRegisteredToolIds(): string[] {
   return [...toolRegistry.keys()];
+}
+
+/**
+ * Register a tool's process function in the pipeline/batch registry
+ * without creating an HTTP route. Use this for tools that have their
+ * own custom HTTP route but should still be usable in pipelines.
+ */
+export function registerToolProcessFn(config: AnyToolRouteConfig): void {
+  toolRegistry.set(config.toolId, config);
 }
 
 /**

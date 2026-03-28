@@ -3,9 +3,11 @@ import { writeFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { removeBackground } from "@stirling-image/ai";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { z } from "zod";
 import { validateImageBuffer } from "../../lib/file-validation.js";
 import { createWorkspace } from "../../lib/workspace.js";
 import { updateSingleFileProgress } from "../progress.js";
+import { registerToolProcessFn } from "../tool-factory.js";
 
 /**
  * AI background removal route.
@@ -108,4 +110,25 @@ export function registerRemoveBackground(app: FastifyInstance) {
       }
     },
   );
+
+  // Register in the pipeline/batch registry so this tool can be used
+  // as a step in automation pipelines (without progress callbacks).
+  registerToolProcessFn({
+    toolId: "remove-background",
+    settingsSchema: z.object({
+      model: z.string().optional(),
+      backgroundColor: z.string().optional(),
+    }),
+    process: async (inputBuffer, settings, filename) => {
+      const s = settings as { model?: string; backgroundColor?: string };
+      const jobId = randomUUID();
+      const workspacePath = await createWorkspace(jobId);
+      const resultBuffer = await removeBackground(inputBuffer, join(workspacePath, "output"), {
+        model: s.model,
+        backgroundColor: s.backgroundColor,
+      });
+      const outputFilename = `${filename.replace(/\.[^.]+$/, "")}_nobg.png`;
+      return { buffer: resultBuffer, filename: outputFilename, contentType: "image/png" };
+    },
+  });
 }

@@ -3,10 +3,12 @@ import { writeFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { upscale } from "@stirling-image/ai";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { z } from "zod";
 import { autoOrient } from "../../lib/auto-orient.js";
 import { validateImageBuffer } from "../../lib/file-validation.js";
 import { createWorkspace } from "../../lib/workspace.js";
 import { updateSingleFileProgress } from "../progress.js";
+import { registerToolProcessFn } from "../tool-factory.js";
 
 /**
  * AI image upscaling route.
@@ -113,5 +115,23 @@ export function registerUpscale(app: FastifyInstance) {
         details: err instanceof Error ? err.message : "Unknown error",
       });
     }
+  });
+
+  // Register in the pipeline/batch registry so this tool can be used
+  // as a step in automation pipelines (without progress callbacks).
+  registerToolProcessFn({
+    toolId: "upscale",
+    settingsSchema: z.object({
+      scale: z.union([z.number(), z.string()]).transform(Number).default(2),
+    }),
+    process: async (inputBuffer, settings, filename) => {
+      const scale = Number((settings as { scale?: number }).scale) || 2;
+      const orientedBuffer = await autoOrient(inputBuffer);
+      const jobId = randomUUID();
+      const workspacePath = await createWorkspace(jobId);
+      const result = await upscale(orientedBuffer, join(workspacePath, "output"), { scale });
+      const outputFilename = `${filename.replace(/\.[^.]+$/, "")}_${scale}x.png`;
+      return { buffer: result.buffer, filename: outputFilename, contentType: "image/png" };
+    },
   });
 }

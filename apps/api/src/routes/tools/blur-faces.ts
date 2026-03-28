@@ -3,10 +3,12 @@ import { writeFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { blurFaces } from "@stirling-image/ai";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { z } from "zod";
 import { autoOrient } from "../../lib/auto-orient.js";
 import { validateImageBuffer } from "../../lib/file-validation.js";
 import { createWorkspace } from "../../lib/workspace.js";
 import { updateSingleFileProgress } from "../progress.js";
+import { registerToolProcessFn } from "../tool-factory.js";
 
 /**
  * Face detection and blurring route.
@@ -114,5 +116,27 @@ export function registerBlurFaces(app: FastifyInstance) {
         details: err instanceof Error ? err.message : "Unknown error",
       });
     }
+  });
+
+  // Register in the pipeline/batch registry so this tool can be used
+  // as a step in automation pipelines (without progress callbacks).
+  registerToolProcessFn({
+    toolId: "blur-faces",
+    settingsSchema: z.object({
+      blurRadius: z.number().min(1).max(100).default(30),
+      sensitivity: z.number().min(0).max(1).default(0.5),
+    }),
+    process: async (inputBuffer, settings, filename) => {
+      const s = settings as { blurRadius?: number; sensitivity?: number };
+      const orientedBuffer = await autoOrient(inputBuffer);
+      const jobId = randomUUID();
+      const workspacePath = await createWorkspace(jobId);
+      const result = await blurFaces(orientedBuffer, join(workspacePath, "output"), {
+        blurRadius: s.blurRadius ?? 30,
+        sensitivity: s.sensitivity ?? 0.5,
+      });
+      const outputFilename = `${filename.replace(/\.[^.]+$/, "")}_blurred.png`;
+      return { buffer: result.buffer, filename: outputFilename, contentType: "image/png" };
+    },
   });
 }

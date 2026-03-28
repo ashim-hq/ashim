@@ -2342,18 +2342,26 @@ describe("Pipeline", () => {
       expect(toolIds).toContain("rotate");
     });
 
-    it("excludes custom-route tools that are not pipeline-compatible", async () => {
+    it("includes AI tools registered for pipeline use", async () => {
       const res = await app.inject({
         method: "GET",
         url: "/api/v1/pipeline/tools",
         headers: { authorization: `Bearer ${adminToken}` },
       });
       const { toolIds } = JSON.parse(res.body);
-      // These tools use custom routes and are not in the tool registry
-      expect(toolIds).not.toContain("remove-background");
-      expect(toolIds).not.toContain("upscale");
+      expect(toolIds).toContain("remove-background");
+      expect(toolIds).toContain("upscale");
+      expect(toolIds).toContain("blur-faces");
+    });
+
+    it("excludes tools that are not pipeline-compatible", async () => {
+      const res = await app.inject({
+        method: "GET",
+        url: "/api/v1/pipeline/tools",
+        headers: { authorization: `Bearer ${adminToken}` },
+      });
+      const { toolIds } = JSON.parse(res.body);
       expect(toolIds).not.toContain("ocr");
-      expect(toolIds).not.toContain("blur-faces");
       expect(toolIds).not.toContain("erase-object");
       expect(toolIds).not.toContain("info");
       expect(toolIds).not.toContain("collage");
@@ -2361,8 +2369,8 @@ describe("Pipeline", () => {
     });
   });
 
-  describe("Pipeline rejects custom-route tools", () => {
-    const customRouteTools = ["remove-background", "upscale", "ocr", "blur-faces", "erase-object"];
+  describe("Pipeline rejects incompatible tools", () => {
+    const customRouteTools = ["ocr", "erase-object"];
 
     for (const toolId of customRouteTools) {
       it(`returns 400 when pipeline uses "${toolId}" (custom-route tool)`, async () => {
@@ -2669,8 +2677,8 @@ describe("Batch processing", () => {
     });
   });
 
-  describe("Batch rejects custom-route tools", () => {
-    const customRouteTools = ["remove-background", "upscale", "ocr", "blur-faces", "erase-object"];
+  describe("Batch rejects incompatible tools", () => {
+    const customRouteTools = ["ocr", "erase-object"];
 
     for (const toolId of customRouteTools) {
       it(`returns 404 for batch "${toolId}" (custom-route tool)`, async () => {
