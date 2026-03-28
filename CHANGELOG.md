@@ -1,3 +1,10 @@
+## [0.16.1](https://github.com/siddharthksah/Stirling-Image/compare/v0.16.0...v0.16.1) (2026-03-28)
+
+
+### Bug Fixes
+
+* trigger browser password save prompt on password change ([6b279ad](https://github.com/siddharthksah/Stirling-Image/commit/6b279ad09b9e74de34732b0e854f1180f25b34bd))
+
 # [0.16.0](https://github.com/siddharthksah/Stirling-Image/compare/v0.15.0...v0.16.0) (2026-03-28)
 
 
