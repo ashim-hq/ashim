@@ -8,6 +8,7 @@ import { FilesPage } from "./pages/files-page";
 import { FullscreenGridPage } from "./pages/fullscreen-grid-page";
 import { HomePage } from "./pages/home-page";
 import { LoginPage } from "./pages/login-page";
+import { PrivacyPolicyPage } from "./pages/privacy-policy-page";
 import { ToolPage } from "./pages/tool-page";
 
 class ErrorBoundary extends Component<
@@ -59,7 +60,11 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
   // Don't guard the login or change-password pages
-  if (location.pathname === "/login" || location.pathname === "/change-password") {
+  if (
+    location.pathname === "/login" ||
+    location.pathname === "/change-password" ||
+    location.pathname === "/privacy"
+  ) {
     return <>{children}</>;
   }
 
@@ -98,6 +103,7 @@ export function App() {
               <Route path="/automate" element={<AutomatePage />} />
               <Route path="/files" element={<FilesPage />} />
               <Route path="/fullscreen" element={<FullscreenGridPage />} />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
               <Route path="/:toolId" element={<ToolPage />} />
               <Route path="/" element={<HomePage />} />
             </Routes>

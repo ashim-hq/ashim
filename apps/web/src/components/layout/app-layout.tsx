@@ -124,7 +124,9 @@ export function AppLayout({ children, showToolPanel = true, onFiles }: AppLayout
         </div>
         {!isMobile && (
           <div className="text-center text-xs text-muted-foreground py-2 border-t border-border">
-            Privacy Policy
+            <Link to="/privacy" className="hover:text-foreground transition-colors">
+              Privacy Policy
+            </Link>
           </div>
         )}
       </main>
