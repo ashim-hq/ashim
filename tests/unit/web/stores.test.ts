@@ -416,25 +416,31 @@ describe("FileStore", () => {
     expect(useFileStore.getState().processedSize).toBe(500);
   });
 
-  it("hasFiles returns true when entries exist", () => {
-    expect(useFileStore.getState().hasFiles).toBe(false);
+  it("entries.length reflects file count", () => {
+    expect(useFileStore.getState().entries.length).toBe(0);
     useFileStore.getState().setFiles([makeFile("a.png")]);
-    expect(useFileStore.getState().hasFiles).toBe(true);
+    expect(useFileStore.getState().entries.length).toBe(1);
   });
 
-  it("allProcessed returns true when all entries are completed", () => {
+  it("all entries completed can be derived from entries", () => {
     useFileStore.getState().setFiles([makeFile("a.png"), makeFile("b.png")]);
-    expect(useFileStore.getState().allProcessed).toBe(false);
+    const allDone = () =>
+      useFileStore.getState().entries.length > 0 &&
+      useFileStore.getState().entries.every((e) => e.status === "completed");
+    expect(allDone()).toBe(false);
 
     useFileStore.getState().updateEntry(0, { status: "completed" });
-    expect(useFileStore.getState().allProcessed).toBe(false);
+    expect(allDone()).toBe(false);
 
     useFileStore.getState().updateEntry(1, { status: "completed" });
-    expect(useFileStore.getState().allProcessed).toBe(true);
+    expect(allDone()).toBe(true);
   });
 
-  it("allProcessed returns false when no entries", () => {
-    expect(useFileStore.getState().allProcessed).toBe(false);
+  it("empty entries means nothing is processed", () => {
+    const allDone =
+      useFileStore.getState().entries.length > 0 &&
+      useFileStore.getState().entries.every((e) => e.status === "completed");
+    expect(allDone).toBe(false);
   });
 
   // -- setProcessedUrl (backward compat, updates current entry) -------------

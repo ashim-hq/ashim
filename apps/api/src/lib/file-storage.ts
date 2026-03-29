@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 import { env } from "../config.js";
 
@@ -48,4 +48,40 @@ export async function deleteStoredFile(storedName: string): Promise<void> {
 
 export function getStoredFilePath(storedName: string): string {
   return join(env.FILES_STORAGE_PATH, storedName);
+}
+
+// ── Thumbnail cache ──────────────────────────────────────────────────
+
+const THUMB_DIR = ".thumbs";
+let thumbDirReady = false;
+
+async function ensureThumbDir(): Promise<void> {
+  if (thumbDirReady) return;
+  await mkdir(join(env.FILES_STORAGE_PATH, THUMB_DIR), { recursive: true });
+  thumbDirReady = true;
+}
+
+function thumbPath(storedName: string): string {
+  return join(env.FILES_STORAGE_PATH, THUMB_DIR, `${storedName}.thumb.jpg`);
+}
+
+export async function getCachedThumbnail(storedName: string): Promise<Buffer | null> {
+  try {
+    return await readFile(thumbPath(storedName));
+  } catch {
+    return null;
+  }
+}
+
+export async function saveThumbnail(storedName: string, buffer: Buffer): Promise<void> {
+  await ensureThumbDir();
+  await writeFile(thumbPath(storedName), buffer);
+}
+
+export async function deleteThumbnail(storedName: string): Promise<void> {
+  try {
+    await unlink(thumbPath(storedName));
+  } catch {
+    // Thumbnail may not exist
+  }
 }

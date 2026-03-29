@@ -6,6 +6,7 @@ import { env } from "./config.js";
 import { db, schema } from "./db/index.js";
 import { runMigrations } from "./db/migrate.js";
 import { startCleanupCron } from "./lib/cleanup.js";
+import { shutdownWorkerPool } from "./lib/worker-pool.js";
 import { authMiddleware, authRoutes, ensureDefaultAdmin, requireAdmin } from "./plugins/auth.js";
 import { registerStatic } from "./plugins/static.js";
 import { registerUpload } from "./plugins/upload.js";
@@ -15,7 +16,7 @@ import { brandingRoutes } from "./routes/branding.js";
 import { docsRoutes } from "./routes/docs.js";
 import { fileRoutes } from "./routes/files.js";
 import { registerPipelineRoutes } from "./routes/pipeline.js";
-import { registerProgressRoutes } from "./routes/progress.js";
+import { recoverStaleJobs, registerProgressRoutes } from "./routes/progress.js";
 import { settingsRoutes } from "./routes/settings.js";
 import { teamsRoutes } from "./routes/teams.js";
 import { registerToolRoutes } from "./routes/tools/index.js";
@@ -27,6 +28,9 @@ console.log("Database initialized");
 
 // Create default admin user if no users exist
 await ensureDefaultAdmin();
+
+// Mark any jobs left in processing/queued from a previous unclean shutdown
+recoverStaleJobs();
 
 const app = Fastify({
   logger: true,
@@ -143,7 +147,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Start workspace cleanup cron
-startCleanupCron();
+const cleanupCron = startCleanupCron();
 
 // Start
 try {
@@ -153,3 +157,48 @@ try {
   app.log.error(err);
   process.exit(1);
 }
+
+// Graceful shutdown
+let shuttingDown = false;
+async function shutdown(signal: string) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`\n${signal} received, shutting down gracefully...`);
+
+  cleanupCron.stop();
+
+  try {
+    await app.close();
+    console.log("HTTP server closed");
+  } catch (err) {
+    console.error("Error closing HTTP server:", err);
+  }
+
+  try {
+    await shutdownWorkerPool();
+    console.log("Worker pool shut down");
+  } catch (err) {
+    console.error("Error shutting down worker pool:", err);
+  }
+
+  try {
+    const { shutdownDispatcher } = await import("@stirling-image/ai");
+    shutdownDispatcher();
+    console.log("Python dispatcher shut down");
+  } catch {
+    // AI package may not be available
+  }
+
+  try {
+    const { sqlite: sqliteConn } = await import("./db/index.js");
+    sqliteConn.close();
+    console.log("Database connection closed");
+  } catch (err) {
+    console.error("Error closing database:", err);
+  }
+
+  process.exit(0);
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

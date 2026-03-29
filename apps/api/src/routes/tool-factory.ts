@@ -9,6 +9,8 @@ import { db, schema } from "../db/index.js";
 import { autoOrient } from "../lib/auto-orient.js";
 import { validateImageBuffer } from "../lib/file-validation.js";
 import { sanitizeFilename } from "../lib/filename.js";
+import type { WorkerInput, WorkerOutput } from "../lib/image-worker.js";
+import { getWorkerPool } from "../lib/worker-pool.js";
 import { createWorkspace } from "../lib/workspace.js";
 
 export interface ToolRouteConfig<T> {
@@ -40,6 +42,16 @@ export interface AnyToolRouteConfig {
  * Populated by createToolRoute() calls; used by batch processing.
  */
 const toolRegistry = new Map<string, AnyToolRouteConfig>();
+
+/** Tools that use the Python bridge and should NOT be offloaded to workers. */
+const SKIP_WORKER_TOOLS = new Set([
+  "remove-background",
+  "upscale",
+  "ocr",
+  "blur-faces",
+  "erase-object",
+  "smart-crop",
+]);
 
 /**
  * Retrieve a registered tool config by its ID.
@@ -151,12 +163,43 @@ export function createToolRoute<T>(app: FastifyInstance, config: ToolRouteConfig
         return reply.status(400).send({ error: "Settings must be valid JSON" });
       }
 
-      // Auto-orient based on EXIF metadata before processing.
-      const processBuffer = await autoOrient(fileBuffer);
-
-      // Process the image
+      // Process the image (worker thread or main thread)
       try {
-        const result = await config.process(processBuffer, settings, filename);
+        let result: { buffer: Buffer; filename: string; contentType: string };
+
+        // Offload to worker thread for non-AI tools.
+        // Falls back to main-thread processing on any worker error.
+        // Disabled in test environments where worker_threads can't load .ts files.
+        const useWorker = !SKIP_WORKER_TOOLS.has(config.toolId) && process.env.NODE_ENV !== "test";
+        if (useWorker) {
+          try {
+            const pool = getWorkerPool();
+            const workerInput: WorkerInput = {
+              toolId: config.toolId,
+              inputBuffer: fileBuffer,
+              settings,
+              filename,
+            };
+            const workerResult: WorkerOutput = await pool.run(workerInput);
+            result = {
+              buffer: Buffer.from(workerResult.buffer),
+              filename: workerResult.filename,
+              contentType: workerResult.contentType,
+            };
+          } catch (workerErr) {
+            // Worker failed - fall back to main-thread processing
+            request.log.warn(
+              { workerErr, toolId: config.toolId },
+              "Worker processing failed, falling back to main thread",
+            );
+            const processBuffer = await autoOrient(fileBuffer);
+            result = await config.process(processBuffer, settings, filename);
+          }
+        } else {
+          // AI tools: always main thread (they use Python bridge)
+          const processBuffer = await autoOrient(fileBuffer);
+          result = await config.process(processBuffer, settings, filename);
+        }
 
         // Create workspace and save output
         const jobId = randomUUID();

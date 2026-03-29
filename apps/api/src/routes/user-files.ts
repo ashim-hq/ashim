@@ -17,7 +17,14 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import sharp from "sharp";
 import { db, schema, sqlite } from "../db/index.js";
 import { auditLog } from "../lib/audit.js";
-import { deleteStoredFile, getStoredFilePath, saveFile } from "../lib/file-storage.js";
+import {
+  deleteStoredFile,
+  deleteThumbnail,
+  getCachedThumbnail,
+  getStoredFilePath,
+  saveFile,
+  saveThumbnail,
+} from "../lib/file-storage.js";
 import { validateImageBuffer } from "../lib/file-validation.js";
 import { sanitizeFilename } from "../lib/filename.js";
 import { getAuthUser } from "../plugins/auth.js";
@@ -342,6 +349,15 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
         return reply.status(404).send({ error: "File not found" });
       }
 
+      // Serve from disk cache if available
+      const cached = await getCachedThumbnail(file.storedName);
+      if (cached) {
+        return reply
+          .header("Content-Type", "image/jpeg")
+          .header("Cache-Control", "public, max-age=86400, immutable")
+          .send(cached);
+      }
+
       const filePath = getStoredFilePath(file.storedName);
 
       try {
@@ -350,9 +366,12 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
           .jpeg({ quality: 80 })
           .toBuffer();
 
+        // Cache to disk (non-blocking, don't fail the request)
+        saveThumbnail(file.storedName, thumbnail).catch(() => {});
+
         return reply
           .header("Content-Type", "image/jpeg")
-          .header("Cache-Control", "public, max-age=86400")
+          .header("Cache-Control", "public, max-age=86400, immutable")
           .send(thumbnail);
       } catch {
         return reply.status(422).send({ error: "Could not generate thumbnail" });
@@ -412,6 +431,7 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
 
       for (const row of chainRows) {
         await deleteStoredFile(row.stored_name);
+        await deleteThumbnail(row.stored_name);
         db.delete(schema.userFiles).where(eq(schema.userFiles.id, row.id)).run();
         deletedCount++;
       }

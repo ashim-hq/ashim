@@ -27,7 +27,7 @@ This package has no network dependencies and runs entirely in-process.
 
 ### `@stirling-image/ai`
 
-A bridge layer that calls Python scripts via child processes. Each AI capability has a TypeScript wrapper that spawns a Python subprocess, passes image data through the filesystem, and returns the result.
+A bridge layer that calls Python scripts for ML operations. On first use, the bridge starts a persistent Python dispatcher process that pre-imports heavy libraries (rembg, OpenCV, NumPy) and keeps them warm in memory. Subsequent AI calls skip the import overhead entirely. If the dispatcher is unavailable, the bridge falls back to spawning a fresh Python subprocess per request.
 
 Supported operations:
 - **Background removal** -- BiRefNet-Lite model via rembg
@@ -56,7 +56,9 @@ A Fastify v5 server that handles:
 - Swagger/OpenAPI documentation at `/api/docs`
 - Serving the built frontend as a SPA in production
 
-Key dependencies: Fastify, Drizzle ORM, better-sqlite3, Sharp, Zod for validation.
+Key dependencies: Fastify, Drizzle ORM, better-sqlite3, Sharp, Piscina (worker thread pool), Zod for validation.
+
+The server handles graceful shutdown on SIGTERM/SIGINT: it drains HTTP connections, stops the worker pool, shuts down the Python dispatcher, and closes the database.
 
 ### Web (`apps/web`)
 
@@ -74,10 +76,11 @@ This VitePress site. Deployed to GitHub Pages automatically on push to `main`.
 
 1. The user picks a tool in the web UI and uploads an image.
 2. The frontend sends a multipart POST to `/api/v1/tools/:toolId` with the file and settings.
-3. The API route validates the input with Zod, auto-orients the image based on EXIF metadata (so camera photos display correctly after processing), then calls the appropriate package function -- either `@stirling-image/image-engine` for standard operations or `@stirling-image/ai` for ML tasks.
-4. For AI tools, the TypeScript bridge spawns a Python subprocess, waits for it to finish, and reads the output file.
-5. The API returns a `jobId` and `downloadUrl`. The frontend can poll `/api/v1/jobs/:jobId/progress` via SSE for real time status on longer tasks.
-6. The user downloads the processed image from `/api/v1/download/:jobId/:filename`.
+3. The API route validates the input with Zod, then dispatches processing.
+4. For standard tools, the request is offloaded to a Piscina worker thread pool so Sharp operations don't block the main event loop. The worker auto-orients the image based on EXIF metadata, runs the tool's process function, and returns the result. If the worker pool is unavailable, processing falls back to the main thread.
+5. For AI tools, the TypeScript bridge sends a request to the persistent Python dispatcher (or spawns a fresh subprocess as fallback), waits for it to finish, and reads the output file.
+6. Job progress is persisted to the `jobs` SQLite table so state survives container restarts. Real-time updates are delivered via SSE at `/api/v1/jobs/:jobId/progress`.
+7. The API returns a `jobId` and `downloadUrl`. The user downloads the processed image from `/api/v1/download/:jobId/:filename`.
 
 For pipelines, the API feeds the output of each step as input to the next, running them sequentially.
 

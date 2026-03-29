@@ -1,6 +1,6 @@
 # AI engine
 
-The `@stirling-image/ai` package wraps Python ML models in TypeScript functions. Each operation spawns a Python subprocess, processes the image, and returns the result. The bridge layer handles serialization and error propagation.
+The `@stirling-image/ai` package wraps Python ML models in TypeScript functions. A persistent Python dispatcher process pre-imports heavy ML libraries at startup and keeps them warm in memory, eliminating the cold-start latency that would otherwise occur on every request. If the dispatcher is unavailable, the bridge falls back to spawning a fresh subprocess per call.
 
 All model weights are bundled in the Docker image during the build. No downloads happen at runtime.
 
@@ -76,10 +76,12 @@ Takes an image and a mask (white = area to erase, black = keep). Returns the inp
 The TypeScript bridge (`packages/ai/src/bridge.ts`) exposes a single function, `runPythonWithProgress`, that does the following for each AI call:
 
 1. Writes the input image to a temp file in the workspace directory.
-2. Spawns a Python subprocess with the appropriate script and arguments.
+2. Sends a JSON request to the persistent Python dispatcher via stdin (`packages/ai/python/dispatcher.py`). If the dispatcher isn't running, falls back to spawning a fresh subprocess.
 3. Parses JSON progress lines from stderr (e.g. `{"progress": 50, "stage": "Processing..."}`) and forwards them via an `onProgress` callback for real-time SSE streaming.
-4. Reads stdout for JSON output.
+4. Reads the JSON response from stdout.
 5. Reads the output image from the filesystem.
 6. Cleans up temp files.
+
+The persistent dispatcher pre-imports rembg, OpenCV, NumPy, and Pillow at startup. This means the first AI call after container start is fast instead of waiting for library imports. The dispatcher handles requests sequentially (Python's GIL) and reports readiness via a `{"ready": true}` message on stderr.
 
 If the Python process exits with a non-zero code, the bridge extracts a user-friendly error from stderr/stdout and throws. Timeouts default to 5 minutes.

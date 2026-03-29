@@ -43,7 +43,7 @@ export function shouldRunStartupCleanup(): boolean {
   }
 }
 
-export function startCleanupCron() {
+export function startCleanupCron(): { stop: () => void } {
   // Ensure workspace directory exists
   mkdirSync(env.WORKSPACE_PATH, { recursive: true });
 
@@ -97,9 +97,16 @@ export function startCleanupCron() {
   }
 
   // Schedule recurring cleanup
-  setInterval(cleanup, intervalMs);
-  setInterval(purgeExpiredSessions, 60 * 60 * 1000); // Hourly
+  const cleanupTimer = setInterval(cleanup, intervalMs);
+  const sessionTimer = setInterval(purgeExpiredSessions, 60 * 60 * 1000); // Hourly
   console.log(
     `Cleanup scheduled: every ${env.CLEANUP_INTERVAL_MINUTES}m, max age configurable (env default: ${env.FILE_MAX_AGE_HOURS}h)`,
   );
+
+  return {
+    stop: () => {
+      clearInterval(cleanupTimer);
+      clearInterval(sessionTimer);
+    },
+  };
 }

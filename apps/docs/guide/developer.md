@@ -159,7 +159,21 @@ export function MyToolSettings() {
 }
 ```
 
-Then add the route and component to the tool registry in the frontend.
+Then register it in the frontend tool registry at `apps/web/src/lib/tool-registry.tsx`:
+
+```tsx
+// Add the lazy import
+const MyToolSettings = lazy(() =>
+  import("@/components/tools/my-tool-settings").then((m) => ({
+    default: m.MyToolSettings,
+  })),
+);
+
+// Add to the toolRegistry Map
+["my-tool", { displayMode: "before-after", Settings: MyToolSettings }],
+```
+
+Display modes: `"side-by-side"`, `"before-after"`, `"live-preview"`, `"no-comparison"`, `"interactive-crop"`, `"interactive-eraser"`, `"no-dropzone"`.
 
 ### 3. i18n entry
 

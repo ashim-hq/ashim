@@ -36,6 +36,40 @@ function revokeEntries(entries: FileEntry[]): void {
 }
 
 // ---------------------------------------------------------------------------
+// Derived state helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Derive fields from the selected entry. Only recomputes fields that are
+ * actually consumed by components (tool-page, home-page, use-tool-processor).
+ */
+function deriveSelected(entries: FileEntry[], selectedIndex: number) {
+  const entry = entries[selectedIndex];
+  return {
+    currentEntry: entry,
+    selectedFileName: entry ? entry.file.name : null,
+    selectedFileSize: entry ? entry.file.size : null,
+    originalBlobUrl: entry ? entry.blobUrl : null,
+    processedUrl: entry ? entry.processedUrl : null,
+    originalSize: entry ? entry.originalSize : null,
+    processedSize: entry ? entry.processedSize : null,
+  };
+}
+
+/**
+ * Build the File[] array from entries, reusing the previous reference
+ * when the underlying File objects haven't changed.
+ */
+let prevFiles: File[] = [];
+function deriveFiles(entries: FileEntry[]): File[] {
+  if (entries.length === prevFiles.length && entries.every((e, i) => e.file === prevFiles[i])) {
+    return prevFiles;
+  }
+  prevFiles = entries.map((e) => e.file);
+  return prevFiles;
+}
+
+// ---------------------------------------------------------------------------
 // Store
 // ---------------------------------------------------------------------------
 
@@ -47,11 +81,9 @@ interface FileState {
   processing: boolean;
   error: string | null;
 
-  // Backward compat getters (computed from entries + selectedIndex)
+  // Derived from entries (selected entry fields)
   readonly files: File[];
   readonly currentEntry: FileEntry | undefined;
-  readonly hasFiles: boolean;
-  readonly allProcessed: boolean;
   readonly selectedFileName: string | null;
   readonly selectedFileSize: number | null;
   readonly originalBlobUrl: string | null;
@@ -77,26 +109,6 @@ interface FileState {
   reset: () => void;
 }
 
-/**
- * Compute backward-compat derived values from core state.
- * Called after every state mutation to keep derived fields in sync.
- */
-function deriveCompat(entries: FileEntry[], selectedIndex: number) {
-  const entry = entries[selectedIndex];
-  return {
-    files: entries.map((e) => e.file),
-    currentEntry: entry,
-    hasFiles: entries.length > 0,
-    allProcessed: entries.length > 0 && entries.every((e) => e.status === "completed"),
-    selectedFileName: entry ? entry.file.name : null,
-    selectedFileSize: entry ? entry.file.size : null,
-    originalBlobUrl: entry ? entry.blobUrl : null,
-    processedUrl: entry ? entry.processedUrl : null,
-    originalSize: entry ? entry.originalSize : null,
-    processedSize: entry ? entry.processedSize : null,
-  };
-}
-
 export const useFileStore = create<FileState>((set, get) => ({
   entries: [],
   selectedIndex: 0,
@@ -106,7 +118,8 @@ export const useFileStore = create<FileState>((set, get) => ({
   error: null,
 
   // Initial derived values (empty state)
-  ...deriveCompat([], 0),
+  files: [],
+  ...deriveSelected([], 0),
 
   // -- Actions --------------------------------------------------------------
 
@@ -117,14 +130,15 @@ export const useFileStore = create<FileState>((set, get) => ({
       entries,
       selectedIndex: 0,
       error: null,
-      ...deriveCompat(entries, 0),
+      files: deriveFiles(entries),
+      ...deriveSelected(entries, 0),
     });
   },
 
   addFiles: (files) => {
     const entries = [...get().entries, ...files.map(createEntry)];
     const idx = get().selectedIndex;
-    set({ entries, ...deriveCompat(entries, idx) });
+    set({ entries, files: deriveFiles(entries), ...deriveSelected(entries, idx) });
   },
 
   removeFile: (index) => {
@@ -147,14 +161,15 @@ export const useFileStore = create<FileState>((set, get) => ({
     set({
       entries: newEntries,
       selectedIndex: newIndex,
-      ...deriveCompat(newEntries, newIndex),
+      files: deriveFiles(newEntries),
+      ...deriveSelected(newEntries, newIndex),
     });
   },
 
   setSelectedIndex: (index) => {
     set({
       selectedIndex: index,
-      ...deriveCompat(get().entries, index),
+      ...deriveSelected(get().entries, index),
     });
   },
 
@@ -162,7 +177,7 @@ export const useFileStore = create<FileState>((set, get) => ({
     const { selectedIndex, entries } = get();
     if (selectedIndex < entries.length - 1) {
       const idx = selectedIndex + 1;
-      set({ selectedIndex: idx, ...deriveCompat(entries, idx) });
+      set({ selectedIndex: idx, ...deriveSelected(entries, idx) });
     }
   },
 
@@ -170,7 +185,7 @@ export const useFileStore = create<FileState>((set, get) => ({
     const { selectedIndex, entries } = get();
     if (selectedIndex > 0) {
       const idx = selectedIndex - 1;
-      set({ selectedIndex: idx, ...deriveCompat(entries, idx) });
+      set({ selectedIndex: idx, ...deriveSelected(entries, idx) });
     }
   },
 
@@ -179,7 +194,7 @@ export const useFileStore = create<FileState>((set, get) => ({
     if (!entries[index]) return;
     entries[index] = { ...entries[index], ...patch };
     const idx = get().selectedIndex;
-    set({ entries, ...deriveCompat(entries, idx) });
+    set({ entries, files: deriveFiles(entries), ...deriveSelected(entries, idx) });
   },
 
   setBatchZip: (blob, filename) => set({ batchZipBlob: blob, batchZipFilename: filename }),
@@ -209,7 +224,7 @@ export const useFileStore = create<FileState>((set, get) => ({
         status: "pending",
       };
     }
-    set({ entries: updated, ...deriveCompat(updated, selectedIndex) });
+    set({ entries: updated, ...deriveSelected(updated, selectedIndex) });
   },
 
   setSizes: (original, processed) => {
@@ -221,7 +236,7 @@ export const useFileStore = create<FileState>((set, get) => ({
       originalSize: original,
       processedSize: processed,
     };
-    set({ entries: updated, ...deriveCompat(updated, selectedIndex) });
+    set({ entries: updated, ...deriveSelected(updated, selectedIndex) });
   },
 
   undoProcessing: () => {
@@ -239,12 +254,14 @@ export const useFileStore = create<FileState>((set, get) => ({
     set({
       entries: resetEntries,
       error: null,
-      ...deriveCompat(resetEntries, selectedIndex),
+      files: deriveFiles(resetEntries),
+      ...deriveSelected(resetEntries, selectedIndex),
     });
   },
 
   reset: () => {
     revokeEntries(get().entries);
+    prevFiles = [];
     set({
       entries: [],
       selectedIndex: 0,
@@ -252,7 +269,8 @@ export const useFileStore = create<FileState>((set, get) => ({
       batchZipFilename: null,
       processing: false,
       error: null,
-      ...deriveCompat([], 0),
+      files: [],
+      ...deriveSelected([], 0),
     });
   },
 }));
