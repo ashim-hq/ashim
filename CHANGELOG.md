@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/stirling-image/stirling-image/compare/v1.1.0...v1.2.0) (2026-04-03)
+
+
+### Features
+
+* move theme toggle and GitHub button to top-right navbar ([0ba9fa5](https://github.com/stirling-image/stirling-image/commit/0ba9fa5db7efa2557ed569d638c15256f9453364))
+
 # [1.1.0](https://github.com/stirling-image/stirling-image/compare/v1.0.1...v1.1.0) (2026-04-03)
 
 
