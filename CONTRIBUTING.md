@@ -94,7 +94,7 @@ Stirling Image is dual-licensed under the [AGPLv3](LICENSE) and a commercial lic
 By submitting a pull request or otherwise contributing code to this project, you agree that:
 
 1. Your contributions are your original work (or you have the right to submit them).
-2. You grant the project maintainer a perpetual, worldwide, non-exclusive, royalty-free, irrevocable license to use, reproduce, modify, distribute, sublicense, and relicense your contributions under any license, including the AGPLv3 and any commercial license offered for this project.
+2. You grant me a perpetual, worldwide, non-exclusive, royalty-free, irrevocable license to use, reproduce, modify, distribute, sublicense, and relicense your contributions under any license, including the AGPLv3 and any commercial license I offer for this project.
 3. You understand that your contributions will be publicly available under the AGPLv3 and may also be included in commercially licensed versions of the software.
 
 This is necessary because the project offers a commercial license alongside the open-source AGPLv3. Without this agreement, contributed code could only be distributed under the AGPLv3, which would prevent offering a commercial option.
