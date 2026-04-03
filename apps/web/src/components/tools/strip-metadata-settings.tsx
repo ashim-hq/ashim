@@ -1,12 +1,9 @@
 import { AlertTriangle, ChevronDown, ChevronRight, Download, Loader2, MapPin } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { formatHeaders } from "@/components/common/api";
 import { ProgressCard } from "@/components/common/progress-card";
 import { useToolProcessor } from "@/hooks/use-tool-processor";
 import { useFileStore } from "@/stores/file-store";
-
-function getToken(): string {
-  return localStorage.getItem("stirling-token") || "";
-}
 
 interface MetadataResult {
   filename: string;
@@ -342,7 +339,7 @@ export function StripMetadataSettings() {
         formData.append("file", currentFile);
         const res = await fetch("/api/v1/tools/strip-metadata/inspect", {
           method: "POST",
-          headers: { Authorization: `Bearer ${getToken()}` },
+          headers: formatHeaders({}),
           body: formData,
           signal: controller.signal,
         });

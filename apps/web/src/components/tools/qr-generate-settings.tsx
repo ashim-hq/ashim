@@ -1,9 +1,6 @@
 import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
-
-function getToken(): string {
-  return localStorage.getItem("stirling-token") || "";
-}
+import { formatHeaders } from "@/components/common/api";
 
 export function QrGenerateSettings() {
   const [text, setText] = useState("");
@@ -27,10 +24,7 @@ export function QrGenerateSettings() {
     try {
       const res = await fetch("/api/v1/tools/qr-generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${getToken()}`,
-        },
+        headers: formatHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ text, size, errorCorrection, foreground, background }),
       });
 

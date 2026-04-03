@@ -1,10 +1,7 @@
 import { Download, Loader2, Upload } from "lucide-react";
 import { useRef, useState } from "react";
+import { formatHeaders } from "@/components/common/api";
 import { useFileStore } from "@/stores/file-store";
-
-function getToken(): string {
-  return localStorage.getItem("stirling-token") || "";
-}
 
 export function CompareSettings() {
   const { files, processing, error, setProcessing, setError, setProcessedUrl } = useFileStore();
@@ -28,7 +25,7 @@ export function CompareSettings() {
 
       const res = await fetch("/api/v1/tools/compare", {
         method: "POST",
-        headers: { Authorization: `Bearer ${getToken()}` },
+        headers: formatHeaders({}),
         body: formData,
       });
 

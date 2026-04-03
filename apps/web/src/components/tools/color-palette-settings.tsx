@@ -1,10 +1,7 @@
 import { Check, Copy, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { formatHeaders } from "@/components/common/api";
 import { useFileStore } from "@/stores/file-store";
-
-function getToken(): string {
-  return localStorage.getItem("stirling-token") || "";
-}
 
 export function ColorPaletteSettings() {
   const { files, processing, error, setProcessing, setError } = useFileStore();
@@ -24,7 +21,7 @@ export function ColorPaletteSettings() {
 
       const res = await fetch("/api/v1/tools/color-palette", {
         method: "POST",
-        headers: { Authorization: `Bearer ${getToken()}` },
+        headers: formatHeaders({}),
         body: formData,
       });
 

@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { formatHeaders } from "@/components/common/api";
 import { useFileStore } from "@/stores/file-store";
-
-function getToken(): string {
-  return localStorage.getItem("stirling-token") || "";
-}
 
 interface ProcessResult {
   jobId: string;
@@ -212,10 +209,9 @@ export function useToolProcessor(toolId: string) {
       };
 
       xhr.open("POST", `/api/v1/tools/${toolId}`);
-      const token = getToken();
-      if (token) {
-        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-      }
+      formatHeaders({}).forEach((value, key) => {
+        xhr.setRequestHeader(key, value);
+      });
       xhr.send(formData);
     },
     [toolId, isAiTool, setProcessing, setError, setProcessedUrl, setSizes, setJobId],
@@ -282,10 +278,9 @@ export function useToolProcessor(toolId: string) {
       formData.append("clientJobId", clientJobId);
 
       try {
-        const token = getToken();
         const response = await fetch(`/api/v1/tools/${toolId}/batch`, {
           method: "POST",
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          headers: formatHeaders({}),
           body: formData,
         });
 

@@ -1,12 +1,9 @@
 import { Download, Redo, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
+import { formatHeaders } from "@/components/common/api";
 import { ProgressCard } from "@/components/common/progress-card";
 import { useFileStore } from "@/stores/file-store";
 import type { EraserCanvasRef } from "./eraser-canvas";
-
-function getToken(): string {
-  return localStorage.getItem("stirling-token") || "";
-}
 
 interface EraseObjectSettingsProps {
   eraserRef: React.RefObject<EraserCanvasRef | null>;
@@ -113,7 +110,9 @@ export function EraseObjectSettings({
       setProgressPhase("idle");
     };
     xhr.open("POST", "/api/v1/tools/erase-object");
-    xhr.setRequestHeader("Authorization", `Bearer ${getToken()}`);
+    formatHeaders({}).forEach((value, key) => {
+      xhr.setRequestHeader(key, value);
+    });
     xhr.send(formData);
   };
 

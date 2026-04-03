@@ -1,11 +1,8 @@
 import { Check, Copy } from "lucide-react";
 import { useRef, useState } from "react";
+import { formatHeaders } from "@/components/common/api";
 import { ProgressCard } from "@/components/common/progress-card";
 import { useFileStore } from "@/stores/file-store";
-
-function getToken(): string {
-  return localStorage.getItem("stirling-token") || "";
-}
 
 type OcrEngine = "tesseract" | "paddleocr";
 
@@ -111,7 +108,9 @@ export function OcrSettings() {
       setProgressPhase("idle");
     };
     xhr.open("POST", "/api/v1/tools/ocr");
-    xhr.setRequestHeader("Authorization", `Bearer ${getToken()}`);
+    formatHeaders({}).forEach((value, key) => {
+      xhr.setRequestHeader(key, value);
+    });
     xhr.send(formData);
   };
 
