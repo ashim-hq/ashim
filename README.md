@@ -65,4 +65,7 @@ Bug reports and feature requests: [GitHub Issues](https://github.com/stirling-im
 
 ## License
 
-[MIT](LICENSE)
+This project is dual-licensed under the [AGPLv3](LICENSE) and a commercial license.
+
+- **AGPLv3 (free):** You may use, modify, and distribute this software under the AGPLv3. If you run a modified version as a network service, you must make your source code available under the AGPLv3. This applies to personal use, open-source projects, and any use that complies with AGPLv3 terms.
+- **Commercial license (paid):** If you want to use Stirling Image in proprietary software or SaaS without the AGPLv3 source-disclosure requirement, a commercial license is available. Contact the author for pricing and terms.

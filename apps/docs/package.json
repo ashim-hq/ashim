@@ -10,5 +10,6 @@
   "devDependencies": {
     "tsx": "^4.19.0",
     "vitepress": "^1.1.4"
-  }
+  },
+  "license": "AGPL-3.0"
 }

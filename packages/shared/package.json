@@ -12,5 +12,6 @@
   },
   "devDependencies": {
     "typescript": "^5.7.0"
-  }
+  },
+  "license": "AGPL-3.0"
 }
