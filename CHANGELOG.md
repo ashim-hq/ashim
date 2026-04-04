@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/stirling-image/stirling-image/compare/v1.5.0...v1.5.1) (2026-04-04)
+
+
+### Bug Fixes
+
+* install libheif-examples in CI for HEIC tests ([d06092c](https://github.com/stirling-image/stirling-image/commit/d06092cba9db8cd91154196a11796a6dfc37bebb))
+
 # [1.5.0](https://github.com/stirling-image/stirling-image/compare/v1.4.0...v1.5.0) (2026-04-04)
 
 
