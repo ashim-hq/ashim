@@ -49,6 +49,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install libheif tools (for HEIC tests)
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends libheif-examples
+
       - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
