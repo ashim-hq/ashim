@@ -141,6 +141,9 @@ export function useToolProcessor(toolId: string) {
       const xhr = new XMLHttpRequest();
       xhrRef.current = xhr;
 
+      // Timeout: 60s for fast tools, 5 min for AI tools
+      xhr.timeout = isAiTool ? 300_000 : 60_000;
+
       // For AI tools: upload = 0-15%, processing = 15-100% (continuous, no reset)
       // For fast tools: upload = 0-100%, processing = brief 100% hold
       const UPLOAD_WEIGHT = isAiTool ? 15 : 100;
@@ -206,7 +209,18 @@ export function useToolProcessor(toolId: string) {
           eventSourceRef.current.close();
           eventSourceRef.current = null;
         }
-        setError("Network error — check your connection");
+        setError("Network error - check your connection");
+        setProcessing(false);
+        setProgress(IDLE_PROGRESS);
+      };
+
+      xhr.ontimeout = () => {
+        if (elapsedRef.current) clearInterval(elapsedRef.current);
+        if (eventSourceRef.current) {
+          eventSourceRef.current.close();
+          eventSourceRef.current = null;
+        }
+        setError("Request timed out - the server may be overloaded. Try again.");
         setProcessing(false);
         setProgress(IDLE_PROGRESS);
       };
