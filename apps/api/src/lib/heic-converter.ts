@@ -8,18 +8,40 @@ import { promisify } from "node:util";
 const execFileAsync = promisify(execFile);
 
 /**
- * Decode a HEIC/HEIF buffer to PNG using the system `heif-dec` CLI tool.
+ * Find the HEIF decode command. macOS (Homebrew) provides `heif-dec`,
+ * while Linux packages provide `heif-convert`. Both accept the same
+ * `<input> <output>` argument syntax.
+ */
+let cachedDecodeCmd: string | null = null;
+
+async function findDecodeCmd(): Promise<string> {
+  if (cachedDecodeCmd) return cachedDecodeCmd;
+  for (const cmd of ["heif-convert", "heif-dec"]) {
+    try {
+      await execFileAsync(cmd, ["--version"], { timeout: 5_000 });
+      cachedDecodeCmd = cmd;
+      return cmd;
+    } catch {
+      // try next
+    }
+  }
+  throw new Error("No HEIF decoder found. Install libheif-examples (Linux) or libheif (macOS).");
+}
+
+/**
+ * Decode a HEIC/HEIF buffer to PNG using the system HEIF decoder CLI.
  * This is needed because Sharp's bundled libheif does not include the
  * HEVC decoder required for true HEIC files (iPhone photos).
  */
 export async function decodeHeic(buffer: Buffer): Promise<Buffer> {
+  const cmd = await findDecodeCmd();
   const id = randomUUID();
   const inputPath = join(tmpdir(), `heic-in-${id}.heic`);
   const outputPath = join(tmpdir(), `heic-out-${id}.png`);
 
   try {
     await writeFile(inputPath, buffer);
-    await execFileAsync("heif-dec", [inputPath, outputPath], { timeout: 30_000 });
+    await execFileAsync(cmd, [inputPath, outputPath], { timeout: 30_000 });
     return await readFile(outputPath);
   } finally {
     await rm(inputPath, { force: true }).catch(() => {});
@@ -45,18 +67,5 @@ export async function encodeHeic(buffer: Buffer, quality = 80): Promise<Buffer> 
   } finally {
     await rm(inputPath, { force: true }).catch(() => {});
     await rm(outputPath, { force: true }).catch(() => {});
-  }
-}
-
-/**
- * Check whether the heif-enc and heif-dec CLI tools are available.
- */
-export async function isHeicToolAvailable(): Promise<boolean> {
-  try {
-    await execFileAsync("heif-enc", ["--version"], { timeout: 5_000 });
-    await execFileAsync("heif-dec", ["--version"], { timeout: 5_000 });
-    return true;
-  } catch {
-    return false;
   }
 }
