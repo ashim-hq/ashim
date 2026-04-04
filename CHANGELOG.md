@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/stirling-image/stirling-image/compare/v1.5.3...v1.6.0) (2026-04-04)
+
+
+### Features
+
+* lightweight Docker image without AI/ML tools (:lite tag) ([3a0b988](https://github.com/stirling-image/stirling-image/commit/3a0b988b746a5fbe6df10fe8ee288e30e42d747f)), closes [#1](https://github.com/stirling-image/stirling-image/issues/1)
+
 ## [1.5.3](https://github.com/stirling-image/stirling-image/compare/v1.5.2...v1.5.3) (2026-04-04)
 
 
