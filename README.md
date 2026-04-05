@@ -42,21 +42,15 @@ docker run -d -p 1349:1349 -v stirling-data:/data stirlingimage/stirling-image:l
 Open http://localhost:1349 in your browser.
 
 <details>
-<summary>Other image variants</summary>
+<summary><b>Other image variants</b></summary>
+<br>
 
-**Lite** - no AI tools, 1.5 GB instead of 11 GB:
+| Variant | Size | Command |
+|---------|------|---------|
+| **Lite** (no AI tools) | ~1.5 GB | `docker run -d -p 1349:1349 -v stirling-data:/data stirlingimage/stirling-image:lite` |
+| **CUDA** (GPU-accelerated AI) | ~14 GB | `docker run -d -p 1349:1349 --gpus all -v stirling-data:/data stirlingimage/stirling-image:cuda` |
 
-```bash
-docker run -d -p 1349:1349 -v stirling-data:/data stirlingimage/stirling-image:lite
-```
-
-**CUDA** - GPU-accelerated background removal, upscaling, and OCR (NVIDIA only):
-
-```bash
-docker run -d -p 1349:1349 --gpus all -v stirling-data:/data stirlingimage/stirling-image:cuda
-```
-
-See [Docker Tags](https://stirling-image.github.io/stirling-image/guide/docker-tags) for details, benchmarks, and Docker Compose examples.
+CUDA requires an NVIDIA GPU and [Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). Falls back to CPU if no GPU is found. See [Docker Tags](https://stirling-image.github.io/stirling-image/guide/docker-tags) for benchmarks and Docker Compose examples.
 
 </details>
 
