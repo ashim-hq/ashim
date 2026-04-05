@@ -119,6 +119,9 @@ importers:
       jsqr:
         specifier: ^1.4.0
         version: 1.4.0
+      mupdf:
+        specifier: ^1.27.0
+        version: 1.27.0
       p-queue:
         specifier: ^9.1.0
         version: 9.1.0
@@ -4377,6 +4380,9 @@ packages:
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
+
+  mupdf@1.27.0:
+    resolution: {integrity: sha512-vEPUYwZeu5NgiFLz4e20R7Vp2pNY7szirGEvTxHyQQpQs6ab4DeGdonwT6sH1JZG5EhyHSrojZrZn2/0ee6qZQ==}
 
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
@@ -9936,6 +9942,8 @@ snapshots:
       minimist: 1.2.8
 
   ms@2.1.3: {}
+
+  mupdf@1.27.0: {}
 
   mz@2.7.0:
     dependencies:
