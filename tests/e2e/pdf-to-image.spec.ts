@@ -11,8 +11,8 @@ test.describe("PDF to Image tool", () => {
     const fileInput = page.locator("input[type='file'][accept='application/pdf']");
     await fileInput.setInputFiles(PDF_FIXTURE);
 
-    // Wait for page count to appear
-    await expect(page.getByText("3 pages")).toBeVisible({ timeout: 10_000 });
+    // Wait for page count to appear in the file info area
+    await expect(page.locator(".bg-muted").getByText("3 pages")).toBeVisible({ timeout: 10_000 });
 
     // Set pages to just page 1 for a single-image response
     await page.fill("#pdf-pages", "1");
