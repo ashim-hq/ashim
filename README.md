@@ -1,7 +1,7 @@
 <blockquote>
 <p align="center">
   <strong>We're renaming!</strong> The Stirling PDF team asked us to pick a new name, and we want you to choose it.<br>
-  <a href="https://github.com/stirling-image/stirling-image/discussions/8?sort=new">Vote on the new name &rarr;</a><br>
+  <a href="https://github.com/stirling-image/stirling-image/discussions/8?sort=top">Vote on the new name &rarr;</a><br>
   <sub>Voting closes April 10, 2026</sub>
 </p>
 </blockquote>
