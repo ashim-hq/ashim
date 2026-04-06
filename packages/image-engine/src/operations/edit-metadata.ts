@@ -2,6 +2,27 @@ import exifReader from "exif-reader";
 import type { EditMetadataOptions, Sharp } from "../types.js";
 import { sanitizeValue } from "../utils/metadata.js";
 
+/**
+ * Keys that are binary blobs or complex arrays - NOT safe for EXIF round-trip
+ * through withExif(). Silently filtered from fieldsToRemove to prevent
+ * data corruption when the API is called directly (bypassing UI guards).
+ */
+const UNSAFE_ROUND_TRIP_KEYS = new Set([
+  "MakerNote",
+  "PrintImageMatching",
+  "ComponentsConfiguration",
+  "FlashpixVersion",
+  "ExifVersion",
+  "FileSource",
+  "SceneType",
+  "UserComment",
+  "InteroperabilityIndex",
+  "InteroperabilityVersion",
+  "ExifTag",
+  "GPSTag",
+  "InteroperabilityTag",
+]);
+
 const COMMON_FIELD_MAP: Array<{
   option: keyof EditMetadataOptions;
   ifd: "IFD0" | "IFD2";
@@ -32,7 +53,9 @@ export async function editMetadata(
   }
 
   const writtenTags = new Set([...Object.keys(edits.IFD0), ...Object.keys(edits.IFD2)]);
-  const fieldsToRemove = (options.fieldsToRemove ?? []).filter((f) => !writtenTags.has(f));
+  const fieldsToRemove = (options.fieldsToRemove ?? []).filter(
+    (f) => !writtenTags.has(f) && !UNSAFE_ROUND_TRIP_KEYS.has(f),
+  );
 
   const hasEdits = Object.keys(edits.IFD0).length > 0 || Object.keys(edits.IFD2).length > 0;
   const hasRemovals = fieldsToRemove.length > 0 || options.clearGps === true;
