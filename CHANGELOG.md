@@ -1,3 +1,10 @@
+## [1.7.3](https://github.com/stirling-image/stirling-image/compare/v1.7.2...v1.7.3) (2026-04-06)
+
+
+### Bug Fixes
+
+* **docs:** correct broken llms.txt links on REST API page ([5e3a8b3](https://github.com/stirling-image/stirling-image/commit/5e3a8b390c33812b7c4d0044b2a0ba3719d380ac))
+
 ## [1.7.2](https://github.com/stirling-image/stirling-image/compare/v1.7.1...v1.7.2) (2026-04-05)
 
 
