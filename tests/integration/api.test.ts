@@ -3037,6 +3037,65 @@ describe("Crop format preservation", () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// COLOR ADJUSTMENTS FORMAT PRESERVATION
+// ═══════════════════════════════════════════════════════════════════════════
+describe("Color adjustments format preservation", () => {
+  it("preserves JPEG format for JPEG input via brightness-contrast", async () => {
+    const { body: payload, contentType } = createMultipartPayload([
+      { name: "file", filename: "photo.jpg", contentType: "image/jpeg", content: JPG_100x100 },
+      { name: "settings", content: JSON.stringify({ brightness: 10 }) },
+    ]);
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/tools/brightness-contrast",
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+        "content-type": contentType,
+      },
+      payload,
+    });
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    const dlRes = await app.inject({
+      method: "GET",
+      url: body.downloadUrl,
+      headers: { authorization: `Bearer ${adminToken}` },
+    });
+    const sharp = (await import("sharp")).default;
+    const meta = await sharp(dlRes.rawPayload).metadata();
+    expect(meta.format).toBe("jpeg");
+  });
+
+  it("preserves PNG format for PNG input via saturation", async () => {
+    const { body: payload, contentType } = createMultipartPayload([
+      { name: "file", filename: "image.png", contentType: "image/png", content: PNG_200x150 },
+      { name: "settings", content: JSON.stringify({ saturation: 20 }) },
+    ]);
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/tools/saturation",
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+        "content-type": contentType,
+      },
+      payload,
+    });
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    const dlRes = await app.inject({
+      method: "GET",
+      url: body.downloadUrl,
+      headers: { authorization: `Bearer ${adminToken}` },
+    });
+    const sharp = (await import("sharp")).default;
+    const meta = await sharp(dlRes.rawPayload).metadata();
+    expect(meta.format).toBe("png");
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // EDGE CASES & ADVERSARIAL INPUTS
 // ═══════════════════════════════════════════════════════════════════════════
 describe("Edge cases & adversarial inputs", () => {
