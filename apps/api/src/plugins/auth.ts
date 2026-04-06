@@ -5,6 +5,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { env } from "../config.js";
 import { db, schema } from "../db/index.js";
 import { auditLog } from "../lib/audit.js";
+import { getPermissions } from "../permissions.js";
 
 const scryptAsync = promisify(scrypt);
 
@@ -101,6 +102,18 @@ const SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 function createSessionToken(): string {
   return randomUUID();
+}
+
+// ── Team name resolution ──────────────────────────────────────────
+
+/** Resolve a user's team column to a display name.
+ *  The column may hold a team UUID (normal users) or the literal "Default"
+ *  (legacy / initial admin). */
+function resolveTeamName(teamValue: string): string {
+  const teamById = db.select().from(schema.teams).where(eq(schema.teams.id, teamValue)).get();
+  if (teamById) return teamById.name;
+  // Legacy default — the column contains the literal name
+  return teamValue;
 }
 
 // ── Default admin creation ─────────────────────────────────────────
@@ -204,6 +217,8 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
           id: user.id,
           username: user.username,
           role: user.role,
+          teamName: resolveTeamName(user.team),
+          permissions: getPermissions(user.role as "admin" | "user"),
           mustChangePassword: user.mustChangePassword,
         },
         expiresAt: expiresAt.toISOString(),
@@ -250,6 +265,8 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
         id: user.id,
         username: user.username,
         role: user.role,
+        teamName: resolveTeamName(user.team),
+        permissions: getPermissions(user.role as "admin" | "user"),
         mustChangePassword: user.mustChangePassword,
       },
       expiresAt: session.expiresAt.toISOString(),
