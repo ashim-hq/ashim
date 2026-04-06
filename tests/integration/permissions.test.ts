@@ -403,3 +403,114 @@ describe("API key ownership scoping", () => {
     expect(res.statusCode).toBe(404);
   });
 });
+
+describe("file ownership scoping", () => {
+  let userAToken: string;
+  let userBToken: string;
+
+  beforeAll(async () => {
+    // Create two users (fileuserA and fileuserB)
+    for (const name of ["fileuserA", "fileuserB"]) {
+      await testApp.app.inject({
+        method: "POST",
+        url: "/api/auth/register",
+        headers: { authorization: `Bearer ${adminToken}` },
+        payload: { username: name, password: "TestPass1", role: "user" },
+      });
+      db.update(schema.users)
+        .set({ mustChangePassword: false })
+        .where(eq(schema.users.username, name))
+        .run();
+    }
+    const loginA = await testApp.app.inject({
+      method: "POST",
+      url: "/api/auth/login",
+      payload: { username: "fileuserA", password: "TestPass1" },
+    });
+    userAToken = JSON.parse(loginA.body).token;
+    const loginB = await testApp.app.inject({
+      method: "POST",
+      url: "/api/auth/login",
+      payload: { username: "fileuserB", password: "TestPass1" },
+    });
+    userBToken = JSON.parse(loginB.body).token;
+  });
+
+  it("unauthenticated request to files returns 401", async () => {
+    const res = await testApp.app.inject({ method: "GET", url: "/api/v1/files" });
+    expect(res.statusCode).toBe(401);
+  });
+
+  it("user A cannot access user B's file by ID", async () => {
+    // Upload as user A
+    const testImage = readFileSync(join(import.meta.dirname, "..", "fixtures", "test-200x150.png"));
+    const { body: uploadBody, contentType } = createMultipartPayload([
+      { name: "file", filename: "test.png", contentType: "image/png", content: testImage },
+    ]);
+    const uploadRes = await testApp.app.inject({
+      method: "POST",
+      url: "/api/v1/files/upload",
+      headers: { "content-type": contentType, authorization: `Bearer ${userAToken}` },
+      body: uploadBody,
+    });
+    const fileId = JSON.parse(uploadRes.body).files[0].id;
+
+    // User B tries to access it - should get 404
+    const res = await testApp.app.inject({
+      method: "GET",
+      url: `/api/v1/files/${fileId}`,
+      headers: { authorization: `Bearer ${userBToken}` },
+    });
+    expect(res.statusCode).toBe(404);
+  });
+
+  it("user B cannot download user A's file", async () => {
+    // List user A's files
+    const listRes = await testApp.app.inject({
+      method: "GET",
+      url: "/api/v1/files",
+      headers: { authorization: `Bearer ${userAToken}` },
+    });
+    const files = JSON.parse(listRes.body).files;
+    expect(files.length).toBeGreaterThan(0);
+
+    // User B tries to download
+    const res = await testApp.app.inject({
+      method: "GET",
+      url: `/api/v1/files/${files[0].id}/download`,
+      headers: { authorization: `Bearer ${userBToken}` },
+    });
+    expect(res.statusCode).toBe(404);
+  });
+
+  it("admin can access any user's file", async () => {
+    const listRes = await testApp.app.inject({
+      method: "GET",
+      url: "/api/v1/files",
+      headers: { authorization: `Bearer ${adminToken}` },
+    });
+    expect(listRes.statusCode).toBe(200);
+    // Admin should see files from user A
+    const files = JSON.parse(listRes.body).files;
+    expect(files.length).toBeGreaterThan(0);
+  });
+
+  it("user B cannot delete user A's file", async () => {
+    const listRes = await testApp.app.inject({
+      method: "GET",
+      url: "/api/v1/files",
+      headers: { authorization: `Bearer ${userAToken}` },
+    });
+    const files = JSON.parse(listRes.body).files;
+    expect(files.length).toBeGreaterThan(0);
+
+    const res = await testApp.app.inject({
+      method: "DELETE",
+      url: "/api/v1/files",
+      headers: { authorization: `Bearer ${userBToken}` },
+      payload: { ids: [files[0].id] },
+    });
+    const body = JSON.parse(res.body);
+    expect(body.deleted).toBe(0);
+  });
+});

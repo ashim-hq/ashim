@@ -12,6 +12,7 @@
 import { randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { extname } from "node:path";
+import type { Role } from "@stirling-image/shared";
 import { and, desc, eq, like, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import sharp from "sharp";
@@ -27,7 +28,7 @@ import {
 } from "../lib/file-storage.js";
 import { validateImageBuffer } from "../lib/file-validation.js";
 import { sanitizeFilename } from "../lib/filename.js";
-import { getAuthUser } from "../plugins/auth.js";
+import { hasPermission, requirePermission } from "../permissions.js";
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -97,8 +98,9 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
       }>,
       reply: FastifyReply,
     ) => {
-      const user = getAuthUser(request);
-      const userId = user?.id ?? null;
+      const user = requirePermission("files:own")(request, reply);
+      if (!user) return;
+      const canSeeAll = hasPermission(user.role as Role, "files:all");
 
       const limit = Math.min(parseInt(request.query.limit ?? "50", 10) || 50, 200);
       const offset = parseInt(request.query.offset ?? "0", 10) || 0;
@@ -113,8 +115,8 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
       // Build the where clauses
       const conditions = [latestCondition];
 
-      if (userId) {
-        conditions.push(eq(schema.userFiles.userId, userId));
+      if (!canSeeAll) {
+        conditions.push(eq(schema.userFiles.userId, user.id));
       }
 
       if (search) {
@@ -153,8 +155,9 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
    * Validates each (magic bytes + dimensions), stores to disk, creates DB record.
    */
   app.post("/api/v1/files/upload", async (request: FastifyRequest, reply: FastifyReply) => {
-    const user = getAuthUser(request);
-    const userId = user?.id ?? null;
+    const user = requirePermission("files:own")(request, reply);
+    if (!user) return;
+    const userId = user.id;
 
     const created: ReturnType<typeof serializeFile>[] = [];
 
@@ -231,11 +234,19 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     "/api/v1/files/:id",
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+      const user = requirePermission("files:own")(request, reply);
+      if (!user) return;
+      const canSeeAll = hasPermission(user.role as Role, "files:all");
+
       const { id } = request.params;
 
       const file = db.select().from(schema.userFiles).where(eq(schema.userFiles.id, id)).get();
 
       if (!file) {
+        return reply.status(404).send({ error: "File not found" });
+      }
+
+      if (!canSeeAll && file.userId !== user.id) {
         return reply.status(404).send({ error: "File not found" });
       }
 
@@ -308,11 +319,19 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     "/api/v1/files/:id/download",
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+      const user = requirePermission("files:own")(request, reply);
+      if (!user) return;
+      const canSeeAll = hasPermission(user.role as Role, "files:all");
+
       const { id } = request.params;
 
       const file = db.select().from(schema.userFiles).where(eq(schema.userFiles.id, id)).get();
 
       if (!file) {
+        return reply.status(404).send({ error: "File not found" });
+      }
+
+      if (!canSeeAll && file.userId !== user.id) {
         return reply.status(404).send({ error: "File not found" });
       }
 
@@ -341,11 +360,19 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     "/api/v1/files/:id/thumbnail",
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+      const user = requirePermission("files:own")(request, reply);
+      if (!user) return;
+      const canSeeAll = hasPermission(user.role as Role, "files:all");
+
       const { id } = request.params;
 
       const file = db.select().from(schema.userFiles).where(eq(schema.userFiles.id, id)).get();
 
       if (!file) {
+        return reply.status(404).send({ error: "File not found" });
+      }
+
+      if (!canSeeAll && file.userId !== user.id) {
         return reply.status(404).send({ error: "File not found" });
       }
 
@@ -386,6 +413,10 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
    * For each id, deletes the entire version chain (all ancestors and descendants).
    */
   app.delete("/api/v1/files", async (request: FastifyRequest, reply: FastifyReply) => {
+    const user = requirePermission("files:own")(request, reply);
+    if (!user) return;
+    const canDeleteAll = hasPermission(user.role as Role, "files:all");
+
     const body = request.body as { ids?: unknown } | null;
 
     if (!Array.isArray(body?.ids) || body.ids.length === 0) {
@@ -402,14 +433,15 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
     interface DeleteChainRow {
       id: string;
       stored_name: string;
+      user_id: string | null;
     }
 
     for (const id of ids) {
       // Collect all files in the chain using a recursive CTE
       const chainRows = sqlite
         .prepare(`
-            WITH RECURSIVE chain(id, stored_name) AS (
-              SELECT f.id, f.stored_name
+            WITH RECURSIVE chain(id, stored_name, user_id) AS (
+              SELECT f.id, f.stored_name, f.user_id
               FROM user_files f
               WHERE f.id = (
                 WITH RECURSIVE ancestors(id, parent_id) AS (
@@ -421,13 +453,18 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
                 SELECT id FROM ancestors WHERE parent_id IS NULL LIMIT 1
               )
               UNION ALL
-              SELECT child.id, child.stored_name
+              SELECT child.id, child.stored_name, child.user_id
               FROM user_files child
               INNER JOIN chain c ON child.parent_id = c.id
             )
-            SELECT id, stored_name FROM chain
+            SELECT id, stored_name, user_id FROM chain
           `)
         .all(id) as DeleteChainRow[];
+
+      // Check ownership of the root file (first in chain)
+      if (chainRows.length > 0 && !canDeleteAll && chainRows[0].user_id !== user.id) {
+        continue;
+      }
 
       for (const row of chainRows) {
         await deleteStoredFile(row.stored_name);
@@ -437,8 +474,7 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
       }
     }
 
-    const user = getAuthUser(request);
-    auditLog(request.log, "FILE_DELETED", { userId: user?.id, count: deletedCount, ids });
+    auditLog(request.log, "FILE_DELETED", { userId: user.id, count: deletedCount, ids });
 
     return reply.send({ deleted: deletedCount });
   });
@@ -453,8 +489,10 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
    *   toolId   — the tool that produced this result
    */
   app.post("/api/v1/files/save-result", async (request: FastifyRequest, reply: FastifyReply) => {
-    const user = getAuthUser(request);
-    const userId = user?.id ?? null;
+    const user = requirePermission("files:own")(request, reply);
+    if (!user) return;
+    const canSeeAll = hasPermission(user.role as Role, "files:all");
+    const userId = user.id;
 
     let fileBuffer: Buffer | null = null;
     let filename = "result";
@@ -501,6 +539,10 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
       .get();
 
     if (!parent) {
+      return reply.status(404).send({ error: "Parent file not found" });
+    }
+
+    if (!canSeeAll && parent.userId !== user.id) {
       return reply.status(404).send({ error: "Parent file not found" });
     }
 
