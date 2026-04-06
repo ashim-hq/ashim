@@ -23,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
 import { apiDelete, apiGet, apiPost, apiPut, clearToken, formatHeaders } from "@/lib/api";
 import { cn, copyToClipboard } from "@/lib/utils";
 import { GemLogo } from "../common/gem-logo";
@@ -46,14 +47,15 @@ interface NavItem {
   id: Section;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
+  requiredPermission?: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
   { id: "general", label: "General", icon: Settings },
-  { id: "system", label: "System Settings", icon: Monitor },
+  { id: "system", label: "System Settings", icon: Monitor, requiredPermission: "settings:write" },
   { id: "security", label: "Security", icon: Shield },
-  { id: "people", label: "People", icon: Users },
-  { id: "teams", label: "Teams", icon: UsersRound },
+  { id: "people", label: "People", icon: Users, requiredPermission: "users:manage" },
+  { id: "teams", label: "Teams", icon: UsersRound, requiredPermission: "teams:manage" },
   { id: "api-keys", label: "API Keys", icon: Key },
   { id: "tools", label: "Tools", icon: Wrench },
   { id: "about", label: "About", icon: Info },
@@ -61,6 +63,11 @@ const NAV_ITEMS: NavItem[] = [
 
 export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
   const [section, setSection] = useState<Section>("general");
+  const { hasPermission } = useAuth();
+
+  const visibleNavItems = NAV_ITEMS.filter(
+    (item) => !item.requiredPermission || hasPermission(item.requiredPermission),
+  );
 
   // Close on Escape
   useEffect(() => {
@@ -90,7 +97,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
           <div className="flex items-center justify-between mb-4 px-2">
             <h2 className="text-sm font-semibold text-foreground">Settings</h2>
           </div>
-          {NAV_ITEMS.map((item) => (
+          {visibleNavItems.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -175,8 +182,8 @@ function GeneralSection() {
         // Fallback to localStorage if session endpoint fails
         setUser({
           id: 0,
-          username: localStorage.getItem("stirling-username") || "admin",
-          role: "admin",
+          username: localStorage.getItem("stirling-username") || "",
+          role: "unknown",
         });
       })
       .finally(() => setLoading(false));
@@ -189,7 +196,7 @@ function GeneralSection() {
   };
 
   const username = user?.username || "admin";
-  const role = user?.role || "admin";
+  const role = user?.role || "unknown";
 
   return (
     <div className="space-y-6">
