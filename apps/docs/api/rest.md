@@ -3,7 +3,7 @@
 The API server runs on port 1349 by default and serves all endpoints under `/api`.
 
 ::: tip Full API Reference
-When your Stirling Image instance is running, visit [`/api/docs`](http://localhost:1349/api/docs) for the complete interactive API reference with all 67 endpoints, request/response schemas, and examples.
+Your Stirling Image instance includes a complete interactive API reference at `/api/docs` (e.g. `http://your-host:1349/api/docs`) with all 67 endpoints, request/response schemas, and examples.
 :::
 
 ::: info LLM-friendly docs
@@ -56,7 +56,7 @@ Send a multipart request with:
 | **Layout** | `collage`, `split`, `border` |
 | **Format** | `svg-to-raster`, `vectorize`, `gif-tools` |
 
-Each tool's specific settings are documented in the [interactive API reference](http://localhost:1349/api/docs).
+Each tool's specific settings are documented in the interactive API reference at `/api/docs` on your running instance.
 
 ## Batch processing
 
