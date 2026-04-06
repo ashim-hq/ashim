@@ -7,7 +7,7 @@ When your Stirling Image instance is running, visit [`/api/docs`](http://localho
 :::
 
 ::: info LLM-friendly docs
-Need to feed these docs to an AI assistant? Use [`/llms.txt`](/Stirling-Image/llms.txt) for an index or [`/llms-full.txt`](/Stirling-Image/llms-full.txt) for the complete documentation in a single file. On a running instance, these are also available at `/llms.txt` and `/llms-full.txt`.
+Need to feed these docs to an AI assistant? Use [`/llms.txt`](/llms.txt) for an index or [`/llms-full.txt`](/llms-full.txt) for the complete documentation in a single file. On a running instance, these are also available at `/llms.txt` and `/llms-full.txt`.
 :::
 
 This page covers the basics of using the API. For per-endpoint details (every parameter, schema, and response), see the interactive docs at `/api/docs`.
