@@ -1,3 +1,10 @@
+## [1.7.7](https://github.com/stirling-image/stirling-image/compare/v1.7.6...v1.7.7) (2026-04-06)
+
+
+### Bug Fixes
+
+* improve AI tool reliability for face detection and background removal ([#25](https://github.com/stirling-image/stirling-image/issues/25)) ([1963a80](https://github.com/stirling-image/stirling-image/commit/1963a8012c572fe86132e6847e313019165416da))
+
 ## [1.7.6](https://github.com/stirling-image/stirling-image/compare/v1.7.5...v1.7.6) (2026-04-06)
 
 
