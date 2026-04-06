@@ -2872,6 +2872,112 @@ describe("Batch processing", () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// SMART CROP FORMAT PRESERVATION
+// ═══════════════════════════════════════════════════════════════════════════
+describe("Smart crop format preservation", () => {
+  it("preserves JPEG format for JPEG input in content mode", async () => {
+    const { body: payload, contentType } = createMultipartPayload([
+      { name: "file", filename: "photo.jpg", contentType: "image/jpeg", content: JPG_100x100 },
+      { name: "settings", content: JSON.stringify({ mode: "content", threshold: 30 }) },
+    ]);
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/tools/smart-crop",
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+        "content-type": contentType,
+      },
+      payload,
+    });
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.downloadUrl).toMatch(/_smartcrop\.jpg/);
+  });
+
+  it("preserves PNG format for PNG input", async () => {
+    const { body: payload, contentType } = createMultipartPayload([
+      { name: "file", filename: "image.png", contentType: "image/png", content: PNG_200x150 },
+      { name: "settings", content: JSON.stringify({ mode: "content", threshold: 30 }) },
+    ]);
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/tools/smart-crop",
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+        "content-type": contentType,
+      },
+      payload,
+    });
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.downloadUrl).toMatch(/_smartcrop\.png/);
+  });
+
+  it("preserves WebP format for WebP input", async () => {
+    const { body: payload, contentType } = createMultipartPayload([
+      { name: "file", filename: "image.webp", contentType: "image/webp", content: WEBP_50x50 },
+      { name: "settings", content: JSON.stringify({ mode: "content", threshold: 30 }) },
+    ]);
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/tools/smart-crop",
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+        "content-type": contentType,
+      },
+      payload,
+    });
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.downloadUrl).toMatch(/_smartcrop\.webp/);
+  });
+
+  it("preserves JPEG format in attention mode", async () => {
+    const { body: payload, contentType } = createMultipartPayload([
+      { name: "file", filename: "photo.jpg", contentType: "image/jpeg", content: JPG_100x100 },
+      { name: "settings", content: JSON.stringify({ mode: "attention", width: 50, height: 50 }) },
+    ]);
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/tools/smart-crop",
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+        "content-type": contentType,
+      },
+      payload,
+    });
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.downloadUrl).toMatch(/_smartcrop\.jpg/);
+  });
+
+  it("accepts quality setting without error", async () => {
+    const { body: payload, contentType } = createMultipartPayload([
+      { name: "file", filename: "photo.jpg", contentType: "image/jpeg", content: JPG_100x100 },
+      {
+        name: "settings",
+        content: JSON.stringify({ mode: "content", threshold: 30, quality: 50 }),
+      },
+    ]);
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/tools/smart-crop",
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+        "content-type": contentType,
+      },
+      payload,
+    });
+    expect(res.statusCode).toBe(200);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // EDGE CASES & ADVERSARIAL INPUTS
 // ═══════════════════════════════════════════════════════════════════════════
 describe("Edge cases & adversarial inputs", () => {

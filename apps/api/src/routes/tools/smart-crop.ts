@@ -1,18 +1,18 @@
 import type { FastifyInstance } from "fastify";
 import sharp from "sharp";
 import { z } from "zod";
+import { resolveOutputFormat } from "../../lib/output-format.js";
 import { createToolRoute } from "../tool-factory.js";
 
 const settingsSchema = z.object({
   mode: z.enum(["attention", "content"]).default("attention"),
-  // Attention mode: resize to target dimensions using subject detection
   width: z.number().int().positive().optional(),
   height: z.number().int().positive().optional(),
-  // Content mode: trim uniform borders, optionally pad to square
   threshold: z.number().int().min(0).max(255).default(30),
   padToSquare: z.boolean().default(false),
   padColor: z.string().default("#ffffff"),
   targetSize: z.number().int().positive().optional(),
+  quality: z.number().int().min(1).max(100).optional(),
 });
 
 /**
@@ -26,10 +26,10 @@ export function registerSmartCrop(app: FastifyInstance) {
     toolId: "smart-crop",
     settingsSchema,
     process: async (inputBuffer, settings, filename) => {
+      const outputFormat = await resolveOutputFormat(inputBuffer, filename, settings.quality);
       let result: Buffer;
 
       if (settings.mode === "content") {
-        // Crop to content: trim uniform borders
         const pipeline = sharp(inputBuffer).trim({ threshold: settings.threshold });
         let trimmed = await pipeline.toBuffer({ resolveWithObject: true });
 
@@ -49,12 +49,16 @@ export function registerSmartCrop(app: FastifyInstance) {
               fit: "contain",
               background: { r: padR, g: padG, b: padB, alpha: 1 },
             })
+            .toFormat(outputFormat.format, { quality: outputFormat.quality })
+            .toBuffer({ resolveWithObject: true });
+        } else {
+          trimmed = await sharp(trimmed.data)
+            .toFormat(outputFormat.format, { quality: outputFormat.quality })
             .toBuffer({ resolveWithObject: true });
         }
 
         result = trimmed.data;
       } else {
-        // Attention mode: resize to target using subject detection
         const w = settings.width ?? 1080;
         const h = settings.height ?? 1080;
         result = await sharp(inputBuffer)
@@ -62,12 +66,13 @@ export function registerSmartCrop(app: FastifyInstance) {
             fit: "cover",
             position: sharp.strategy.attention,
           })
-          .png()
+          .toFormat(outputFormat.format, { quality: outputFormat.quality })
           .toBuffer();
       }
 
-      const outputFilename = `${filename.replace(/\.[^.]+$/, "")}_smartcrop.png`;
-      return { buffer: result, filename: outputFilename, contentType: "image/png" };
+      const stem = filename.replace(/\.[^.]+$/, "");
+      const outputFilename = `${stem}_smartcrop.${outputFormat.extension}`;
+      return { buffer: result, filename: outputFilename, contentType: outputFormat.contentType };
     },
   });
 }
