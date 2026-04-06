@@ -2978,6 +2978,65 @@ describe("Smart crop format preservation", () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// CROP FORMAT PRESERVATION
+// ═══════════════════════════════════════════════════════════════════════════
+describe("Crop format preservation", () => {
+  it("preserves JPEG format for JPEG input", async () => {
+    const { body: payload, contentType } = createMultipartPayload([
+      { name: "file", filename: "photo.jpg", contentType: "image/jpeg", content: JPG_100x100 },
+      { name: "settings", content: JSON.stringify({ left: 0, top: 0, width: 50, height: 50 }) },
+    ]);
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/tools/crop",
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+        "content-type": contentType,
+      },
+      payload,
+    });
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    const dlRes = await app.inject({
+      method: "GET",
+      url: body.downloadUrl,
+      headers: { authorization: `Bearer ${adminToken}` },
+    });
+    const sharp = (await import("sharp")).default;
+    const meta = await sharp(dlRes.rawPayload).metadata();
+    expect(meta.format).toBe("jpeg");
+  });
+
+  it("preserves PNG format for PNG input", async () => {
+    const { body: payload, contentType } = createMultipartPayload([
+      { name: "file", filename: "image.png", contentType: "image/png", content: PNG_200x150 },
+      { name: "settings", content: JSON.stringify({ left: 0, top: 0, width: 50, height: 50 }) },
+    ]);
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/tools/crop",
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+        "content-type": contentType,
+      },
+      payload,
+    });
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    const dlRes = await app.inject({
+      method: "GET",
+      url: body.downloadUrl,
+      headers: { authorization: `Bearer ${adminToken}` },
+    });
+    const sharp = (await import("sharp")).default;
+    const meta = await sharp(dlRes.rawPayload).metadata();
+    expect(meta.format).toBe("png");
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // EDGE CASES & ADVERSARIAL INPUTS
 // ═══════════════════════════════════════════════════════════════════════════
 describe("Edge cases & adversarial inputs", () => {
