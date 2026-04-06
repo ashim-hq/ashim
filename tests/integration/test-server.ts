@@ -29,12 +29,8 @@ import Fastify from "fastify";
 import { env } from "../../apps/api/src/config.js";
 import { db, schema } from "../../apps/api/src/db/index.js";
 import { runMigrations } from "../../apps/api/src/db/migrate.js";
-import {
-  authMiddleware,
-  authRoutes,
-  ensureDefaultAdmin,
-  requireAdmin,
-} from "../../apps/api/src/plugins/auth.js";
+import { requirePermission } from "../../apps/api/src/permissions.js";
+import { authMiddleware, authRoutes, ensureDefaultAdmin } from "../../apps/api/src/plugins/auth.js";
 import { registerUpload } from "../../apps/api/src/plugins/upload.js";
 import { apiKeyRoutes } from "../../apps/api/src/routes/api-keys.js";
 import { registerBatchRoutes } from "../../apps/api/src/routes/batch.js";
@@ -123,7 +119,7 @@ export async function buildTestApp(): Promise<TestApp> {
 
   // Admin health check (full diagnostics)
   app.get("/api/v1/admin/health", async (request, reply) => {
-    const admin = requireAdmin(request, reply);
+    const admin = requirePermission("settings:read")(request, reply);
     if (!admin) return;
 
     let dbOk = false;
