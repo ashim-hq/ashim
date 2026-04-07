@@ -1,3 +1,14 @@
+# [1.9.0](https://github.com/stirling-image/stirling-image/compare/v1.8.1...v1.9.0) (2026-04-07)
+
+
+### Features
+
+* add stitch API route handler ([63ea0ba](https://github.com/stirling-image/stirling-image/commit/63ea0ba5ef23ba3b1b296ae21358ce150f8f2bf2))
+* add stitch settings UI component ([6abe893](https://github.com/stirling-image/stirling-image/commit/6abe893c467b4b868383e15316132787d5831029))
+* register stitch component in web tool registry ([612f7d9](https://github.com/stirling-image/stirling-image/commit/612f7d90124e92ba324a59b5a6642290dc216cff))
+* register stitch route in API tool registry ([a37d54f](https://github.com/stirling-image/stirling-image/commit/a37d54f2c1e72b711901b87367b4d1c9ba2a5c5b))
+* register stitch tool in shared constants and i18n ([b881416](https://github.com/stirling-image/stirling-image/commit/b881416a164cc482a050adc93164fa1c88937a2f))
+
 ## [1.8.1](https://github.com/stirling-image/stirling-image/compare/v1.8.0...v1.8.1) (2026-04-07)
 
 
