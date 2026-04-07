@@ -1,3 +1,13 @@
+# [1.10.0](https://github.com/stirling-image/stirling-image/compare/v1.9.0...v1.10.0) (2026-04-07)
+
+
+### Features
+
+* add content-aware resize API route and registration ([aa3cc5c](https://github.com/stirling-image/stirling-image/commit/aa3cc5c6d0d602bcc88dac23684620676c4b3a3f))
+* add content-aware resize toggle to resize settings UI ([4b4464f](https://github.com/stirling-image/stirling-image/commit/4b4464f4a0b63ec312d961fecc22232b39e14872))
+* add seam carving AI bridge module ([3c0f5b6](https://github.com/stirling-image/stirling-image/commit/3c0f5b6c45bf0ba8b37d67aa0fa25d3c3603e888))
+* add seam carving Python script with face protection ([fb833e4](https://github.com/stirling-image/stirling-image/commit/fb833e4613ab8aa63b95facc2fe621eaa27e438a))
+
 # [1.9.0](https://github.com/stirling-image/stirling-image/compare/v1.8.1...v1.9.0) (2026-04-07)
 
 
