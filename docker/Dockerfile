@@ -107,9 +107,14 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     /opt/venv/bin/pip install paddlepaddle==3.0.0 paddleocr==2.9.1 \
 ; fi
 
-RUN /opt/venv/bin/pip install \
-    mediapipe==0.10.21 \
-    seam-carving==1.1.0
+# mediapipe 0.10.21 only has amd64 wheels; arm64 maxes out at 0.10.18
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+    /opt/venv/bin/pip install mediapipe==0.10.21 \
+; else \
+    /opt/venv/bin/pip install mediapipe==0.10.18 \
+; fi
+
+RUN /opt/venv/bin/pip install seam-carving==1.1.0
 
 # Pre-download and verify all ML models
 COPY docker/download_models.py /tmp/download_models.py
