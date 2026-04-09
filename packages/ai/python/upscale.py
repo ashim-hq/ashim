@@ -1,11 +1,18 @@
 """Image upscaling with Real-ESRGAN fallback to Lanczos."""
 import sys
 import json
+import os
 
 
 def emit_progress(percent, stage):
     """Emit structured progress to stderr for bridge.ts to capture."""
     print(json.dumps({"progress": percent, "stage": stage}), file=sys.stderr, flush=True)
+
+
+REALESRGAN_MODEL_PATH = os.environ.get(
+    "REALESRGAN_MODEL_PATH",
+    "/opt/models/realesrgan/RealESRGAN_x4plus.pth",
+)
 
 
 def main():
@@ -30,20 +37,24 @@ def main():
             import numpy as np
             import torch
 
+            if not os.path.exists(REALESRGAN_MODEL_PATH):
+                raise FileNotFoundError(f"RealESRGAN model not found: {REALESRGAN_MODEL_PATH}")
+
             use_gpu = gpu_available()
             device = torch.device("cuda" if use_gpu else "cpu")
 
+            # RealESRGAN_x4plus is a 4x model internally
             model = RRDBNet(
                 num_in_ch=3,
                 num_out_ch=3,
                 num_feat=64,
                 num_block=23,
                 num_grow_ch=32,
-                scale=scale,
+                scale=4,
             )
             upsampler = RealESRGANer(
-                scale=scale,
-                model_path=None,
+                scale=4,
+                model_path=REALESRGAN_MODEL_PATH,
                 model=model,
                 half=use_gpu,
                 device=device,
@@ -57,8 +68,8 @@ def main():
             emit_progress(95, "Saving result")
             result.save(output_path)
             method = "realesrgan"
-        except (ImportError, Exception):
-            # Fallback to Lanczos upscaling
+        except ImportError:
+            # RealESRGAN not installed - fall back to Lanczos
             emit_progress(50, "Upscaling with Lanczos")
             img_upscaled = img.resize(new_size, Image.LANCZOS)
             emit_progress(95, "Saving result")
