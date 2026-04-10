@@ -155,9 +155,17 @@ export function PdfToImageSettings() {
       {/* PDF upload area */}
       {!file ? (
         <div
+          role="button"
+          tabIndex={0}
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              fileInputRef.current?.click();
+            }
+          }}
           className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
         >
           <FileUp className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
