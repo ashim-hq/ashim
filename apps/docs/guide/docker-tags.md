@@ -118,9 +118,6 @@ volumes:
 
 ## Migration from previous tags
 
-If you were using `:lite` or `:cuda` tags, switch to `:latest`:
-
-- **From `:lite`**: Pull `:latest`. You now have all AI tools included.
-- **From `:cuda`**: Pull `:latest` and keep `--gpus all`. Same GPU support, unified image.
+If you were using the `:cuda` tag, switch to `:latest` and keep `--gpus all`. Same GPU support, unified image.
 
 Your data and settings are preserved in the volumes.

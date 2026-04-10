@@ -42,22 +42,16 @@ docker run -d -p 1349:1349 -v stirling-data:/data stirlingimage/stirling-image:l
 Open http://localhost:1349 in your browser.
 
 <details>
-<summary><sub>Looking for the Lite or CUDA image? Click here.</sub></summary>
+<summary><sub>Have an NVIDIA GPU? Click here for GPU acceleration.</sub></summary>
 <br>
 
-**Lite** (~1.5 GB) - all image tools, no AI:
+Add `--gpus all` for GPU-accelerated background removal, upscaling, and OCR:
 
 ```bash
-docker run -d -p 1349:1349 -v stirling-data:/data stirlingimage/stirling-image:lite
+docker run -d -p 1349:1349 --gpus all -v stirling-data:/data stirlingimage/stirling-image:latest
 ```
 
-**CUDA** (~14 GB) - GPU-accelerated background removal, upscaling, and OCR:
-
-```bash
-docker run -d -p 1349:1349 --gpus all -v stirling-data:/data stirlingimage/stirling-image:cuda
-```
-
-> CUDA needs an NVIDIA GPU and [Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). Falls back to CPU if no GPU is found. See [Docker Tags](https://stirling-image.github.io/stirling-image/guide/docker-tags) for benchmarks and Docker Compose examples.
+> Requires an NVIDIA GPU and [Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). Falls back to CPU if no GPU is found. See [Docker Tags](https://stirling-image.github.io/stirling-image/guide/docker-tags) for benchmarks and Docker Compose examples.
 
 </details>
 
@@ -70,7 +64,7 @@ docker run -d -p 1349:1349 --gpus all -v stirling-data:/data stirlingimage/stirl
 
 You will be asked to change your password on first login. This is enforced for all new accounts and cannot be skipped in production.
 
-For Docker Compose, persistent storage, and other setup options, see the [Getting Started Guide](https://stirling-image.github.io/stirling-image/guide/getting-started). For details on all image variants (full, lite, cuda), see [Docker Tags](https://stirling-image.github.io/stirling-image/guide/docker-tags).
+For Docker Compose, persistent storage, and other setup options, see the [Getting Started Guide](https://stirling-image.github.io/stirling-image/guide/getting-started). For GPU acceleration and tag details, see [Docker Tags](https://stirling-image.github.io/stirling-image/guide/docker-tags).
 
 ## Documentation
 
@@ -81,13 +75,9 @@ For Docker Compose, persistent storage, and other setup options, see the [Gettin
 - [Developer Guide](https://stirling-image.github.io/stirling-image/guide/developer)
 - [Translation Guide](https://stirling-image.github.io/stirling-image/guide/translations)
 
-## Contributing
+## Feedback
 
-Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, the [Developer Guide](https://stirling-image.github.io/stirling-image/guide/developer) for setup, and the [Translation Guide](https://stirling-image.github.io/stirling-image/guide/translations) for adding languages.
-
-## Support
-
-Bug reports and feature requests: [GitHub Issues](https://github.com/stirling-image/stirling-image/issues)
+Found a bug or have a feature idea? Open a [GitHub Issue](https://github.com/stirling-image/stirling-image/issues). We don't accept pull requests, but your feedback directly shapes the project. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 <!-- TODO: Add sponsorship links once Ko-fi and GitHub Sponsors are set up -->
 

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://stirling-image.github.io/stirling-image/
+    about: Check the docs for setup guides, configuration, and API reference.
+  - name: Security vulnerability
+    url: https://github.com/stirling-image/stirling-image/security/advisories/new
+    about: Report security issues privately through GitHub Security Advisories.

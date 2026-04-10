@@ -46,7 +46,7 @@ export default defineConfig({
 `,
         customTemplateVariables: {
           description:
-            "Self-hosted, open-source image processing platform with 30+ tools. Runs in a single Docker container. Available as :latest (full, ~11 GB with AI/ML) or :lite (~1.5 GB, image processing only).",
+            "Self-hosted, open-source image processing platform with 30+ tools including AI/ML. Runs in a single Docker container with GPU auto-detection.",
           details:
             "Resize, compress, convert, remove backgrounds, upscale, run OCR, and more - without sending images to external services.",
         },

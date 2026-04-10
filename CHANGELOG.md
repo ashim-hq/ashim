@@ -699,7 +699,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Internal planning docs (`docs/superpowers/`) and Claude Code config (`.claude/`) from version control — these stay local only
+- Internal planning docs (`docs/superpowers/`) and AI tool config from version control - these stay local only
 
 ## [0.7.0] - 2026-03-24
 

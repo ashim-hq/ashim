@@ -2,7 +2,7 @@
  * Integration tests for the content-aware resize (seam carving) API endpoint.
  *
  * This tool uses the Python sidecar, so in CI/test environments where Python
- * is not available the route will return 501 (lite mode) or 422 (Python error).
+ * is not available the route will return 422 (Python error).
  * Tests gracefully handle both scenarios while still verifying route existence
  * and input validation.
  */
@@ -49,9 +49,9 @@ describe("Content-Aware Resize", () => {
       body,
     });
 
-    // 200 = Python available, 422 = Python error, 501 = lite mode stub
+    // 200 = Python available, 422 = Python error
     // Any of these proves the route is registered and reachable
-    expect([200, 422, 501]).toContain(res.statusCode);
+    expect([200, 422]).toContain(res.statusCode);
   }, 60_000);
 
   it("rejects requests without a file", async () => {
@@ -88,8 +88,8 @@ describe("Content-Aware Resize", () => {
       body,
     });
 
-    // Accept 200 (Python available) or 422/501 (Python not available)
-    expect([200, 422, 501]).toContain(res.statusCode);
+    // Accept 200 (Python available) or 422 (Python not available)
+    expect([200, 422]).toContain(res.statusCode);
 
     if (res.statusCode === 200) {
       const resBody = JSON.parse(res.body);
@@ -114,7 +114,7 @@ describe("Content-Aware Resize", () => {
       body,
     });
 
-    expect([200, 422, 501]).toContain(res.statusCode);
+    expect([200, 422]).toContain(res.statusCode);
 
     if (res.statusCode === 200) {
       const resBody = JSON.parse(res.body);
@@ -139,10 +139,10 @@ describe("Content-Aware Resize", () => {
       body,
     });
 
-    // 422 = Python caught the enlargement error, 501 = lite mode
+    // 422 = Python caught the enlargement error
     // Should never be 200 since 400 > 200px source width
     expect(res.statusCode).not.toBe(200);
-    expect([422, 501]).toContain(res.statusCode);
+    expect(res.statusCode).toBe(422);
 
     if (res.statusCode === 422) {
       const resBody = JSON.parse(res.body);

@@ -110,9 +110,16 @@ Set `client_max_body_size` to match your `MAX_UPLOAD_SIZE_MB` value.
 
 ## CI/CD
 
-The GitHub repository has two workflows:
+The GitHub repository has three workflows:
 
-- **release.yml** -- On release, builds a multi-arch Docker image (amd64 + arm64), and pushes to Docker Hub (`stirlingimage/stirling-image`) and GitHub Container Registry (`ghcr.io/stirling-image/stirling-image`).
-- **deploy-docs.yml** -- Builds this documentation site and deploys it to GitHub Pages.
+- **ci.yml** -- Runs automatically on every push and PR. Lints, typechecks, tests, builds, and validates the Docker image (without pushing).
+- **release.yml** -- Triggered manually via `workflow_dispatch`. Runs semantic-release to create a version tag and GitHub release, then builds a multi-arch Docker image (amd64 + arm64) and pushes to Docker Hub (`stirlingimage/stirling-image`) and GitHub Container Registry (`ghcr.io/stirling-image/stirling-image`).
+- **deploy-docs.yml** -- Builds this documentation site and deploys it to GitHub Pages on push to `main`.
 
-Both run automatically. No manual steps needed after merging to `main`.
+To create a release, go to **Actions > Release > Run workflow** in the GitHub UI, or run:
+
+```bash
+gh workflow run release.yml
+```
+
+Semantic-release determines the version from commit history. The `latest` Docker tag always points to the most recent release.
