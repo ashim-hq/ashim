@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/stirling-image/stirling-image/compare/v1.11.0...v1.12.0) (2026-04-10)
+
+
+### Features
+
+* unified Docker image with GPU auto-detection ([#37](https://github.com/stirling-image/stirling-image/issues/37)) ([b0083e2](https://github.com/stirling-image/stirling-image/commit/b0083e2b083d0bf52b6a576f7ef67fbff0cc8cbe))
+
 # [1.11.0](https://github.com/stirling-image/stirling-image/compare/v1.10.0...v1.11.0) (2026-04-07)
 
 
