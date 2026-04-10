@@ -6,7 +6,15 @@
  */
 
 import type { Role } from "@stirling-image/shared";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+// Mock the auth plugin to avoid transitively opening a SQLite connection
+// (permissions.ts -> auth.ts -> db/index.ts), which causes lock contention
+// when running in parallel with other DB-using test files like cleanup.test.ts.
+vi.mock("../../../apps/api/src/plugins/auth.js", () => ({
+  getAuthUser: () => null,
+}));
+
 import { getPermissions, hasPermission } from "../../../apps/api/src/permissions.js";
 
 describe("permissions", () => {

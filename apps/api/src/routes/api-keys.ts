@@ -6,18 +6,16 @@
  * DELETE /api/v1/api-keys/:id  — Delete an API key
  */
 import { randomBytes, randomUUID } from "node:crypto";
-import type { Role } from "@stirling-image/shared";
 import { and, eq } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { db, schema } from "../db/index.js";
 import { auditLog } from "../lib/audit.js";
-import { hasPermission, requirePermission } from "../permissions.js";
-import { computeKeyPrefix, hashPassword } from "../plugins/auth.js";
+import { computeKeyPrefix, hashPassword, requireAuth } from "../plugins/auth.js";
 
 export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/v1/api-keys — Generate a new API key
   app.post("/api/v1/api-keys", async (request: FastifyRequest, reply: FastifyReply) => {
-    const user = requirePermission("apikeys:own")(request, reply);
+    const user = requireAuth(request, reply);
     if (!user) return;
 
     const body = request.body as { name?: string } | null;
@@ -59,21 +57,23 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
 
   // GET /api/v1/api-keys — List user's API keys (never returns the key itself)
   app.get("/api/v1/api-keys", async (request: FastifyRequest, reply: FastifyReply) => {
-    const user = requirePermission("apikeys:own")(request, reply);
+    const user = requireAuth(request, reply);
     if (!user) return;
 
-    const canSeeAll = hasPermission(user.role as Role, "apikeys:all");
-
-    const query = db
-      .select({
-        id: schema.apiKeys.id,
-        name: schema.apiKeys.name,
-        createdAt: schema.apiKeys.createdAt,
-        lastUsedAt: schema.apiKeys.lastUsedAt,
-      })
-      .from(schema.apiKeys);
-
-    const keys = canSeeAll ? query.all() : query.where(eq(schema.apiKeys.userId, user.id)).all();
+    const selectFields = {
+      id: schema.apiKeys.id,
+      name: schema.apiKeys.name,
+      createdAt: schema.apiKeys.createdAt,
+      lastUsedAt: schema.apiKeys.lastUsedAt,
+    };
+    const keys =
+      user.role === "admin"
+        ? db.select(selectFields).from(schema.apiKeys).all()
+        : db
+            .select(selectFields)
+            .from(schema.apiKeys)
+            .where(eq(schema.apiKeys.userId, user.id))
+            .all();
 
     return reply.send({
       apiKeys: keys.map((k) => ({
@@ -89,21 +89,16 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
   app.delete(
     "/api/v1/api-keys/:id",
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
-      const user = requirePermission("apikeys:own")(request, reply);
+      const user = requireAuth(request, reply);
       if (!user) return;
 
       const { id } = request.params;
 
-      // Admin can delete any key; regular users can only delete their own
-      const canDeleteAll = hasPermission(user.role as Role, "apikeys:all");
+      // Ensure the key belongs to the requesting user
       const existing = db
         .select()
         .from(schema.apiKeys)
-        .where(
-          canDeleteAll
-            ? eq(schema.apiKeys.id, id)
-            : and(eq(schema.apiKeys.id, id), eq(schema.apiKeys.userId, user.id)),
-        )
+        .where(and(eq(schema.apiKeys.id, id), eq(schema.apiKeys.userId, user.id)))
         .get();
 
       if (!existing) {

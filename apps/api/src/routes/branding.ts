@@ -12,7 +12,7 @@ import { eq } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import sharp from "sharp";
 import { db, schema } from "../db/index.js";
-import { requirePermission } from "../permissions.js";
+import { requireAdmin } from "../plugins/auth.js";
 
 const BRANDING_DIR = join(process.cwd(), "data", "branding");
 const LOGO_PATH = join(BRANDING_DIR, "logo.png");
@@ -33,7 +33,7 @@ function upsertSetting(key: string, value: string): void {
 export async function brandingRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/v1/settings/logo — Upload logo (admin only)
   app.post("/api/v1/settings/logo", async (request: FastifyRequest, reply: FastifyReply) => {
-    const admin = requirePermission("branding:manage")(request, reply);
+    const admin = requireAdmin(request, reply);
     if (!admin) return;
 
     const file = await request.file();
@@ -86,7 +86,7 @@ export async function brandingRoutes(app: FastifyInstance): Promise<void> {
 
   // DELETE /api/v1/settings/logo — Remove logo (admin only)
   app.delete("/api/v1/settings/logo", async (request: FastifyRequest, reply: FastifyReply) => {
-    const admin = requirePermission("branding:manage")(request, reply);
+    const admin = requireAdmin(request, reply);
     if (!admin) return;
 
     if (existsSync(LOGO_PATH)) {

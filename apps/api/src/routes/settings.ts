@@ -10,14 +10,14 @@ import { PYTHON_SIDECAR_TOOLS } from "@stirling-image/shared";
 import { eq } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { db, schema } from "../db/index.js";
-import { requirePermission } from "../permissions.js";
+import { requireAdmin, requireAuth } from "../plugins/auth.js";
 
 const HTML_TAG_PATTERN = /<[a-z/!][^>]*>/i;
 
 export async function settingsRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/v1/settings — Get all settings as a key-value object
   app.get("/api/v1/settings", async (request: FastifyRequest, reply: FastifyReply) => {
-    const user = requirePermission("settings:read")(request, reply);
+    const user = requireAuth(request, reply);
     if (!user) return;
 
     const rows = db.select().from(schema.settings).all();
@@ -35,7 +35,7 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
 
   // PUT /api/v1/settings — Save settings (admin only)
   app.put("/api/v1/settings", async (request: FastifyRequest, reply: FastifyReply) => {
-    const admin = requirePermission("settings:write")(request, reply);
+    const admin = requireAdmin(request, reply);
     if (!admin) return;
 
     const body = request.body as Record<string, unknown> | null;
@@ -89,7 +89,7 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     "/api/v1/settings/:key",
     async (request: FastifyRequest<{ Params: { key: string } }>, reply: FastifyReply) => {
-      const user = requirePermission("settings:read")(request, reply);
+      const user = requireAuth(request, reply);
       if (!user) return;
 
       const { key } = request.params;

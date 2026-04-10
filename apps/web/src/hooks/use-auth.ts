@@ -10,6 +10,21 @@ interface AuthState {
   permissions: string[];
 }
 
+const ALL_PERMISSIONS = [
+  "tools:use",
+  "files:own",
+  "files:all",
+  "apikeys:own",
+  "apikeys:all",
+  "pipelines:own",
+  "pipelines:all",
+  "settings:read",
+  "settings:write",
+  "users:manage",
+  "teams:manage",
+  "branding:manage",
+];
+
 export function useAuth() {
   const [state, setState] = useState<AuthState>({
     loading: true,
@@ -34,20 +49,7 @@ export function useAuth() {
             isAuthenticated: true,
             mustChangePassword: false,
             role: "admin",
-            permissions: [
-              "tools:use",
-              "files:own",
-              "files:all",
-              "apikeys:own",
-              "apikeys:all",
-              "pipelines:own",
-              "pipelines:all",
-              "settings:read",
-              "settings:write",
-              "users:manage",
-              "teams:manage",
-              "branding:manage",
-            ],
+            permissions: ALL_PERMISSIONS,
           });
           return;
         }
@@ -100,20 +102,7 @@ export function useAuth() {
           isAuthenticated: true,
           mustChangePassword: false,
           role: "admin",
-          permissions: [
-            "tools:use",
-            "files:own",
-            "files:all",
-            "apikeys:own",
-            "apikeys:all",
-            "pipelines:own",
-            "pipelines:all",
-            "settings:read",
-            "settings:write",
-            "users:manage",
-            "teams:manage",
-            "branding:manage",
-          ],
+          permissions: ALL_PERMISSIONS,
         });
       }
     }

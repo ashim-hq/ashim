@@ -11,7 +11,7 @@ import { randomUUID } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { db, schema } from "../db/index.js";
-import { requirePermission } from "../permissions.js";
+import { requireAdmin, requireAuth } from "../plugins/auth.js";
 
 function validateTeamName(name: unknown): string | null {
   if (typeof name !== "string") return "Team name is required";
@@ -22,9 +22,9 @@ function validateTeamName(name: unknown): string | null {
 }
 
 export async function teamsRoutes(app: FastifyInstance): Promise<void> {
-  // GET /api/v1/teams — List all teams with member count
+  // GET /api/v1/teams — List all teams with member count (admin only)
   app.get("/api/v1/teams", async (request: FastifyRequest, reply: FastifyReply) => {
-    const user = requirePermission("teams:manage")(request, reply);
+    const user = requireAdmin(request, reply);
     if (!user) return;
 
     const teams = db
@@ -47,7 +47,7 @@ export async function teamsRoutes(app: FastifyInstance): Promise<void> {
 
   // POST /api/v1/teams — Create team (admin only)
   app.post("/api/v1/teams", async (request: FastifyRequest, reply: FastifyReply) => {
-    const admin = requirePermission("teams:manage")(request, reply);
+    const admin = requireAdmin(request, reply);
     if (!admin) return;
 
     const body = request.body as { name?: string } | null;
@@ -81,7 +81,7 @@ export async function teamsRoutes(app: FastifyInstance): Promise<void> {
   app.put(
     "/api/v1/teams/:id",
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
-      const admin = requirePermission("teams:manage")(request, reply);
+      const admin = requireAdmin(request, reply);
       if (!admin) return;
 
       const { id } = request.params;
@@ -122,7 +122,7 @@ export async function teamsRoutes(app: FastifyInstance): Promise<void> {
   app.delete(
     "/api/v1/teams/:id",
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
-      const admin = requirePermission("teams:manage")(request, reply);
+      const admin = requireAdmin(request, reply);
       if (!admin) return;
 
       const { id } = request.params;
