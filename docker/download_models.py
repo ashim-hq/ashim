@@ -98,45 +98,35 @@ def verify_mediapipe():
 
 
 def smoke_test():
-    """Final verification that all ML libraries and models are loadable."""
-    import platform
+    """Final verification that all ML libraries and models are loadable.
 
+    GPU-dependent libraries (paddlepaddle-gpu, torch CUDA) cannot be imported
+    at build time because the CUDA driver is only available at runtime. We verify
+    CPU-only imports and check that model files exist on disk.
+    """
     print("=== Running smoke test ===")
-    is_amd64 = platform.machine() in ("x86_64", "amd64")
 
-    from rembg import new_session
-    import mediapipe as mp
+    # CPU-only imports that work on all platforms at build time
+    from PIL import Image
     import cv2
     import numpy
-    from PIL import Image
     import seam_carving
+    from rembg import new_session
+    print("  CPU imports OK (Pillow, cv2, numpy, seam_carving, rembg)")
 
-    try:
-        from paddleocr import PaddleOCR
-        print("  Core imports OK (including PaddleOCR)")
-    except ImportError as e:
-        if "libcuda" in str(e):
-            print("  Core imports OK (PaddleOCR skipped - no CUDA driver at build time)")
-        else:
-            raise
+    # MediaPipe is CPU-only, should always import
+    import mediapipe as mp
+    print("  MediaPipe import OK")
 
-    # RealESRGAN/basicsr has a known torchvision compat issue on arm64.
-    # On amd64 we verify the full import chain; on arm64 we just check the model file.
-    if is_amd64:
-        from realesrgan import RealESRGANer
-        from basicsr.archs.rrdbnet_arch import RRDBNet
-        print("  RealESRGAN imports OK (amd64)")
-    else:
-        print("  RealESRGAN import skipped (arm64 - Lanczos fallback used)")
-
+    # RealESRGAN model file must exist
     assert os.path.exists(REALESRGAN_MODEL_PATH), (
         f"RealESRGAN model missing: {REALESRGAN_MODEL_PATH}"
     )
     assert os.path.getsize(REALESRGAN_MODEL_PATH) > REALESRGAN_MIN_SIZE, (
         "RealESRGAN model file is too small"
     )
-
     print("  RealESRGAN model file verified")
+
     print("Smoke test passed.\n")
 
 
