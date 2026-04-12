@@ -3763,7 +3763,7 @@ describe("Edit metadata", () => {
       });
       expect(res.statusCode).toBe(200);
       const body = JSON.parse(res.body);
-      expect(body.exif).toBeUndefined();
+      expect(body.exif).toBeNull();
     });
 
     it("rejects request with no file", async () => {
