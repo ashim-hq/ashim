@@ -17,6 +17,7 @@
     "fflate": "^0.8.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.469.0",
+    "qr-code-styling": "^1.9.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-image-crop": "^11.0.10",
