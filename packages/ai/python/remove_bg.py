@@ -9,6 +9,39 @@ def emit_progress(percent, stage):
     print(json.dumps({"progress": percent, "stage": stage}), file=sys.stderr, flush=True)
 
 
+_matting_registered = False
+
+def _register_matting_session(sessions_class):
+    """Register the BiRefNet-matting ONNX session for Ultra quality mode."""
+    global _matting_registered
+    if _matting_registered:
+        return
+    _matting_registered = True
+
+    import os
+    import pooch
+    from rembg.sessions.birefnet_general import BiRefNetSessionGeneral
+
+    class BiRefNetMattingSession(BiRefNetSessionGeneral):
+        @classmethod
+        def download_models(cls, *args, **kwargs):
+            fname = f"{cls.name(*args, **kwargs)}.onnx"
+            pooch.retrieve(
+                "https://github.com/ZhengPeng7/BiRefNet/releases/download/v1/BiRefNet-matting-epoch_100.onnx",
+                None,  # Skip checksum for GitHub release assets
+                fname=fname,
+                path=cls.u2net_home(*args, **kwargs),
+                progressbar=True,
+            )
+            return os.path.join(cls.u2net_home(*args, **kwargs), fname)
+
+        @classmethod
+        def name(cls, *args, **kwargs):
+            return "birefnet-matting"
+
+    sessions_class.append(BiRefNetMattingSession)
+
+
 def main():
     input_path = sys.argv[1]
     output_path = sys.argv[2]
@@ -23,7 +56,11 @@ def main():
 
     try:
         from rembg import remove, new_session
+        from rembg.sessions import sessions_class
         from gpu import onnx_providers
+
+        # Register BiRefNet-matting (Ultra quality) if not already present
+        _register_matting_session(sessions_class)
 
         emit_progress(10, "Loading model")
 

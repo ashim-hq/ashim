@@ -108,6 +108,33 @@ test.describe("Remove Background tool", () => {
     await expect(page.locator("section[aria-label='Image area'] img").first()).toBeVisible();
   });
 
+  test("Ultra quality visible for People, hidden for Products", async ({ loggedInPage: page }) => {
+    await page.goto("/remove-background");
+
+    // People is default - Ultra should be visible
+    await expect(page.getByRole("button", { name: "Ultra" })).toBeVisible();
+
+    // Switch to Products - Ultra should disappear
+    await page.getByText("Products").click();
+    await expect(page.getByRole("button", { name: "Ultra" })).not.toBeVisible();
+
+    // Switch back to People - Ultra returns
+    await page.getByText("People").click();
+    await expect(page.getByRole("button", { name: "Ultra" })).toBeVisible();
+  });
+
+  test("Ultra quality processes JPG portrait", async ({ loggedInPage: page }) => {
+    await page.goto("/remove-background");
+    await uploadFile(page, fixturePath("test-portrait.jpg"));
+
+    // Select Ultra quality
+    await page.getByRole("button", { name: "Ultra" }).click();
+
+    await removeBgAndWait(page);
+    await expect(page.locator("section[aria-label='Image area'] img").first()).toBeVisible();
+    await expect(page.locator("text=Background removal failed")).not.toBeVisible();
+  });
+
   test("HEIC portrait - processes without error", async ({ loggedInPage: page }) => {
     await page.goto("/remove-background");
     await uploadFile(page, fixturePath("test-portrait.heic"));

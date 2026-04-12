@@ -27,6 +27,7 @@ REMBG_MODELS = [
     "birefnet-general-lite",
     "birefnet-portrait",
     "birefnet-general",
+    "birefnet-matting",
 ]
 
 # PaddleOCR language codes (not ISO). German/French/Spanish use "latin" model.
@@ -34,10 +35,39 @@ REMBG_MODELS = [
 PADDLEOCR_LANGUAGES = ["en", "ch", "japan", "korean", "latin"]
 
 
+def _register_birefnet_matting():
+    """Register BiRefNet-matting ONNX session for Ultra quality mode."""
+    import os
+    import pooch
+    from rembg.sessions import sessions_class
+    from rembg.sessions.birefnet_general import BiRefNetSessionGeneral
+
+    class BiRefNetMattingSession(BiRefNetSessionGeneral):
+        @classmethod
+        def download_models(cls, *args, **kwargs):
+            fname = f"{cls.name(*args, **kwargs)}.onnx"
+            pooch.retrieve(
+                "https://github.com/ZhengPeng7/BiRefNet/releases/download/v1/BiRefNet-matting-epoch_100.onnx",
+                None,  # Skip checksum for GitHub release assets
+                fname=fname,
+                path=cls.u2net_home(*args, **kwargs),
+                progressbar=True,
+            )
+            return os.path.join(cls.u2net_home(*args, **kwargs), fname)
+
+        @classmethod
+        def name(cls, *args, **kwargs):
+            return "birefnet-matting"
+
+    sessions_class.append(BiRefNetMattingSession)
+
+
 def download_rembg_models():
     """Download all rembg ONNX models."""
     print("=== Downloading rembg models ===")
     from rembg import new_session
+
+    _register_birefnet_matting()
 
     for model in REMBG_MODELS:
         print(f"  Downloading {model}...")

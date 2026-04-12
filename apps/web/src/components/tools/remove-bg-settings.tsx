@@ -13,18 +13,24 @@ import { useToolProcessor } from "@/hooks/use-tool-processor";
 import { useFileStore } from "@/stores/file-store";
 
 type SubjectType = "people" | "products" | "general";
-type Quality = "fast" | "balanced" | "best";
+type Quality = "fast" | "balanced" | "best" | "ultra";
 type BackgroundType = "transparent" | "color" | "gradient" | "image";
 
 type BgModel =
   | "birefnet-general"
   | "birefnet-general-lite"
+  | "birefnet-matting"
   | "birefnet-portrait"
   | "bria-rmbg"
   | "u2net";
 
-const MODEL_MAP: Record<SubjectType, Record<Quality, BgModel>> = {
-  people: { fast: "u2net", balanced: "birefnet-portrait", best: "birefnet-portrait" },
+const MODEL_MAP: Record<SubjectType, Partial<Record<Quality, BgModel>>> = {
+  people: {
+    fast: "u2net",
+    balanced: "birefnet-portrait",
+    best: "birefnet-portrait",
+    ultra: "birefnet-matting",
+  },
   products: { fast: "u2net", balanced: "bria-rmbg", best: "birefnet-general" },
   general: { fast: "u2net", balanced: "birefnet-general-lite", best: "birefnet-general" },
 };
@@ -35,10 +41,11 @@ const SUBJECT_OPTIONS: { value: SubjectType; label: string; icon: typeof User }[
   { value: "general", label: "General", icon: ImageIcon },
 ];
 
-const QUALITY_OPTIONS: { value: Quality; label: string }[] = [
+const ALL_QUALITY_OPTIONS: { value: Quality; label: string; peopleOnly?: boolean }[] = [
   { value: "fast", label: "Fast" },
   { value: "balanced", label: "Balanced" },
   { value: "best", label: "Best" },
+  { value: "ultra", label: "Ultra", peopleOnly: true },
 ];
 
 const COLOR_PRESETS = [
@@ -97,8 +104,18 @@ export function RemoveBgControls({ settings, onChange }: RemoveBgControlsProps) 
   // Expandable sections
   const [effectsOpen, setEffectsOpen] = useState(false);
 
+  // Filter quality options based on subject (Ultra only for People)
+  const qualityOptions = ALL_QUALITY_OPTIONS.filter(
+    (opt) => !opt.peopleOnly || subject === "people",
+  );
+
+  // If switching away from People while on Ultra, fall back to Best
+  const effectiveQuality = quality === "ultra" && subject !== "people" ? "best" : quality;
+
   const model =
-    isPassport && subject === "people" ? "birefnet-portrait" : MODEL_MAP[subject][quality];
+    isPassport && subject === "people"
+      ? "birefnet-portrait"
+      : MODEL_MAP[subject][effectiveQuality] || "birefnet-general";
 
   const onChangeRef = useRef(onChange);
   useEffect(() => {
@@ -190,14 +207,14 @@ export function RemoveBgControls({ settings, onChange }: RemoveBgControlsProps) 
 
       {/* Quality */}
       <SectionLabel>Quality</SectionLabel>
-      <div className="grid grid-cols-3 gap-1.5">
-        {QUALITY_OPTIONS.map((opt) => (
+      <div className={`grid gap-1.5 ${qualityOptions.length > 3 ? "grid-cols-4" : "grid-cols-3"}`}>
+        {qualityOptions.map((opt) => (
           <button
             key={opt.value}
             type="button"
             onClick={() => setQuality(opt.value)}
             className={`py-2 px-2 rounded-lg border text-xs font-medium transition-colors ${
-              quality === opt.value
+              effectiveQuality === opt.value
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border text-muted-foreground hover:border-primary/50"
             }`}
