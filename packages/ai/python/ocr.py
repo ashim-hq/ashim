@@ -24,18 +24,13 @@ PADDLE_LANG_MAP = {
 
 
 def auto_detect_language(input_path):
-    """Detect script/language from image using PaddleOCR's det model.
+    """Return the default language for OCR.
 
-    Returns a language code (e.g. "en", "zh") or "en" as fallback.
+    Currently defaults to "en" which works well across engines.
+    PaddleOCR PP-OCRv5 and VL handle multi-script input natively
+    regardless of the language parameter, so the default is sufficient
+    for most use cases. Users can override via the language dropdown.
     """
-    try:
-        from paddleocr import PaddleOCR
-        ocr = PaddleOCR(lang="en", use_gpu=False, show_log=False, rec=False)
-        result = ocr.ocr(input_path, rec=False)
-        if result and result[0]:
-            return "en"
-    except Exception:
-        pass
     return "en"
 
 
@@ -154,6 +149,7 @@ def main():
         engine = settings.get("engine", "tesseract")
         quality = "fast" if engine == "tesseract" else "balanced"
 
+    preprocessed_path = None
     try:
         emit_progress(5, "Preparing")
 
@@ -165,8 +161,9 @@ def main():
                 preprocessed_path = input_path + "_enhanced.png"
                 preprocess(input_path, preprocessed_path)
                 input_path = preprocessed_path
-            except Exception:
-                pass
+            except Exception as e:
+                print(json.dumps({"warning": f"Enhancement skipped: {e}"}), file=sys.stderr, flush=True)
+                preprocessed_path = None
 
         # Language auto-detection
         if language == "auto":
@@ -221,6 +218,13 @@ def main():
     except Exception as e:
         print(json.dumps({"success": False, "error": str(e)}))
         sys.exit(1)
+    finally:
+        # Clean up preprocessed temp file
+        if preprocessed_path:
+            try:
+                os.remove(preprocessed_path)
+            except OSError:
+                pass
 
 
 if __name__ == "__main__":
