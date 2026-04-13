@@ -178,6 +178,14 @@ export const TOOLS: Tool[] = [
     route: "/image-enhancement",
   },
   {
+    id: "enhance-faces",
+    name: "Face Enhancement",
+    description: "AI face restoration using GFPGAN or CodeFormer",
+    category: "ai",
+    icon: "ScanFace",
+    route: "/enhance-faces",
+  },
+  {
     id: "colorize",
     name: "AI Colorization",
     description: "Convert B&W photos to full color with AI",
@@ -405,4 +413,5 @@ export const PYTHON_SIDECAR_TOOLS = [
   "erase-object",
   "ocr",
   "colorize",
+  "enhance-faces",
 ] as const;
