@@ -161,6 +161,14 @@ export const TOOLS: Tool[] = [
     icon: "Focus",
     route: "/smart-crop",
   },
+  {
+    id: "image-enhancement",
+    name: "Image Enhancement",
+    description: "One-click auto-improve with smart analysis",
+    category: "ai",
+    icon: "Sparkles",
+    route: "/image-enhancement",
+  },
   // Watermark & Overlay
   {
     id: "watermark-text",

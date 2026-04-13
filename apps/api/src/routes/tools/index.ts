@@ -20,6 +20,7 @@ import { registerEraseObject } from "./erase-object.js";
 import { registerFavicon } from "./favicon.js";
 import { registerFindDuplicates } from "./find-duplicates.js";
 import { registerGifTools } from "./gif-tools.js";
+import { registerImageEnhancement } from "./image-enhancement.js";
 import { registerImageToPdf } from "./image-to-pdf.js";
 import { registerInfo } from "./info.js";
 import { registerOcr } from "./ocr.js";
@@ -125,6 +126,7 @@ export async function registerToolRoutes(app: FastifyInstance): Promise<void> {
     { id: "blur-faces", register: registerBlurFaces },
     { id: "erase-object", register: registerEraseObject },
     { id: "smart-crop", register: registerSmartCrop },
+    { id: "image-enhancement", register: registerImageEnhancement },
     { id: "content-aware-resize", register: registerContentAwareResize },
   ];
 

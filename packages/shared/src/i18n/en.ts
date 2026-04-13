@@ -71,6 +71,11 @@ export const en = {
       name: "Smart Crop",
       description: "Smart subject, face, or trim-based cropping",
     },
+    "image-enhancement": {
+      name: "Image Enhancement",
+      description:
+        "One-click auto-improve with smart exposure, contrast, color, and sharpness correction",
+    },
     "content-aware-resize": {
       name: "Content-Aware Resize",
       description: "Intelligently resize images while preserving important content",

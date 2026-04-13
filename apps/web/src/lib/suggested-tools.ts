@@ -10,6 +10,7 @@ const TOOL_SUGGESTIONS: Record<string, string[]> = {
   "remove-background": ["resize", "compress", "convert"],
   upscale: ["compress", "convert"],
   "smart-crop": ["resize", "compress"],
+  "image-enhancement": ["adjust-colors", "upscale", "compress"],
   "watermark-text": ["compress", "convert"],
   "watermark-image": ["compress", "convert"],
   "text-overlay": ["compress", "convert"],
