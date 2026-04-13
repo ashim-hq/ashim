@@ -280,7 +280,7 @@ export const TOOLS: Tool[] = [
   {
     id: "svg-to-raster",
     name: "SVG to Raster",
-    description: "Convert SVG to PNG/JPG at custom resolution",
+    description: "Convert SVG to PNG, JPEG, WebP, AVIF, TIFF, GIF, or HEIF at custom scale and DPI",
     category: "format",
     icon: "FileImage",
     route: "/svg-to-raster",

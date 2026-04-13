@@ -100,7 +100,8 @@ export const en = {
     border: { name: "Border & Frame", description: "Add borders, rounded corners, shadows" },
     "svg-to-raster": {
       name: "SVG to Raster",
-      description: "Convert SVG to PNG/JPG at custom resolution",
+      description:
+        "Convert SVG to PNG, JPEG, WebP, AVIF, TIFF, GIF, or HEIF at custom scale and DPI",
     },
     vectorize: { name: "Image to SVG", description: "Vectorize images using tracing" },
     "gif-tools": { name: "GIF Tools", description: "Resize/crop/convert animated GIFs" },
