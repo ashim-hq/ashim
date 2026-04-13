@@ -169,6 +169,14 @@ export const TOOLS: Tool[] = [
     icon: "Sparkles",
     route: "/image-enhancement",
   },
+  {
+    id: "noise-removal",
+    name: "Noise Removal",
+    description: "AI-powered noise and grain removal",
+    category: "ai",
+    icon: "Sparkles",
+    route: "/noise-removal",
+  },
   // Watermark & Overlay
   {
     id: "watermark-text",
@@ -388,4 +396,5 @@ export const PYTHON_SIDECAR_TOOLS = [
   "blur-faces",
   "erase-object",
   "ocr",
+  "noise-removal",
 ] as const;

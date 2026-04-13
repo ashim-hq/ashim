@@ -76,6 +76,10 @@ export const en = {
       description:
         "One-click auto-improve with smart exposure, contrast, color, and sharpness correction",
     },
+    "noise-removal": {
+      name: "Noise Removal",
+      description: "AI-powered noise and grain removal",
+    },
     "content-aware-resize": {
       name: "Content-Aware Resize",
       description: "Intelligently resize images while preserving important content",
