@@ -239,6 +239,11 @@ const ImageEnhancementSettings = lazy(() =>
     default: m.ImageEnhancementSettings,
   })),
 );
+const NoiseRemovalSettings = lazy(() =>
+  import("@/components/tools/noise-removal-settings").then((m) => ({
+    default: m.NoiseRemovalSettings,
+  })),
+);
 
 // ── Color tool wrapper ─────────────────────────────────────────────
 // Color tools share a single component but differ by toolId.
@@ -364,6 +369,7 @@ export const toolRegistry = new Map<string, ToolRegistryEntry>([
       Settings: ImageEnhancementSettings as never,
     },
   ],
+  ["noise-removal", { displayMode: "before-after", Settings: NoiseRemovalSettings }],
 ]);
 
 export function getToolRegistryEntry(toolId: string): ToolRegistryEntry | undefined {
