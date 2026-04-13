@@ -105,6 +105,14 @@ export const TOOLS: Tool[] = [
     route: "/adjust-colors",
   },
   {
+    id: "sharpening",
+    name: "Sharpening",
+    description: "Adaptive, unsharp mask, and high-pass sharpening with presets",
+    category: "adjustments",
+    icon: "Focus",
+    route: "/sharpening",
+  },
+  {
     id: "replace-color",
     name: "Replace & Invert Color",
     description: "Replace specific colors or invert",
@@ -168,6 +176,14 @@ export const TOOLS: Tool[] = [
     category: "ai",
     icon: "Sparkles",
     route: "/image-enhancement",
+  },
+  {
+    id: "colorize",
+    name: "AI Colorization",
+    description: "Convert B&W photos to full color with AI",
+    category: "ai",
+    icon: "Palette",
+    route: "/colorize",
   },
   {
     id: "noise-removal",
@@ -396,5 +412,6 @@ export const PYTHON_SIDECAR_TOOLS = [
   "blur-faces",
   "erase-object",
   "ocr",
+  "colorize",
   "noise-removal",
 ] as const;

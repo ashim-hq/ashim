@@ -49,6 +49,10 @@ export const en = {
       description:
         "Brightness, contrast, exposure, saturation, temperature, sharpness, and effects",
     },
+    sharpening: {
+      name: "Sharpening",
+      description: "Adaptive, unsharp mask, and high-pass sharpening with presets",
+    },
     "replace-color": {
       name: "Replace & Invert Color",
       description: "Replace specific colors or invert",
@@ -83,6 +87,10 @@ export const en = {
     "content-aware-resize": {
       name: "Content-Aware Resize",
       description: "Intelligently resize images while preserving important content",
+    },
+    colorize: {
+      name: "AI Colorization",
+      description: "Convert black & white photos to full color using AI deep learning models",
     },
     "watermark-text": { name: "Text Watermark", description: "Add text watermark overlay" },
     "watermark-image": { name: "Image Watermark", description: "Overlay a logo as watermark" },

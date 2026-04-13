@@ -96,6 +96,11 @@ const EditMetadataSettings = lazy(() =>
 const ColorSettings = lazy(() =>
   import("@/components/tools/color-settings").then((m) => ({ default: m.ColorSettings })),
 );
+const SharpeningSettings = lazy(() =>
+  import("@/components/tools/sharpening-settings").then((m) => ({
+    default: m.SharpeningSettings,
+  })),
+);
 const WatermarkTextSettings = lazy(() =>
   import("@/components/tools/watermark-text-settings").then((m) => ({
     default: m.WatermarkTextSettings,
@@ -239,6 +244,11 @@ const ImageEnhancementSettings = lazy(() =>
     default: m.ImageEnhancementSettings,
   })),
 );
+const ColorizeSettings = lazy(() =>
+  import("@/components/tools/colorize-settings").then((m) => ({
+    default: m.ColorizeSettings,
+  })),
+);
 const NoiseRemovalSettings = lazy(() =>
   import("@/components/tools/noise-removal-settings").then((m) => ({
     default: m.NoiseRemovalSettings,
@@ -297,6 +307,9 @@ export const toolRegistry = new Map<string, ToolRegistryEntry>([
       Settings: makeColorSettingsComponent("adjust-colors") as never,
     },
   ],
+
+  // Sharpening
+  ["sharpening", { displayMode: "before-after", Settings: SharpeningSettings }],
 
   // Watermark & Overlay
   ["watermark-text", { displayMode: "before-after", Settings: WatermarkTextSettings }],
@@ -369,6 +382,7 @@ export const toolRegistry = new Map<string, ToolRegistryEntry>([
       Settings: ImageEnhancementSettings as never,
     },
   ],
+  ["colorize", { displayMode: "before-after", Settings: ColorizeSettings }],
   ["noise-removal", { displayMode: "before-after", Settings: NoiseRemovalSettings }],
 ]);
 

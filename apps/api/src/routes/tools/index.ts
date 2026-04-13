@@ -9,6 +9,7 @@ import { registerBulkRename } from "./bulk-rename.js";
 import { registerCollage } from "./collage.js";
 import { registerColorAdjustments } from "./color-adjustments.js";
 import { registerColorPalette } from "./color-palette.js";
+import { registerColorize } from "./colorize.js";
 import { registerCompare } from "./compare.js";
 import { registerCompose } from "./compose.js";
 import { registerCompress } from "./compress.js";
@@ -23,6 +24,7 @@ import { registerGifTools } from "./gif-tools.js";
 import { registerImageEnhancement } from "./image-enhancement.js";
 import { registerImageToPdf } from "./image-to-pdf.js";
 import { registerInfo } from "./info.js";
+import { registerNoiseRemoval } from "./noise-removal.js";
 import { registerOcr } from "./ocr.js";
 import { registerPdfToImage } from "./pdf-to-image.js";
 import { registerQrGenerate } from "./qr-generate.js";
@@ -30,13 +32,13 @@ import { registerRemoveBackground } from "./remove-background.js";
 import { registerReplaceColor } from "./replace-color.js";
 import { registerResize } from "./resize.js";
 import { registerRotate } from "./rotate.js";
+import { registerSharpening } from "./sharpening.js";
 import { registerSmartCrop } from "./smart-crop.js";
 import { registerSplit } from "./split.js";
 import { registerStitch } from "./stitch.js";
 import { registerStripMetadata } from "./strip-metadata.js";
 import { registerSvgToRaster } from "./svg-to-raster.js";
 import { registerTextOverlay } from "./text-overlay.js";
-import { registerNoiseRemoval } from "./noise-removal.js";
 import { registerUpscale } from "./upscale.js";
 import { registerVectorize } from "./vectorize.js";
 import { registerWatermarkImage } from "./watermark-image.js";
@@ -85,6 +87,7 @@ export async function registerToolRoutes(app: FastifyInstance): Promise<void> {
     { id: "strip-metadata", register: registerStripMetadata },
     { id: "edit-metadata", register: registerEditMetadata },
     { id: "color-adjustments", register: registerColorAdjustments },
+    { id: "sharpening", register: registerSharpening },
 
     // Watermark & Overlay
     { id: "watermark-text", register: registerWatermarkText },
@@ -129,6 +132,7 @@ export async function registerToolRoutes(app: FastifyInstance): Promise<void> {
     { id: "smart-crop", register: registerSmartCrop },
     { id: "image-enhancement", register: registerImageEnhancement },
     { id: "content-aware-resize", register: registerContentAwareResize },
+    { id: "colorize", register: registerColorize },
     { id: "noise-removal", register: registerNoiseRemoval },
   ];
 

@@ -13,7 +13,7 @@ import { resize } from "./operations/resize.js";
 import { rotate } from "./operations/rotate.js";
 import { saturation } from "./operations/saturation.js";
 import { sepia } from "./operations/sepia.js";
-import { sharpen } from "./operations/sharpen.js";
+import { sharpen, sharpenAdvanced } from "./operations/sharpen.js";
 import { stripMetadata } from "./operations/strip-metadata.js";
 import type {
   BrightnessOptions,
@@ -30,6 +30,7 @@ import type {
   RotateOptions,
   SaturationOptions,
   Sharp,
+  SharpenAdvancedOptions,
   SharpenOptions,
   StripMetadataOptions,
 } from "./types.js";
@@ -58,6 +59,8 @@ const OPERATION_MAP: Record<
   grayscale: (img) => grayscale(img),
   sepia: (img) => sepia(img),
   sharpen: (img, opts) => sharpen(img, opts as unknown as SharpenOptions),
+  "sharpen-advanced": (img, opts) =>
+    sharpenAdvanced(img, opts as unknown as SharpenAdvancedOptions),
   invert: (img) => invert(img),
   "edit-metadata": (img, opts) => editMetadata(img, opts as unknown as EditMetadataOptions),
 };
