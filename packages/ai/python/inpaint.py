@@ -110,9 +110,8 @@ def main():
         model_path = _get_model_path()
 
         # Configure ONNX Runtime session
-        providers = ["CPUExecutionProvider"]
-        if "CUDAExecutionProvider" in ort.get_available_providers():
-            providers.insert(0, "CUDAExecutionProvider")
+        from gpu import onnx_providers
+        providers = onnx_providers()
 
         session = ort.InferenceSession(model_path, providers=providers)
 
