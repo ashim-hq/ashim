@@ -265,9 +265,18 @@ export function usePipelineProcessor() {
           let errorMsg: string;
           try {
             const body = JSON.parse(text);
-            errorMsg = body.details
-              ? `${body.error}: ${body.details}`
-              : body.error || `Batch processing failed: ${response.status}`;
+            if (body.errors && Array.isArray(body.errors) && body.errors.length > 0) {
+              // Show the first file's step-level error (all files typically fail at the same step)
+              const first = body.errors[0];
+              errorMsg = first.error;
+              if (body.errors.length > 1) {
+                errorMsg += ` (${body.errors.length} files failed)`;
+              }
+            } else {
+              errorMsg = body.details
+                ? `${body.error}: ${body.details}`
+                : body.error || `Batch processing failed: ${response.status}`;
+            }
           } catch {
             errorMsg = `Batch processing failed: ${response.status}`;
           }

@@ -104,6 +104,9 @@ export async function registerPipelineRoutes(app: FastifyInstance): Promise<void
     if (validation.format === "heif") {
       try {
         fileBuffer = await decodeHeic(fileBuffer);
+        // Update filename extension to match the decoded format
+        const ext = filename.match(/\.[^.]+$/)?.[0];
+        if (ext) filename = filename.slice(0, -ext.length) + ".png";
       } catch (err) {
         return reply.status(422).send({
           error: "Failed to decode HEIC file. Ensure libheif-examples is installed.",
@@ -141,10 +144,17 @@ export async function registerPipelineRoutes(app: FastifyInstance): Promise<void
     // Validate all tool IDs exist before starting
     for (let i = 0; i < pipeline.steps.length; i++) {
       const step = pipeline.steps[i];
-      const toolConfig = getToolConfig(step.toolId);
+
+      // Route content-aware resize to its dedicated tool
+      const resolvedToolId =
+        step.toolId === "resize" && step.settings?.contentAware
+          ? "content-aware-resize"
+          : step.toolId;
+
+      const toolConfig = getToolConfig(resolvedToolId);
       if (!toolConfig) {
         return reply.status(400).send({
-          error: `Step ${i + 1}: Tool "${step.toolId}" not found`,
+          error: `Step ${i + 1} (${step.toolId}): Tool not found or not available`,
         });
       }
 
@@ -171,32 +181,41 @@ export async function registerPipelineRoutes(app: FastifyInstance): Promise<void
     try {
       for (let i = 0; i < pipeline.steps.length; i++) {
         const step = pipeline.steps[i];
-        const toolConfig = getToolConfig(step.toolId);
+
+        // Route content-aware resize to its dedicated tool
+        const resolvedToolId =
+          step.toolId === "resize" && step.settings?.contentAware
+            ? "content-aware-resize"
+            : step.toolId;
+
+        const toolConfig = getToolConfig(resolvedToolId);
         if (!toolConfig) {
-          return reply
-            .status(400)
-            .send({ error: `Step ${i + 1}: Tool "${step.toolId}" not found` });
+          return reply.status(400).send({
+            error: `Step ${i + 1} (${step.toolId}): Tool not found or not available`,
+          });
         }
 
-        // Parse settings through the schema to apply defaults
-        const settings = toolConfig.settingsSchema.parse(step.settings);
+        try {
+          const settings = toolConfig.settingsSchema.parse(step.settings);
+          const result = await toolConfig.process(currentBuffer, settings, currentFilename);
 
-        const result = await toolConfig.process(currentBuffer, settings, currentFilename);
+          stepResults.push({
+            step: i + 1,
+            toolId: step.toolId,
+            size: result.buffer.length,
+          });
 
-        stepResults.push({
-          step: i + 1,
-          toolId: step.toolId,
-          size: result.buffer.length,
-        });
-
-        currentBuffer = result.buffer;
-        currentFilename = result.filename;
+          currentBuffer = result.buffer;
+          currentFilename = result.filename;
+        } catch (stepErr) {
+          const msg = stepErr instanceof Error ? stepErr.message : "Processing failed";
+          throw new Error(`Step ${i + 1} (${step.toolId}): ${msg}`);
+        }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Pipeline processing failed";
       return reply.status(422).send({
-        error: "Pipeline processing failed",
-        details: message,
+        error: message,
         completedSteps: stepResults,
       });
     }
@@ -503,16 +522,27 @@ export async function registerPipelineRoutes(app: FastifyInstance): Promise<void
             // Run through all pipeline steps sequentially
             for (let i = 0; i < pipeline.steps.length; i++) {
               const step = pipeline.steps[i];
-              const toolConfig = getToolConfig(step.toolId);
+
+              // Route content-aware resize to its dedicated tool
+              const resolvedToolId =
+                step.toolId === "resize" && step.settings?.contentAware
+                  ? "content-aware-resize"
+                  : step.toolId;
+
+              const toolConfig = getToolConfig(resolvedToolId);
               if (!toolConfig) {
-                throw new Error(`Step ${i + 1}: Tool "${step.toolId}" not found`);
+                throw new Error(`Step ${i + 1} (${step.toolId}): Tool not found or not available`);
               }
 
-              const settings = toolConfig.settingsSchema.parse(step.settings);
-              const result = await toolConfig.process(currentBuffer, settings, currentFilename);
-
-              currentBuffer = result.buffer;
-              currentFilename = result.filename;
+              try {
+                const settings = toolConfig.settingsSchema.parse(step.settings);
+                const result = await toolConfig.process(currentBuffer, settings, currentFilename);
+                currentBuffer = result.buffer;
+                currentFilename = result.filename;
+              } catch (stepErr) {
+                const msg = stepErr instanceof Error ? stepErr.message : "Processing failed";
+                throw new Error(`Step ${i + 1} (${step.toolId}): ${msg}`);
+              }
             }
 
             results[index] = { buffer: currentBuffer, filename: currentFilename };
