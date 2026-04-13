@@ -88,6 +88,10 @@ export const en = {
       name: "Red Eye Removal",
       description: "AI-powered red eye detection and correction for flash photos",
     },
+    "restore-photo": {
+      name: "Photo Restoration",
+      description: "Fix scratches, tears, and damage on old photos with AI",
+    },
     "content-aware-resize": {
       name: "Content-Aware Resize",
       description: "Intelligently resize images while preserving important content",

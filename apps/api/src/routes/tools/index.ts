@@ -32,6 +32,7 @@ import { registerRedEyeRemoval } from "./red-eye-removal.js";
 import { registerRemoveBackground } from "./remove-background.js";
 import { registerReplaceColor } from "./replace-color.js";
 import { registerResize } from "./resize.js";
+import { registerRestorePhoto } from "./restore-photo.js";
 import { registerRotate } from "./rotate.js";
 import { registerSharpening } from "./sharpening.js";
 import { registerSmartCrop } from "./smart-crop.js";
@@ -136,6 +137,7 @@ export async function registerToolRoutes(app: FastifyInstance): Promise<void> {
     { id: "colorize", register: registerColorize },
     { id: "noise-removal", register: registerNoiseRemoval },
     { id: "red-eye-removal", register: registerRedEyeRemoval },
+    { id: "restore-photo", register: registerRestorePhoto },
   ];
 
   let skipped = 0;

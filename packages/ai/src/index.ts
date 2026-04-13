@@ -7,5 +7,6 @@ export { inpaint } from "./inpainting.js";
 export { noiseRemoval } from "./noise-removal.js";
 export { extractText } from "./ocr.js";
 export { removeRedEye } from "./red-eye-removal.js";
+export { restorePhoto } from "./restoration.js";
 export { seamCarve } from "./seam-carving.js";
 export { upscale } from "./upscaling.js";

@@ -259,6 +259,11 @@ const RedEyeRemovalSettings = lazy(() =>
     default: m.RedEyeRemovalSettings,
   })),
 );
+const RestorePhotoSettings = lazy(() =>
+  import("@/components/tools/restore-photo-settings").then((m) => ({
+    default: m.RestorePhotoSettings,
+  })),
+);
 
 // ── Color tool wrapper ─────────────────────────────────────────────
 // Color tools share a single component but differ by toolId.
@@ -390,6 +395,7 @@ export const toolRegistry = new Map<string, ToolRegistryEntry>([
   ["colorize", { displayMode: "before-after", Settings: ColorizeSettings }],
   ["noise-removal", { displayMode: "before-after", Settings: NoiseRemovalSettings }],
   ["red-eye-removal", { displayMode: "before-after", Settings: RedEyeRemovalSettings }],
+  ["restore-photo", { displayMode: "before-after", Settings: RestorePhotoSettings }],
 ]);
 
 export function getToolRegistryEntry(toolId: string): ToolRegistryEntry | undefined {

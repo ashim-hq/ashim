@@ -15,6 +15,7 @@ const TOOL_SUGGESTIONS: Record<string, string[]> = {
   "watermark-image": ["compress", "convert"],
   "text-overlay": ["compress", "convert"],
   colorize: ["adjust-colors", "image-enhancement", "upscale", "compress"],
+  "restore-photo": ["colorize", "upscale", "image-enhancement", "adjust-colors"],
   sharpening: ["adjust-colors", "compress", "convert", "resize"],
   border: ["compress", "convert", "resize"],
 };

@@ -201,6 +201,14 @@ export const TOOLS: Tool[] = [
     icon: "Eye",
     route: "/red-eye-removal",
   },
+  {
+    id: "restore-photo",
+    name: "Photo Restoration",
+    description: "Fix scratches, tears, and damage on old photos with AI",
+    category: "ai",
+    icon: "Undo2",
+    route: "/restore-photo",
+  },
   // Watermark & Overlay
   {
     id: "watermark-text",
@@ -423,4 +431,5 @@ export const PYTHON_SIDECAR_TOOLS = [
   "colorize",
   "noise-removal",
   "red-eye-removal",
+  "restore-photo",
 ] as const;

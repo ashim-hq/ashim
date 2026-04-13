@@ -46,6 +46,10 @@ SCUNET_MODEL_URL = (
 SCUNET_MODEL_PATH = os.path.join(SCUNET_MODEL_DIR, "scunet_color_real_psnr.pth")
 SCUNET_MIN_SIZE = 3_000_000  # ~4 MB
 
+CODEFORMER_MODEL_DIR = "/opt/models/codeformer"
+CODEFORMER_ONNX_PATH = os.path.join(CODEFORMER_MODEL_DIR, "codeformer.onnx")
+CODEFORMER_MIN_SIZE = 100_000_000  # ~377 MB
+
 NAFNET_MODEL_DIR = "/opt/models/nafnet"
 NAFNET_MODEL_URL = (
     "https://huggingface.co/mikestealth/nafnet-models/resolve/main/"
@@ -198,6 +202,35 @@ def download_ddcolor_model():
 
 
 
+def download_codeformer_model():
+    """Download CodeFormer ONNX model for AI face restoration.
+
+    Uses the pre-converted ONNX model from HuggingFace (facefusion repo)
+    for direct inference via onnxruntime without needing PyTorch.
+    """
+    print("=== Downloading CodeFormer ONNX model ===")
+    os.makedirs(CODEFORMER_MODEL_DIR, exist_ok=True)
+
+    from huggingface_hub import hf_hub_download
+
+    print("  Downloading CodeFormer ONNX from HuggingFace...")
+    downloaded_path = hf_hub_download(
+        repo_id="facefusion/models-3.0.0",
+        filename="codeformer.onnx",
+        local_dir=CODEFORMER_MODEL_DIR,
+    )
+
+    actual_path = os.path.join(CODEFORMER_MODEL_DIR, "codeformer.onnx")
+    if not os.path.exists(actual_path) and os.path.exists(downloaded_path):
+        os.rename(downloaded_path, actual_path)
+
+    size = os.path.getsize(actual_path)
+    assert size > CODEFORMER_MIN_SIZE, (
+        f"CodeFormer model too small: {size} bytes (expected > {CODEFORMER_MIN_SIZE})"
+    )
+    print(f"  CodeFormer ONNX model ready ({size / 1_000_000:.1f} MB)\n")
+
+
 def download_paddleocr_models():
     """Pre-download PaddleOCR PP-OCRv5 model weights from HuggingFace.
 
@@ -328,6 +361,15 @@ def smoke_test():
     )
     print("  DDColor ONNX model file verified")
 
+    # CodeFormer ONNX model must exist
+    assert os.path.exists(CODEFORMER_ONNX_PATH), (
+        f"CodeFormer model missing: {CODEFORMER_ONNX_PATH}"
+    )
+    assert os.path.getsize(CODEFORMER_ONNX_PATH) > CODEFORMER_MIN_SIZE, (
+        "CodeFormer model file is too small"
+    )
+    print("  CodeFormer ONNX model file verified")
+
     # SCUNet model file must exist
     assert os.path.exists(SCUNET_MODEL_PATH), f"SCUNet model not found: {SCUNET_MODEL_PATH}"
     assert os.path.getsize(SCUNET_MODEL_PATH) > SCUNET_MIN_SIZE
@@ -361,6 +403,7 @@ def main():
     download_realesrgan_model()
     download_gfpgan_model()
     download_ddcolor_model()
+    download_codeformer_model()
     download_paddleocr_models()
     download_paddleocr_vl_model()
     download_scunet_model()
