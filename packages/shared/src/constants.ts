@@ -291,6 +291,14 @@ export const TOOLS: Tool[] = [
     icon: "ScanLine",
     route: "/barcode-read",
   },
+  {
+    id: "image-to-base64",
+    name: "Image to Base64",
+    description: "Convert images to base64 strings for embedding in HTML, CSS, and more",
+    category: "utilities",
+    icon: "Code",
+    route: "/image-to-base64",
+  },
   // Layout & Composition
   {
     id: "collage",
