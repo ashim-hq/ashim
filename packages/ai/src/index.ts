@@ -5,4 +5,5 @@ export { blurFaces, detectFaces } from "./face-detection.js";
 export { inpaint } from "./inpainting.js";
 export { extractText } from "./ocr.js";
 export { seamCarve } from "./seam-carving.js";
+export { noiseRemoval } from "./noise-removal.js";
 export { upscale } from "./upscaling.js";
