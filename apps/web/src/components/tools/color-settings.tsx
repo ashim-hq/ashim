@@ -8,11 +8,17 @@ type Effect = "none" | "grayscale" | "sepia" | "invert";
 
 interface ColorControlsProps {
   toolId: string;
+  settings?: Record<string, unknown>;
   onChange?: (settings: Record<string, unknown>) => void;
   onPreviewFilter?: (filter: string) => void;
 }
 
-export function ColorControls({ toolId, onChange, onPreviewFilter }: ColorControlsProps) {
+export function ColorControls({
+  toolId,
+  settings: initialSettings,
+  onChange,
+  onPreviewFilter,
+}: ColorControlsProps) {
   // Light
   const [brightness, setBrightness] = useState(0);
   const [contrast, setContrast] = useState(0);
@@ -35,6 +41,24 @@ export function ColorControls({ toolId, onChange, onPreviewFilter }: ColorContro
 
   // Effects
   const [effect, setEffect] = useState<Effect>("none");
+
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!initialSettings || initializedRef.current) return;
+    initializedRef.current = true;
+    if (initialSettings.brightness != null) setBrightness(Number(initialSettings.brightness));
+    if (initialSettings.contrast != null) setContrast(Number(initialSettings.contrast));
+    if (initialSettings.exposure != null) setExposure(Number(initialSettings.exposure));
+    if (initialSettings.saturation != null) setSaturation(Number(initialSettings.saturation));
+    if (initialSettings.temperature != null) setTemperature(Number(initialSettings.temperature));
+    if (initialSettings.tint != null) setTint(Number(initialSettings.tint));
+    if (initialSettings.hue != null) setHue(Number(initialSettings.hue));
+    if (initialSettings.sharpness != null) setSharpness(Number(initialSettings.sharpness));
+    if (initialSettings.red != null) setRed(Number(initialSettings.red));
+    if (initialSettings.green != null) setGreen(Number(initialSettings.green));
+    if (initialSettings.blue != null) setBlue(Number(initialSettings.blue));
+    if (initialSettings.effect != null) setEffect(initialSettings.effect as Effect);
+  }, [initialSettings]);
 
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;

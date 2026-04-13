@@ -5,15 +5,31 @@ import { useToolProcessor } from "@/hooks/use-tool-processor";
 import { useFileStore } from "@/stores/file-store";
 
 export interface GifToolsControlsProps {
+  settings?: Record<string, unknown>;
   onChange?: (settings: Record<string, unknown>) => void;
 }
 
-export function GifToolsControls({ onChange }: GifToolsControlsProps) {
+export function GifToolsControls({ settings: initialSettings, onChange }: GifToolsControlsProps) {
   const [mode, setMode] = useState<"resize" | "extract">("resize");
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
   const [extractFrame, setExtractFrame] = useState("0");
   const [optimize, setOptimize] = useState(false);
+
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!initialSettings || initializedRef.current) return;
+    initializedRef.current = true;
+    if (initialSettings.extractFrame != null) {
+      setMode("extract");
+      setExtractFrame(String(initialSettings.extractFrame));
+    } else {
+      setMode("resize");
+      if (initialSettings.width != null) setWidth(String(initialSettings.width));
+      if (initialSettings.height != null) setHeight(String(initialSettings.height));
+      if (initialSettings.optimize != null) setOptimize(Boolean(initialSettings.optimize));
+    }
+  }, [initialSettings]);
 
   const onChangeRef = useRef(onChange);
   useEffect(() => {

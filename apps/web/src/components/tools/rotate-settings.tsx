@@ -11,18 +11,33 @@ export interface PreviewTransform {
 }
 
 export interface RotateControlsProps {
+  settings?: Record<string, unknown>;
   onChange?: (settings: Record<string, unknown>) => void;
   onPreviewTransform?: (transform: PreviewTransform) => void;
   resetSignal?: number;
 }
 
-export function RotateControls({ onChange, onPreviewTransform, resetSignal }: RotateControlsProps) {
+export function RotateControls({
+  settings: initialSettings,
+  onChange,
+  onPreviewTransform,
+  resetSignal,
+}: RotateControlsProps) {
   // Quick rotation in 90° steps: 0, 90, 180, 270
   const [rotation, setRotation] = useState(0);
   // Fine straighten adjustment: -45 to +45
   const [straighten, setStraighten] = useState(0);
   const [flipH, setFlipH] = useState(false);
   const [flipV, setFlipV] = useState(false);
+
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!initialSettings || initializedRef.current) return;
+    initializedRef.current = true;
+    if (initialSettings.angle != null) setRotation(Number(initialSettings.angle));
+    if (initialSettings.horizontal != null) setFlipH(Boolean(initialSettings.horizontal));
+    if (initialSettings.vertical != null) setFlipV(Boolean(initialSettings.vertical));
+  }, [initialSettings]);
 
   const totalAngle = rotation + straighten;
 

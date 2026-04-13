@@ -215,11 +215,16 @@ function buildPreviewStyle(s: {
 // ── Controls ─────────────────────────────────────────────────────────
 
 export interface BorderControlsProps {
+  settings?: Record<string, unknown>;
   onChange?: (settings: Record<string, unknown>) => void;
   onImageStyle?: (style: React.CSSProperties | null) => void;
 }
 
-export function BorderControls({ onChange, onImageStyle }: BorderControlsProps) {
+export function BorderControls({
+  settings: initialSettings,
+  onChange,
+  onImageStyle,
+}: BorderControlsProps) {
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [borderWidth, setBorderWidth] = useState(10);
   const [borderColor, setBorderColor] = useState("#000000");
@@ -232,6 +237,26 @@ export function BorderControls({ onChange, onImageStyle }: BorderControlsProps) 
   const [shadowOffsetY, setShadowOffsetY] = useState(5);
   const [shadowColor, setShadowColor] = useState("#000000");
   const [shadowOpacity, setShadowOpacity] = useState(40);
+
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!initialSettings || initializedRef.current) return;
+    initializedRef.current = true;
+    if (initialSettings.borderWidth != null) setBorderWidth(Number(initialSettings.borderWidth));
+    if (initialSettings.borderColor != null) setBorderColor(String(initialSettings.borderColor));
+    if (initialSettings.padding != null) setPadding(Number(initialSettings.padding));
+    if (initialSettings.paddingColor != null) setPaddingColor(String(initialSettings.paddingColor));
+    if (initialSettings.cornerRadius != null) setCornerRadius(Number(initialSettings.cornerRadius));
+    if (initialSettings.shadow != null) setShadow(Boolean(initialSettings.shadow));
+    if (initialSettings.shadowBlur != null) setShadowBlur(Number(initialSettings.shadowBlur));
+    if (initialSettings.shadowOffsetX != null)
+      setShadowOffsetX(Number(initialSettings.shadowOffsetX));
+    if (initialSettings.shadowOffsetY != null)
+      setShadowOffsetY(Number(initialSettings.shadowOffsetY));
+    if (initialSettings.shadowColor != null) setShadowColor(String(initialSettings.shadowColor));
+    if (initialSettings.shadowOpacity != null)
+      setShadowOpacity(Number(initialSettings.shadowOpacity));
+  }, [initialSettings]);
 
   const onChangeRef = useRef(onChange);
   useEffect(() => {

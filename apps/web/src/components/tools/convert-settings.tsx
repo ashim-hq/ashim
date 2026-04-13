@@ -8,12 +8,21 @@ const OUTPUT_FORMATS = ["jpg", "png", "webp", "avif", "tiff", "gif", "heic", "he
 const LOSSY_FORMATS = ["jpg", "jpeg", "webp", "avif", "heic", "heif"];
 
 export interface ConvertControlsProps {
+  settings?: Record<string, unknown>;
   onChange?: (settings: Record<string, unknown>) => void;
 }
 
-export function ConvertControls({ onChange }: ConvertControlsProps) {
+export function ConvertControls({ settings: initialSettings, onChange }: ConvertControlsProps) {
   const [format, setFormat] = useState<string>("png");
   const [quality, setQuality] = useState(85);
+
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!initialSettings || initializedRef.current) return;
+    initializedRef.current = true;
+    if (initialSettings.format != null) setFormat(String(initialSettings.format));
+    if (initialSettings.quality != null) setQuality(Number(initialSettings.quality));
+  }, [initialSettings]);
 
   const isLossy = LOSSY_FORMATS.includes(format);
 

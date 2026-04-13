@@ -31,10 +31,11 @@ function HintIcon({ text }: { text: string }) {
 }
 
 export interface SmartCropControlsProps {
+  settings?: Record<string, unknown>;
   onChange?: (settings: Record<string, unknown>) => void;
 }
 
-export function SmartCropControls({ onChange }: SmartCropControlsProps) {
+export function SmartCropControls({ settings: initialSettings, onChange }: SmartCropControlsProps) {
   const [mode, setMode] = useState<CropMode>("subject");
   const [subjectTab, setSubjectTab] = useState<SubjectTab>("custom");
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
@@ -59,6 +60,26 @@ export function SmartCropControls({ onChange }: SmartCropControlsProps) {
 
   // Shared
   const [quality, setQuality] = useState(95);
+
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!initialSettings || initializedRef.current) return;
+    initializedRef.current = true;
+    if (initialSettings.mode != null) setMode(initialSettings.mode as CropMode);
+    if (initialSettings.strategy != null)
+      setStrategy(initialSettings.strategy as "attention" | "entropy");
+    if (initialSettings.facePreset != null) setFacePreset(String(initialSettings.facePreset));
+    if (initialSettings.sensitivity != null)
+      setSensitivity(Number(initialSettings.sensitivity) * 100);
+    if (initialSettings.width != null) setWidth(String(initialSettings.width));
+    if (initialSettings.height != null) setHeight(String(initialSettings.height));
+    if (initialSettings.padding != null) setPadding(Number(initialSettings.padding));
+    if (initialSettings.threshold != null) setThreshold(Number(initialSettings.threshold));
+    if (initialSettings.padToSquare != null) setPadToSquare(Boolean(initialSettings.padToSquare));
+    if (initialSettings.padColor != null) setPadColor(String(initialSettings.padColor));
+    if (initialSettings.targetSize != null) setTargetSize(String(initialSettings.targetSize));
+    if (initialSettings.quality != null) setQuality(Number(initialSettings.quality));
+  }, [initialSettings]);
 
   const onChangeRef = useRef(onChange);
   useEffect(() => {

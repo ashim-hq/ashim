@@ -402,14 +402,25 @@ export function CropSettings({
 // ── Pipeline-only crop controls (numeric inputs, no canvas) ──────────
 
 export interface CropControlsProps {
+  settings?: Record<string, unknown>;
   onChange?: (settings: Record<string, unknown>) => void;
 }
 
-export function CropControls({ onChange }: CropControlsProps) {
+export function CropControls({ settings: initialSettings, onChange }: CropControlsProps) {
   const [left, setLeft] = useState(0);
   const [top, setTop] = useState(0);
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
+
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!initialSettings || initializedRef.current) return;
+    initializedRef.current = true;
+    if (initialSettings.left != null) setLeft(Number(initialSettings.left));
+    if (initialSettings.top != null) setTop(Number(initialSettings.top));
+    if (initialSettings.width != null) setWidth(String(initialSettings.width));
+    if (initialSettings.height != null) setHeight(String(initialSettings.height));
+  }, [initialSettings]);
 
   const onChangeRef = useRef(onChange);
   useEffect(() => {

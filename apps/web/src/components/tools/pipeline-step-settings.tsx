@@ -24,23 +24,28 @@ interface PipelineStepSettingsProps {
 }
 
 export function PipelineStepSettings({ toolId, settings, onChange }: PipelineStepSettingsProps) {
-  if (toolId === "resize") return <ResizeControls onChange={onChange} />;
-  if (toolId === "crop") return <CropControls onChange={onChange} />;
-  if (toolId === "rotate") return <RotateControls onChange={onChange} />;
-  if (toolId === "convert") return <ConvertControls onChange={onChange} />;
-  if (toolId === "compress") return <CompressControls onChange={onChange} />;
-  if (toolId === "strip-metadata") return <StripMetadataControls onChange={onChange} />;
-  if (toolId === "border") return <BorderControls onChange={onChange} />;
-  if (toolId === "watermark-text") return <WatermarkTextControls onChange={onChange} />;
-  if (toolId === "text-overlay") return <TextOverlayControls onChange={onChange} />;
-  if (toolId === "replace-color") return <ReplaceColorControls onChange={onChange} />;
-  if (toolId === "smart-crop") return <SmartCropControls onChange={onChange} />;
-  if (toolId === "gif-tools") return <GifToolsControls onChange={onChange} />;
-  if (toolId === "upscale") return <UpscaleControls onChange={onChange} />;
-  if (toolId === "blur-faces") return <BlurFacesControls onChange={onChange} />;
+  if (toolId === "resize") return <ResizeControls settings={settings} onChange={onChange} />;
+  if (toolId === "crop") return <CropControls settings={settings} onChange={onChange} />;
+  if (toolId === "rotate") return <RotateControls settings={settings} onChange={onChange} />;
+  if (toolId === "convert") return <ConvertControls settings={settings} onChange={onChange} />;
+  if (toolId === "compress") return <CompressControls settings={settings} onChange={onChange} />;
+  if (toolId === "strip-metadata")
+    return <StripMetadataControls settings={settings} onChange={onChange} />;
+  if (toolId === "border") return <BorderControls settings={settings} onChange={onChange} />;
+  if (toolId === "watermark-text")
+    return <WatermarkTextControls settings={settings} onChange={onChange} />;
+  if (toolId === "text-overlay")
+    return <TextOverlayControls settings={settings} onChange={onChange} />;
+  if (toolId === "replace-color")
+    return <ReplaceColorControls settings={settings} onChange={onChange} />;
+  if (toolId === "smart-crop") return <SmartCropControls settings={settings} onChange={onChange} />;
+  if (toolId === "gif-tools") return <GifToolsControls settings={settings} onChange={onChange} />;
+  if (toolId === "upscale") return <UpscaleControls settings={settings} onChange={onChange} />;
+  if (toolId === "blur-faces") return <BlurFacesControls settings={settings} onChange={onChange} />;
   if (toolId === "remove-background")
     return <RemoveBgControls settings={settings} onChange={onChange} />;
-  if (COLOR_TOOL_IDS.has(toolId)) return <ColorControls toolId={toolId} onChange={onChange} />;
+  if (COLOR_TOOL_IDS.has(toolId))
+    return <ColorControls toolId={toolId} settings={settings} onChange={onChange} />;
 
   return (
     <p className="text-xs text-muted-foreground italic">

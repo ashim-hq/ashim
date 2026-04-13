@@ -14,16 +14,30 @@ const OUTPUT_FORMATS = ["png", "jpg", "webp", "avif", "tiff", "gif", "heic", "he
 const LOSSY_FORMATS = ["jpg", "jpeg", "webp", "avif", "heic", "heif"];
 
 export interface UpscaleControlsProps {
+  settings?: Record<string, unknown>;
   onChange?: (settings: Record<string, unknown>) => void;
 }
 
-export function UpscaleControls({ onChange }: UpscaleControlsProps) {
+export function UpscaleControls({ settings: initialSettings, onChange }: UpscaleControlsProps) {
   const [scale, setScale] = useState(2);
   const [model, setModel] = useState<"auto" | "realesrgan" | "lanczos">("auto");
   const [faceEnhance, setFaceEnhance] = useState(false);
   const [denoise, setDenoise] = useState(0);
   const [outputFormat, setOutputFormat] = useState<string>("png");
   const [quality, setQuality] = useState(95);
+
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!initialSettings || initializedRef.current) return;
+    initializedRef.current = true;
+    if (initialSettings.scale != null) setScale(Number(initialSettings.scale));
+    if (initialSettings.model != null)
+      setModel(initialSettings.model as "auto" | "realesrgan" | "lanczos");
+    if (initialSettings.faceEnhance != null) setFaceEnhance(Boolean(initialSettings.faceEnhance));
+    if (initialSettings.denoise != null) setDenoise(Number(initialSettings.denoise));
+    if (initialSettings.format != null) setOutputFormat(String(initialSettings.format));
+    if (initialSettings.quality != null) setQuality(Number(initialSettings.quality));
+  }, [initialSettings]);
 
   const onChangeRef = useRef(onChange);
   useEffect(() => {

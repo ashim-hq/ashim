@@ -62,6 +62,7 @@ interface MetadataResult {
 }
 
 interface StripMetadataControlsProps {
+  settings?: Record<string, unknown>;
   onChange?: (settings: Record<string, unknown>) => void;
   /** Passed from parent to preserve field-count badges in checkbox labels */
   metadata?: MetadataResult | null;
@@ -70,6 +71,7 @@ interface StripMetadataControlsProps {
 }
 
 export function StripMetadataControls({
+  settings: initialSettings,
   onChange,
   metadata,
   hasExif,
@@ -80,6 +82,17 @@ export function StripMetadataControls({
   const [stripGps, setStripGps] = useState(false);
   const [stripIcc, setStripIcc] = useState(false);
   const [stripXmp, setStripXmp] = useState(false);
+
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!initialSettings || initializedRef.current) return;
+    initializedRef.current = true;
+    if (initialSettings.stripAll != null) setStripAll(Boolean(initialSettings.stripAll));
+    if (initialSettings.stripExif != null) setStripExif(Boolean(initialSettings.stripExif));
+    if (initialSettings.stripGps != null) setStripGps(Boolean(initialSettings.stripGps));
+    if (initialSettings.stripIcc != null) setStripIcc(Boolean(initialSettings.stripIcc));
+    if (initialSettings.stripXmp != null) setStripXmp(Boolean(initialSettings.stripXmp));
+  }, [initialSettings]);
 
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;

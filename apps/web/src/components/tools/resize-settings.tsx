@@ -29,10 +29,11 @@ function HintIcon({ text }: { text: string }) {
 }
 
 export interface ResizeControlsProps {
+  settings?: Record<string, unknown>;
   onChange?: (settings: Record<string, unknown>) => void;
 }
 
-export function ResizeControls({ onChange }: ResizeControlsProps) {
+export function ResizeControls({ settings: initialSettings, onChange }: ResizeControlsProps) {
   const [tab, setTab] = useState<ResizeTab>("custom");
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [width, setWidth] = useState<string>("");
@@ -46,6 +47,29 @@ export function ResizeControls({ onChange }: ResizeControlsProps) {
   const [blurRadius, setBlurRadius] = useState(4);
   const [sobelThreshold, setSobelThreshold] = useState(2);
   const [squareMode, setSquareMode] = useState(false);
+
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!initialSettings || initializedRef.current) return;
+    initializedRef.current = true;
+    if (initialSettings.width != null) setWidth(String(initialSettings.width));
+    if (initialSettings.height != null) setHeight(String(initialSettings.height));
+    if (initialSettings.percentage != null) setPercentage(String(initialSettings.percentage));
+    if (initialSettings.fit != null) setFit(initialSettings.fit as FitMode);
+    if (initialSettings.withoutEnlargement != null)
+      setWithoutEnlargement(Boolean(initialSettings.withoutEnlargement));
+    if (initialSettings.contentAware != null)
+      setContentAware(Boolean(initialSettings.contentAware));
+    if (initialSettings.protectFaces != null)
+      setProtectFaces(Boolean(initialSettings.protectFaces));
+    if (initialSettings.blurRadius != null) setBlurRadius(Number(initialSettings.blurRadius));
+    if (initialSettings.sobelThreshold != null)
+      setSobelThreshold(Number(initialSettings.sobelThreshold));
+    if (initialSettings.square != null) setSquareMode(Boolean(initialSettings.square));
+    // Infer tab from settings
+    if (initialSettings.percentage != null) setTab("scale");
+    else if (initialSettings.contentAware) setTab("custom");
+  }, [initialSettings]);
 
   const onChangeRef = useRef(onChange);
   useEffect(() => {
