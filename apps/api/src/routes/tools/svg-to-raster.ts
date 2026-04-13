@@ -9,7 +9,7 @@ import { z } from "zod";
 import { env } from "../../config.js";
 import { sanitizeFilename } from "../../lib/filename.js";
 import { decodeHeic, encodeHeic } from "../../lib/heic-converter.js";
-import { sanitizeSvg } from "../../lib/svg-sanitize.js";
+import { isSvgBuffer, sanitizeSvg } from "../../lib/svg-sanitize.js";
 import { createWorkspace } from "../../lib/workspace.js";
 import { updateJobProgress } from "../progress.js";
 
@@ -184,6 +184,20 @@ export function registerSvgToRaster(app: FastifyInstance) {
           currentFile: file.filename,
         });
 
+        if (!isSvgBuffer(file.buffer)) {
+          errors.push({ filename: file.filename, error: "Not a valid SVG file" });
+          completedFiles++;
+          updateJobProgress({
+            jobId,
+            status: "processing",
+            totalFiles: files.length,
+            completedFiles,
+            failedFiles: errors.length,
+            errors,
+          });
+          return;
+        }
+
         let sanitized: Buffer;
         try {
           sanitized = sanitizeSvg(file.buffer);
@@ -329,6 +343,12 @@ export function registerSvgToRaster(app: FastifyInstance) {
 
     if (!fileBuffer || fileBuffer.length === 0) {
       return reply.status(400).send({ error: "No SVG file provided" });
+    }
+
+    if (!isSvgBuffer(fileBuffer)) {
+      return reply.status(400).send({
+        error: "File is not a valid SVG. This tool only accepts SVG files.",
+      });
     }
 
     // Sanitize SVG to prevent XXE, SSRF, and script injection
