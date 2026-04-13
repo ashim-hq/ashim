@@ -32,6 +32,13 @@ GFPGAN_MODEL_URL = (
 GFPGAN_MODEL_PATH = os.path.join(GFPGAN_MODEL_DIR, "GFPGANv1.3.pth")
 GFPGAN_MIN_SIZE = 300_000_000  # ~332 MB
 
+CODEFORMER_MODEL_DIR = "/opt/models/codeformer"
+CODEFORMER_MODEL_URL = (
+    "https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer.pth"
+)
+CODEFORMER_MODEL_PATH = os.path.join(CODEFORMER_MODEL_DIR, "codeformer.pth")
+CODEFORMER_MIN_SIZE = 350_000_000  # ~375 MB
+
 DDCOLOR_MODEL_DIR = "/opt/models/ddcolor"
 DDCOLOR_MODEL_URL = (
     "https://huggingface.co/piddnad/DDColor-models/resolve/main/ddcolor_paper_tiny.pth"
@@ -151,6 +158,20 @@ def download_gfpgan_model():
         f"GFPGAN model too small: {size} bytes (expected > {GFPGAN_MIN_SIZE})"
     )
     print(f"  GFPGANv1.3.pth downloaded ({size / 1_000_000:.1f} MB)\n")
+
+
+def download_codeformer_model():
+    """Download codeformer.pth pretrained weights for face enhancement."""
+    print("=== Downloading CodeFormer model ===")
+    os.makedirs(CODEFORMER_MODEL_DIR, exist_ok=True)
+    print(f"  Downloading from {CODEFORMER_MODEL_URL}...")
+    urllib.request.urlretrieve(CODEFORMER_MODEL_URL, CODEFORMER_MODEL_PATH)
+
+    size = os.path.getsize(CODEFORMER_MODEL_PATH)
+    assert size > CODEFORMER_MIN_SIZE, (
+        f"CodeFormer model too small: {size} bytes (expected > {CODEFORMER_MIN_SIZE})"
+    )
+    print(f"  codeformer.pth downloaded ({size / 1_000_000:.1f} MB)\n")
 
 
 def download_ddcolor_model():
@@ -281,6 +302,15 @@ def smoke_test():
     )
     print("  GFPGAN model file verified")
 
+    # CodeFormer model file must exist
+    assert os.path.exists(CODEFORMER_MODEL_PATH), (
+        f"CodeFormer model missing: {CODEFORMER_MODEL_PATH}"
+    )
+    assert os.path.getsize(CODEFORMER_MODEL_PATH) > CODEFORMER_MIN_SIZE, (
+        "CodeFormer model file is too small"
+    )
+    print("  CodeFormer model file verified")
+
     # DDColor ONNX model must exist
     assert os.path.exists(DDCOLOR_ONNX_PATH), (
         f"DDColor model missing: {DDCOLOR_ONNX_PATH}"
@@ -312,6 +342,7 @@ def main():
     download_rembg_models()
     download_realesrgan_model()
     download_gfpgan_model()
+    download_codeformer_model()
     download_ddcolor_model()
     download_paddleocr_models()
     download_paddleocr_vl_model()
