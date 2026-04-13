@@ -108,3 +108,45 @@ export interface ColorChannelOptions {
 export interface SharpenOptions {
   value: number; // 0 to 100
 }
+
+export type EnhancementMode = "auto" | "portrait" | "landscape" | "low-light" | "food" | "document";
+
+export interface AnalysisScores {
+  /** 0-100, 50 = ideal exposure */
+  exposure: number;
+  /** 0-100, 50 = ideal contrast */
+  contrast: number;
+  /** 0-100, 50 = neutral white balance */
+  whiteBalance: number;
+  /** 0-100, 50 = ideal saturation */
+  saturation: number;
+  /** 0-100, 50 = ideally sharp */
+  sharpness: number;
+  /** 0-100, 50 = no significant noise */
+  noise: number;
+}
+
+export interface AnalysisResult {
+  scores: AnalysisScores;
+  /** CSS-filter-compatible correction values for live preview */
+  corrections: CorrectionParams;
+  /** Human-readable issue labels, e.g. ["underexposed", "color-cast"] */
+  issues: string[];
+  /** Best-guess preset for this image */
+  suggestedMode: EnhancementMode;
+}
+
+export interface CorrectionParams {
+  /** Maps to CSS brightness() and Sharp gamma. -100 to +100. */
+  brightness: number;
+  /** Maps to CSS contrast() and Sharp linear(). -100 to +100. */
+  contrast: number;
+  /** Maps to recomb matrix / CSS feColorMatrix. -100 to +100. */
+  temperature: number;
+  /** Maps to CSS saturate() and Sharp modulate(). -100 to +100. */
+  saturation: number;
+  /** Maps to SVG feConvolveMatrix and Sharp sharpen(). 0 to 100. */
+  sharpness: number;
+  /** Denoise strength. 0 = off, 1-5 = median kernel size. */
+  denoise: number;
+}
