@@ -391,11 +391,26 @@ export function ToolPage() {
       );
     }
 
-    if (
-      hasProcessed &&
-      originalBlobUrl &&
-      (displayMode === "live-preview" || displayMode === "no-comparison")
-    ) {
+    if (hasProcessed && originalBlobUrl && displayMode === "no-comparison") {
+      return (
+        <ImageViewer src={displayUrl} filename={processedFileName} fileSize={processedSize ?? 0} />
+      );
+    }
+
+    // For live-preview tools: keep showing the CSS-styled original so WYSIWYG.
+    // The server-rendered result is available via download.
+    if (hasProcessed && originalBlobUrl && displayMode === "live-preview" && imageWrapperStyle) {
+      return (
+        <ImageViewer
+          src={originalBlobUrl}
+          filename={selectedFileName ?? files[0].name}
+          fileSize={selectedFileSize ?? files[0].size}
+          imageWrapperStyle={imageWrapperStyle}
+        />
+      );
+    }
+
+    if (hasProcessed && originalBlobUrl && displayMode === "live-preview") {
       return (
         <ImageViewer src={displayUrl} filename={processedFileName} fileSize={processedSize ?? 0} />
       );
