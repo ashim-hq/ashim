@@ -873,7 +873,7 @@ paths:
     post:
       tags: [Tools]
       summary: SVG to raster
-      description: Convert an SVG file to a raster image format.
+      description: Convert an SVG file to a raster image format at custom scale and DPI.
       security:
         - bearerAuth: []
       requestBody:
@@ -892,10 +892,12 @@ paths:
                   type: string
                   description: |
                     JSON string with options:
-                    - `width` (number 1-8192, default 1024) — Output width in pixels
-                    - `height` (number 1-8192, optional) — Output height in pixels
+                    - `width` (number 1-16384, optional) — Output width in pixels
+                    - `height` (number 1-16384, optional) — Output height in pixels
+                    - `dpi` (number 36-1200, default 300) — Render density for SVG rasterization
+                    - `quality` (number 1-100, default 90) — Output quality for lossy formats
                     - `backgroundColor` (hex string, default "#00000000") — Background color
-                    - `outputFormat` (string, default "png") — One of: png, jpg, webp
+                    - `outputFormat` (string, default "png") — One of: png, jpg, webp, avif, tiff, gif, heif
       responses:
         "200":
           description: Processed image
@@ -911,6 +913,48 @@ paths:
                 $ref: "#/components/schemas/Error"
         "401":
           description: Authentication required
+
+  /api/v1/tools/svg-to-raster/batch:
+    post:
+      tags: [Tools]
+      summary: SVG to raster (batch)
+      description: Convert multiple SVG files to raster images. Returns a ZIP archive.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, settings]
+              properties:
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: SVG files to convert
+                settings:
+                  type: string
+                  description: Same settings as single-file endpoint
+                clientJobId:
+                  type: string
+                  description: Optional client-generated job ID for progress tracking
+      responses:
+        "200":
+          description: ZIP archive containing processed images
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Invalid input
+        "401":
+          description: Authentication required
+        "422":
+          description: All files failed processing
 
   /api/v1/tools/image-to-pdf:
     post:
