@@ -97,12 +97,15 @@ export const en = {
     collage: { name: "Collage / Grid", description: "Combine images into a grid layout" },
     stitch: { name: "Stitch", description: "Join images side by side or top to bottom" },
     split: { name: "Image Splitting", description: "Split image into grid parts" },
-    border: { name: "Border & Frame", description: "Add borders, rounded corners, shadows" },
+    border: {
+      name: "Border & Frame",
+      description: "Add borders, padding, rounded corners, and shadows with one-click presets",
+    },
     "svg-to-raster": {
       name: "SVG to Raster",
       description: "Convert SVG to PNG/JPG at custom resolution",
     },
-    vectorize: { name: "Image to SVG", description: "Vectorize images using tracing" },
+    vectorize: { name: "Image to SVG", description: "Convert images to scalable vector graphics" },
     "gif-tools": { name: "GIF Tools", description: "Resize/crop/convert animated GIFs" },
     pipeline: { name: "Pipeline Builder", description: "Chain multiple tools into a workflow" },
     batch: { name: "Batch Processing", description: "Apply any tool to multiple images" },
