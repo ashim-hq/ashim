@@ -96,7 +96,10 @@ export const en = {
     },
     collage: { name: "Collage / Grid", description: "Combine images into a grid layout" },
     stitch: { name: "Stitch", description: "Join images side by side or top to bottom" },
-    split: { name: "Image Splitting", description: "Split image into grid parts" },
+    split: {
+      name: "Image Splitting",
+      description: "Split images into grid tiles or by pixel size with live preview",
+    },
     border: {
       name: "Border & Frame",
       description: "Add borders, padding, rounded corners, and shadows with one-click presets",
