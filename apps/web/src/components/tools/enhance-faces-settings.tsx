@@ -98,21 +98,23 @@ export function EnhanceFacesControls({
         </div>
       </div>
 
-      {/* Only enhance main face */}
-      <div>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={onlyCenterFace}
-            onChange={(e) => setOnlyCenterFace(e.target.checked)}
-            className="rounded border-border"
-          />
-          <span className="text-sm text-foreground">Only enhance main face</span>
-        </label>
-        <p className="text-[11px] text-muted-foreground/70 ml-6 mt-0.5">
-          For portraits - ignores background faces
-        </p>
-      </div>
+      {/* Only enhance main face (only works with GFPGAN / Fast mode) */}
+      {model !== "codeformer" && (
+        <div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={onlyCenterFace}
+              onChange={(e) => setOnlyCenterFace(e.target.checked)}
+              className="rounded border-border"
+            />
+            <span className="text-sm text-foreground">Only enhance main face</span>
+          </label>
+          <p className="text-[11px] text-muted-foreground/70 ml-6 mt-0.5">
+            For portraits - ignores background faces
+          </p>
+        </div>
+      )}
 
       {/* Detection Sensitivity */}
       <div>
@@ -132,8 +134,8 @@ export function EnhanceFacesControls({
           className="w-full mt-1"
         />
         <div className="flex justify-between text-[10px] text-muted-foreground/70 mt-0.5">
-          <span>More faces</span>
           <span>Fewer faces</span>
+          <span>More faces</span>
         </div>
       </div>
     </div>

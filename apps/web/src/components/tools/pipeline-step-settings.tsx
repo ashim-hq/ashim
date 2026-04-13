@@ -4,6 +4,7 @@ import { ColorControls } from "./color-settings";
 import { CompressControls } from "./compress-settings";
 import { ConvertControls } from "./convert-settings";
 import { CropControls } from "./crop-settings";
+import { EnhanceFacesControls } from "./enhance-faces-settings";
 import { GifToolsControls } from "./gif-tools-settings";
 import { RemoveBgControls } from "./remove-bg-settings";
 import { ReplaceColorControls } from "./replace-color-settings";
@@ -42,6 +43,8 @@ export function PipelineStepSettings({ toolId, settings, onChange }: PipelineSte
   if (toolId === "gif-tools") return <GifToolsControls settings={settings} onChange={onChange} />;
   if (toolId === "upscale") return <UpscaleControls settings={settings} onChange={onChange} />;
   if (toolId === "blur-faces") return <BlurFacesControls settings={settings} onChange={onChange} />;
+  if (toolId === "enhance-faces")
+    return <EnhanceFacesControls settings={settings} onChange={onChange} />;
   if (toolId === "remove-background")
     return <RemoveBgControls settings={settings} onChange={onChange} />;
   if (COLOR_TOOL_IDS.has(toolId))

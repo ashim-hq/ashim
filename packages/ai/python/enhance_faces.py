@@ -230,8 +230,10 @@ def main():
         emit_progress(85, "Enhancement complete")
 
         # Alpha blend result with original based on strength.
-        # strength=1.0 means fully enhanced, strength=0.0 means original.
-        if strength < 1.0:
+        # For CodeFormer, strength is already applied via fidelity_weight,
+        # so skip the blend to avoid double-applying.
+        # For GFPGAN (which has no fidelity knob), blend with original.
+        if strength < 1.0 and model_used != "codeformer":
             blended = (
                 img_array.astype(np.float32) * (1.0 - strength)
                 + enhanced.astype(np.float32) * strength

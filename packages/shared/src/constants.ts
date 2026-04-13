@@ -180,7 +180,7 @@ export const TOOLS: Tool[] = [
   {
     id: "enhance-faces",
     name: "Face Enhancement",
-    description: "AI face restoration using GFPGAN or CodeFormer",
+    description: "Restore and enhance faces with AI",
     category: "ai",
     icon: "ScanFace",
     route: "/enhance-faces",

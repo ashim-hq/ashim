@@ -73,7 +73,7 @@ export const en = {
     },
     "enhance-faces": {
       name: "Face Enhancement",
-      description: "AI face restoration using GFPGAN or CodeFormer",
+      description: "Restore and enhance faces with AI",
     },
     "smart-crop": {
       name: "Smart Crop",
