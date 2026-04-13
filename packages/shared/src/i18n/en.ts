@@ -94,8 +94,14 @@ export const en = {
       name: "Barcode Reader",
       description: "Scan images for QR codes, barcodes, and 2D codes",
     },
-    collage: { name: "Collage / Grid", description: "Combine images into a grid layout" },
-    stitch: { name: "Stitch", description: "Join images side by side or top to bottom" },
+    collage: {
+      name: "Collage / Grid",
+      description: "Combine images into beautiful grid collages with 25+ templates",
+    },
+    stitch: {
+      name: "Stitch / Combine",
+      description: "Join images side by side, stacked, or in a grid",
+    },
     split: { name: "Image Splitting", description: "Split image into grid parts" },
     border: { name: "Border & Frame", description: "Add borders, rounded corners, shadows" },
     "svg-to-raster": {
