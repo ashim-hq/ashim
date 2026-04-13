@@ -80,10 +80,15 @@ def detect_faces_mediapipe(img_array, sensitivity):
 
 def enhance_with_gfpgan(img_array, only_center_face):
     """Enhance faces using GFPGAN. Returns the enhanced image array."""
+    import torch
     from gfpgan import GFPGANer
+    from gpu import gpu_available
 
     if not os.path.exists(GFPGAN_MODEL_PATH):
         raise FileNotFoundError(f"GFPGAN model not found: {GFPGAN_MODEL_PATH}")
+
+    use_gpu = gpu_available()
+    device = torch.device("cuda" if use_gpu else "cpu")
 
     enhancer = GFPGANer(
         model_path=GFPGAN_MODEL_PATH,
@@ -91,6 +96,7 @@ def enhance_with_gfpgan(img_array, only_center_face):
         arch="clean",
         channel_multiplier=2,
         bg_upsampler=None,
+        device=device,
     )
     _, _, output = enhancer.enhance(
         img_array,
@@ -115,23 +121,33 @@ def enhance_with_codeformer(img_array, fidelity_weight):
     fails, the auto model selection will fall back to GFPGAN.
     """
     import numpy as np
+    import torch
+    from gpu import gpu_available
 
-    # Import may fail if codeformer-pip is not installed or if the
-    # module-level model loading fails (missing weights, no GPU, etc.)
-    from codeformer.app import inference_app
+    use_gpu = gpu_available()
 
-    # inference_app accepts a numpy array (BGR) or file path.
-    # It returns the restored image as a BGR numpy array.
-    # We pass our RGB array converted to BGR since OpenCV convention is used internally.
-    img_bgr = img_array[:, :, ::-1].copy()
-    restored_bgr = inference_app(
-        image=img_bgr,
-        background_enhance=False,
-        face_upsample=False,
-        upscale=1,
-        codeformer_fidelity=fidelity_weight,
-    )
-    # Convert back to RGB
+    # CodeFormer selects its device during module-level init and inside
+    # inference_app(). It has no device= parameter, so to respect
+    # STIRLING_GPU=false we temporarily override torch.cuda.is_available
+    # so all internal device checks see False. When use_gpu is True
+    # (the common path) no override happens.
+    _orig_cuda_check = torch.cuda.is_available
+    if not use_gpu:
+        torch.cuda.is_available = lambda: False
+    try:
+        from codeformer.app import inference_app
+
+        img_bgr = img_array[:, :, ::-1].copy()
+        restored_bgr = inference_app(
+            image=img_bgr,
+            background_enhance=False,
+            face_upsample=False,
+            upscale=1,
+            codeformer_fidelity=fidelity_weight,
+        )
+    finally:
+        torch.cuda.is_available = _orig_cuda_check
+
     restored_rgb = restored_bgr[:, :, ::-1].copy()
     return restored_rgb
 
