@@ -5,12 +5,32 @@ failing the build. No silent fallbacks.
 """
 import os
 import sys
+import time
+import urllib.error
 import urllib.request
 
 # Some servers (e.g. Berkeley) block the default Python-urllib User-Agent.
 _opener = urllib.request.build_opener()
 _opener.addheaders = [("User-Agent", "ashim/1.0")]
 urllib.request.install_opener(_opener)
+
+
+def _urlretrieve(url: str, path: str, max_retries: int = 3) -> None:
+    """Download url to path, retrying on transient network errors (5xx, timeout)."""
+    for attempt in range(1, max_retries + 1):
+        try:
+            urllib.request.urlretrieve(url, path)
+            return
+        except urllib.error.HTTPError as e:
+            if attempt == max_retries or e.code < 500:
+                raise
+            print(f"  HTTP {e.code} on attempt {attempt}/{max_retries}, retrying in 10s...")
+            time.sleep(10)
+        except (urllib.error.URLError, OSError) as e:
+            if attempt == max_retries:
+                raise
+            print(f"  Network error on attempt {attempt}/{max_retries}: {e}, retrying in 10s...")
+            time.sleep(10)
 
 # Force CPU mode during build - no GPU driver available at build time.
 # Must be set before any ML library import.
@@ -171,7 +191,7 @@ def download_lama_model():
     print("=== Downloading LaMa ONNX model ===")
     os.makedirs(LAMA_MODEL_DIR, exist_ok=True)
     print(f"  Downloading from {LAMA_MODEL_URL}...")
-    urllib.request.urlretrieve(LAMA_MODEL_URL, LAMA_MODEL_PATH)
+    _urlretrieve(LAMA_MODEL_URL, LAMA_MODEL_PATH)
 
     size = os.path.getsize(LAMA_MODEL_PATH)
     assert size > LAMA_MIN_SIZE, (
@@ -185,7 +205,7 @@ def download_realesrgan_model():
     print("=== Downloading RealESRGAN model ===")
     os.makedirs(REALESRGAN_MODEL_DIR, exist_ok=True)
     print(f"  Downloading from {REALESRGAN_MODEL_URL}...")
-    urllib.request.urlretrieve(REALESRGAN_MODEL_URL, REALESRGAN_MODEL_PATH)
+    _urlretrieve(REALESRGAN_MODEL_URL, REALESRGAN_MODEL_PATH)
 
     size = os.path.getsize(REALESRGAN_MODEL_PATH)
     assert size > REALESRGAN_MIN_SIZE, (
@@ -199,7 +219,7 @@ def download_gfpgan_model():
     print("=== Downloading GFPGAN model ===")
     os.makedirs(GFPGAN_MODEL_DIR, exist_ok=True)
     print(f"  Downloading from {GFPGAN_MODEL_URL}...")
-    urllib.request.urlretrieve(GFPGAN_MODEL_URL, GFPGAN_MODEL_PATH)
+    _urlretrieve(GFPGAN_MODEL_URL, GFPGAN_MODEL_PATH)
 
     size = os.path.getsize(GFPGAN_MODEL_PATH)
     assert size > GFPGAN_MIN_SIZE, (
@@ -213,7 +233,7 @@ def download_codeformer_model():
     print("=== Downloading CodeFormer model ===")
     os.makedirs(CODEFORMER_MODEL_DIR, exist_ok=True)
     print(f"  Downloading from {CODEFORMER_MODEL_URL}...")
-    urllib.request.urlretrieve(CODEFORMER_MODEL_URL, CODEFORMER_MODEL_PATH)
+    _urlretrieve(CODEFORMER_MODEL_URL, CODEFORMER_MODEL_PATH)
 
     size = os.path.getsize(CODEFORMER_MODEL_PATH)
     assert size > CODEFORMER_MIN_SIZE, (
@@ -320,7 +340,7 @@ def download_scunet_model():
     """Download SCUNet real-noise denoising model."""
     print(f"Downloading SCUNet model to {SCUNET_MODEL_PATH}...")
     os.makedirs(SCUNET_MODEL_DIR, exist_ok=True)
-    urllib.request.urlretrieve(SCUNET_MODEL_URL, SCUNET_MODEL_PATH)
+    _urlretrieve(SCUNET_MODEL_URL, SCUNET_MODEL_PATH)
     size = os.path.getsize(SCUNET_MODEL_PATH)
     assert size > SCUNET_MIN_SIZE, (
         f"SCUNet model too small: {size} bytes (expected >{SCUNET_MIN_SIZE})"
@@ -332,7 +352,7 @@ def download_nafnet_model():
     """Download NAFNet SIDD width-64 denoising model."""
     print(f"Downloading NAFNet model to {NAFNET_MODEL_PATH}...")
     os.makedirs(NAFNET_MODEL_DIR, exist_ok=True)
-    urllib.request.urlretrieve(NAFNET_MODEL_URL, NAFNET_MODEL_PATH)
+    _urlretrieve(NAFNET_MODEL_URL, NAFNET_MODEL_PATH)
     size = os.path.getsize(NAFNET_MODEL_PATH)
     assert size > NAFNET_MIN_SIZE, (
         f"NAFNet model too small: {size} bytes (expected >{NAFNET_MIN_SIZE})"
@@ -350,7 +370,7 @@ def download_facexlib_models():
     os.makedirs(FACEXLIB_MODEL_DIR, exist_ok=True)
 
     print(f"  Downloading detection_Resnet50_Final.pth...")
-    urllib.request.urlretrieve(FACEXLIB_DET_URL, FACEXLIB_DET_PATH)
+    _urlretrieve(FACEXLIB_DET_URL, FACEXLIB_DET_PATH)
     size = os.path.getsize(FACEXLIB_DET_PATH)
     assert size > FACEXLIB_DET_MIN_SIZE, (
         f"Face detection model too small: {size} bytes (expected > {FACEXLIB_DET_MIN_SIZE})"
@@ -358,7 +378,7 @@ def download_facexlib_models():
     print(f"  detection_Resnet50_Final.pth downloaded ({size / 1_000_000:.1f} MB)")
 
     print(f"  Downloading parsing_parsenet.pth...")
-    urllib.request.urlretrieve(FACEXLIB_PARSE_URL, FACEXLIB_PARSE_PATH)
+    _urlretrieve(FACEXLIB_PARSE_URL, FACEXLIB_PARSE_PATH)
     size = os.path.getsize(FACEXLIB_PARSE_PATH)
     assert size > FACEXLIB_PARSE_MIN_SIZE, (
         f"Face parsing model too small: {size} bytes (expected > {FACEXLIB_PARSE_MIN_SIZE})"
@@ -380,7 +400,7 @@ def download_opencv_colorize_models():
         (OPENCV_POINTS_URL, OPENCV_POINTS_PATH, "pts_in_hull.npy"),
     ]:
         print(f"  Downloading {name}...")
-        urllib.request.urlretrieve(url, path)
+        _urlretrieve(url, path)
         size = os.path.getsize(path)
         print(f"  {name} downloaded ({size / 1_000_000:.1f} MB)")
 
@@ -409,7 +429,7 @@ def download_mediapipe_task_models():
          "face_landmarker", FACE_LANDMARKER_MIN_SIZE),
     ]:
         print(f"  Downloading {name}...")
-        urllib.request.urlretrieve(url, path)
+        _urlretrieve(url, path)
         size = os.path.getsize(path)
         assert size > min_size, (
             f"{name} model too small: {size} bytes (expected > {min_size})"
