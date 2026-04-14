@@ -77,7 +77,7 @@ FACEXLIB_MODEL_DIR = "/opt/models/gfpgan/facelib"
 FACEXLIB_DET_URL = "https://github.com/xinntao/facexlib/releases/download/v0.1.0/detection_Resnet50_Final.pth"
 FACEXLIB_DET_PATH = os.path.join(FACEXLIB_MODEL_DIR, "detection_Resnet50_Final.pth")
 FACEXLIB_DET_MIN_SIZE = 100_000_000  # ~104 MB
-FACEXLIB_PARSE_URL = "https://github.com/xinntao/facexlib/releases/download/v0.1.0/parsing_parsenet.pth"
+FACEXLIB_PARSE_URL = "https://github.com/xinntao/facexlib/releases/download/v0.2.2/parsing_parsenet.pth"
 FACEXLIB_PARSE_PATH = os.path.join(FACEXLIB_MODEL_DIR, "parsing_parsenet.pth")
 FACEXLIB_PARSE_MIN_SIZE = 80_000_000  # ~85 MB
 
