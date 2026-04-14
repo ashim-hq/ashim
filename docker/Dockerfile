@@ -234,4 +234,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
 
 # tini as PID 1 for zombie reaping + signal forwarding
 ENTRYPOINT ["tini", "--", "entrypoint.sh"]
-CMD ["npx", "tsx", "apps/api/src/index.ts"]
+CMD ["pnpm", "exec", "tsx", "apps/api/src/index.ts"]
