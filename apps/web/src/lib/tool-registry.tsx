@@ -83,6 +83,11 @@ const ConvertSettings = lazy(() =>
 const CompressSettings = lazy(() =>
   import("@/components/tools/compress-settings").then((m) => ({ default: m.CompressSettings })),
 );
+const OptimizeForWebSettings = lazy(() =>
+  import("@/components/tools/optimize-for-web-settings").then((m) => ({
+    default: m.OptimizeForWebSettings,
+  })),
+);
 const StripMetadataSettings = lazy(() =>
   import("@/components/tools/strip-metadata-settings").then((m) => ({
     default: m.StripMetadataSettings,
@@ -396,6 +401,7 @@ export const toolRegistry = new Map<string, ToolRegistryEntry>([
   ["bulk-rename", { displayMode: "before-after", Settings: BulkRenameSettings }],
   ["favicon", { displayMode: "before-after", Settings: FaviconSettings }],
   ["image-to-pdf", { displayMode: "before-after", Settings: ImageToPdfSettings }],
+  ["optimize-for-web", { displayMode: "before-after", Settings: OptimizeForWebSettings }],
   [
     "pdf-to-image",
     { displayMode: "no-dropzone", Settings: PdfToImageSettings, ResultsPanel: PdfToImagePreview },
