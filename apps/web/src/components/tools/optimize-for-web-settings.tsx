@@ -282,7 +282,7 @@ export function OptimizeForWebSettings() {
         >
           <span
             className={`inline-block h-3 w-3 rounded-full bg-white shadow-sm transition-transform ${
-              stripMetadata ? "translate-x-3" : "translate-x-0.5"
+              stripMetadata ? "translate-x-3.5" : "translate-x-0.5"
             }`}
           />
         </button>
