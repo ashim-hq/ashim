@@ -10,8 +10,11 @@ import {
   ChevronDown,
   Download,
   Loader2,
+  Minus,
   Move,
+  Plus,
   Printer,
+  RotateCcw,
   Search,
   UserCheck,
   X,
@@ -188,9 +191,10 @@ export function PassportPhotoSettings() {
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
 
-  // Canvas
+  // Canvas + zoom
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const previewImgRef = useRef<HTMLImageElement | null>(null);
+  const [zoom, setZoom] = useState(1);
 
   // ── Derived state ─────────────────────────────────────────────
 
@@ -292,9 +296,10 @@ export function PassportPhotoSettings() {
 
     const { landmarks, imageWidth, imageHeight } = analyzeResult;
 
-    // Canvas display size - use doc spec aspect ratio
-    const canvasDisplayWidth = 280;
-    const canvasDisplayHeight = canvasDisplayWidth * (docSpec.height / docSpec.width);
+    // Canvas display size - use doc spec aspect ratio, apply zoom
+    const baseWidth = 280;
+    const canvasDisplayWidth = Math.round(baseWidth * zoom);
+    const canvasDisplayHeight = Math.round(canvasDisplayWidth * (docSpec.height / docSpec.width));
     canvas.width = canvasDisplayWidth;
     canvas.height = canvasDisplayHeight;
 
@@ -367,7 +372,7 @@ export function PassportPhotoSettings() {
     ctx.stroke();
 
     ctx.setLineDash([]);
-  }, [analyzeResult, docSpec, bgColor, adjustX, adjustY]);
+  }, [analyzeResult, docSpec, bgColor, adjustX, adjustY, zoom]);
 
   // ── Load preview image when analyzeResult changes ──────────────
 
@@ -423,6 +428,13 @@ export function PassportPhotoSettings() {
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [dragging]);
+
+  // ── Wheel zoom ─────────────────────────────────────────────────
+
+  const handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    setZoom((prev) => Math.max(0.5, Math.min(3, prev + (e.deltaY > 0 ? -0.1 : 0.1))));
+  }, []);
 
   // ── Generate ───────────────────────────────────────────────────
 
@@ -495,7 +507,7 @@ export function PassportPhotoSettings() {
     <div className="space-y-4">
       {/* Country selector */}
       <SectionLabel>Country</SectionLabel>
-      <div ref={dropdownRef} className="relative">
+      <div ref={dropdownRef} className="relative z-30">
         <button
           type="button"
           onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -662,18 +674,51 @@ export function PassportPhotoSettings() {
       {/* Canvas preview */}
       {analyzeResult && (
         <div className="space-y-2">
-          <SectionLabel>Preview</SectionLabel>
-          <div className="flex justify-center">
+          <div className="flex items-center justify-between">
+            <SectionLabel>Preview</SectionLabel>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))}
+                className="p-0.5 rounded text-muted-foreground hover:text-foreground"
+                title="Zoom out"
+              >
+                <Minus className="h-3.5 w-3.5" />
+              </button>
+              <span className="text-[10px] text-muted-foreground w-8 text-center">
+                {Math.round(zoom * 100)}%
+              </span>
+              <button
+                type="button"
+                onClick={() => setZoom((z) => Math.min(3, z + 0.25))}
+                className="p-0.5 rounded text-muted-foreground hover:text-foreground"
+                title="Zoom in"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
+              {zoom !== 1 && (
+                <button
+                  type="button"
+                  onClick={() => setZoom(1)}
+                  className="p-0.5 rounded text-muted-foreground hover:text-foreground"
+                  title="Reset zoom"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="flex justify-center overflow-auto max-h-[400px]">
             <div className="relative">
               <canvas
                 ref={canvasRef}
                 className={`rounded-lg border border-border shadow-sm ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
                 onMouseDown={handleMouseDown}
+                onWheel={handleWheel}
               />
-              {/* Drag hint */}
               <div className="absolute bottom-1 right-1 flex items-center gap-1 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded">
                 <Move className="h-2.5 w-2.5" />
-                Drag to adjust
+                Drag / Scroll to zoom
               </div>
             </div>
           </div>
