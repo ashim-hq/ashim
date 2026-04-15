@@ -7,7 +7,10 @@
 # ============================================
 # Stage 1: Build the frontend (Vite + React)
 # ============================================
-FROM node:22-bookworm AS builder
+# Run on the native build platform to avoid QEMU crashes with esbuild on
+# Apple Silicon.  The output (HTML/CSS/JS) is architecture-agnostic so it
+# is safe to build on arm64 and copy into the amd64 production layer.
+FROM --platform=$BUILDPLATFORM node:22-bookworm AS builder
 
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
