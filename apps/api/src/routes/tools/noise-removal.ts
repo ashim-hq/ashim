@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { noiseRemoval } from "@ashim/ai";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
@@ -107,6 +108,11 @@ export function registerNoiseRemoval(app: FastifyInstance) {
         onProgress,
       );
 
+      const ext = result.format === "jpeg" ? "jpg" : result.format;
+      const outputFilename = `${filename.replace(/\.[^.]+$/, "")}_denoised.${ext}`;
+      const outputPath = join(workspacePath, "output", outputFilename);
+      await writeFile(outputPath, result.buffer);
+
       if (clientJobId) {
         updateSingleFileProgress({
           jobId: clientJobId,
@@ -115,22 +121,12 @@ export function registerNoiseRemoval(app: FastifyInstance) {
         });
       }
 
-      const CONTENT_TYPES: Record<string, string> = {
-        png: "image/png",
-        jpeg: "image/jpeg",
-        jpg: "image/jpeg",
-        webp: "image/webp",
-      };
-      const contentType = CONTENT_TYPES[result.format] || "image/png";
-      const ext = result.format === "jpeg" ? "jpg" : result.format;
-      const outputFilename = `${filename.replace(/\.[^.]+$/, "")}_denoised.${ext}`;
-
-      return reply
-        .header("Content-Type", contentType)
-        .header("Content-Disposition", `attachment; filename="${outputFilename}"`)
-        .header("X-Image-Width", String(result.width))
-        .header("X-Image-Height", String(result.height))
-        .send(result.buffer);
+      return reply.send({
+        jobId,
+        downloadUrl: `/api/v1/download/${jobId}/${encodeURIComponent(outputFilename)}`,
+        originalSize: fileBuffer.length,
+        processedSize: result.buffer.length,
+      });
     } catch (err) {
       request.log.error({ err, toolId: "noise-removal" }, "Noise removal failed");
       return reply.status(422).send({
