@@ -9,7 +9,6 @@ export const CATEGORIES: CategoryInfo[] = [
   { id: "utilities", name: "Utilities", icon: "Wrench", color: "#6366F1" },
   { id: "layout", name: "Layout & Composition", icon: "LayoutGrid", color: "#EC4899" },
   { id: "format", name: "Format & Conversion", icon: "FileType", color: "#14B8A6" },
-  { id: "automation", name: "Automation", icon: "Workflow", color: "#F97316" },
 ];
 
 export const TOOLS: Tool[] = [
@@ -390,23 +389,6 @@ export const TOOLS: Tool[] = [
     category: "format",
     icon: "FileOutput",
     route: "/pdf-to-image",
-  },
-  // Automation
-  {
-    id: "pipeline",
-    name: "Pipeline Builder",
-    description: "Chain multiple tools into a workflow",
-    category: "automation",
-    icon: "Workflow",
-    route: "/pipeline",
-  },
-  {
-    id: "batch",
-    name: "Batch Processing",
-    description: "Apply any tool to multiple images",
-    category: "automation",
-    icon: "FolderInput",
-    route: "/batch",
   },
 ];
 

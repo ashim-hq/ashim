@@ -16,7 +16,6 @@ import {
   FileType,
   Film,
   Focus,
-  FolderInput,
   Frame,
   Globe,
   Grid3x3,
@@ -45,7 +44,6 @@ import {
   Undo2,
   UserCheck,
   Wand2,
-  Workflow,
   Wrench,
   Zap,
   ZoomIn,
@@ -70,7 +68,7 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   FileType,
   Film,
   Focus,
-  FolderInput,
+
   Frame,
   Globe,
   Grid3x3,
@@ -99,7 +97,7 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   Undo2,
   UserCheck,
   Wand2,
-  Workflow,
+
   Wrench,
   Zap,
   ZoomIn,
