@@ -1,3 +1,12 @@
+## [1.15.1](https://github.com/ashim-hq/ashim/compare/v1.15.0...v1.15.1) (2026-04-16)
+
+
+### Bug Fixes
+
+* **docker:** create /opt/models unconditionally so chown works in CI ([93ce289](https://github.com/ashim-hq/ashim/commit/93ce2891cc26afc93f01168d008927d3d356c1a9))
+* **docker:** run frontend builder on BUILDPLATFORM to fix esbuild crash under QEMU ([6a3ad0d](https://github.com/ashim-hq/ashim/commit/6a3ad0d496e291b30a3f719ca079c43ce7aab705))
+* resolve runtime model path mismatch for non-root Docker user ([f28792a](https://github.com/ashim-hq/ashim/commit/f28792a5ed78221f38cf2f3c80cae9f24cd7f5e3))
+
 # [1.14.0](https://github.com/ashim-hq/ashim/compare/v1.13.0...v1.14.0) (2026-04-10)
 
 
