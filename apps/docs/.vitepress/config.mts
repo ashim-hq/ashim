@@ -3,7 +3,7 @@ import llmstxt from "vitepress-plugin-llms";
 
 export default defineConfig({
   title: "ashim",
-  description: "Documentation for ashim, a self-hosted image processing suite.",
+  description: "Documentation for ashim — A Self Hosted Image Manipulator. 45+ tools, local AI, pipelines, REST API.",
   base: "/ashim/",
   srcDir: ".",
   outDir: "./.vitepress/dist",
