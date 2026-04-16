@@ -1,3 +1,10 @@
+## [1.15.2](https://github.com/ashim-hq/ashim/compare/v1.15.1...v1.15.2) (2026-04-16)
+
+
+### Bug Fixes
+
+* use GHCR_TOKEN with write:packages scope for GHCR login ([e14414f](https://github.com/ashim-hq/ashim/commit/e14414f3061981b1454dc7d4504c64ec01db945e))
+
 ## [1.15.1](https://github.com/ashim-hq/ashim/compare/v1.15.0...v1.15.1) (2026-04-16)
 
 
