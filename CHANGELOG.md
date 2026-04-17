@@ -1,3 +1,11 @@
+## [1.15.4](https://github.com/ashim-hq/ashim/compare/v1.15.3...v1.15.4) (2026-04-17)
+
+
+### Bug Fixes
+
+* verbose error handling, batch processing, and multi-file support ([3223960](https://github.com/ashim-hq/ashim/commit/32239600ae6ce30628e77e61a805ca0a167b5068))
+* verbose errors, batch processing, multi-file support ([#1](https://github.com/ashim-hq/ashim/issues/1)) ([8b87cf8](https://github.com/ashim-hq/ashim/commit/8b87cf888c6194e2af427a180607d7c53a1d15b9))
+
 ## [1.15.3](https://github.com/ashim-hq/ashim/compare/v1.15.2...v1.15.3) (2026-04-16)
 
 
