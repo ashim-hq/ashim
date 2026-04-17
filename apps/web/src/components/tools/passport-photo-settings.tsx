@@ -442,7 +442,14 @@ export function PassportPhotoSettings() {
 
         if (!response.ok) {
           const body = await response.json().catch(() => null);
-          throw new Error(body?.details || body?.error || `Analysis failed: ${response.status}`);
+          const msg = body
+            ? typeof body.details === "string"
+              ? body.details
+              : typeof body.error === "string"
+                ? body.error
+                : `Analysis failed: ${response.status}`
+            : `Analysis failed: ${response.status}`;
+          throw new Error(msg);
         }
 
         const result = await response.json();
@@ -504,9 +511,14 @@ export function PassportPhotoSettings() {
 
       if (!response.ok) {
         const errBody = await response.json().catch(() => null);
-        throw new Error(
-          errBody?.details || errBody?.error || `Generation failed: ${response.status}`,
-        );
+        const msg = errBody
+          ? typeof errBody.details === "string"
+            ? errBody.details
+            : typeof errBody.error === "string"
+              ? errBody.error
+              : `Generation failed: ${response.status}`
+          : `Generation failed: ${response.status}`;
+        throw new Error(msg);
       }
 
       const result: GenerateResult = await response.json();

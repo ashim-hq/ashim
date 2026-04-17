@@ -15,6 +15,7 @@ export interface OcrOptions {
 
 export interface OcrResult {
   text: string;
+  engine?: string;
 }
 
 export async function extractText(
@@ -42,5 +43,6 @@ export async function extractText(
 
   return {
     text: result.text,
+    engine: result.engine,
   };
 }

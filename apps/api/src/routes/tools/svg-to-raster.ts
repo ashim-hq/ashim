@@ -7,6 +7,7 @@ import PQueue from "p-queue";
 import sharp from "sharp";
 import { z } from "zod";
 import { env } from "../../config.js";
+import { formatZodErrors } from "../../lib/errors.js";
 import { sanitizeFilename } from "../../lib/filename.js";
 import { decodeHeic, encodeHeic } from "../../lib/heic-converter.js";
 import { isSvgBuffer, sanitizeSvg } from "../../lib/svg-sanitize.js";
@@ -147,7 +148,7 @@ export function registerSvgToRaster(app: FastifyInstance) {
       if (!result.success) {
         return reply.status(400).send({
           error: "Invalid settings",
-          details: result.error.issues.map((i) => ({ path: i.path.join("."), message: i.message })),
+          details: formatZodErrors(result.error.issues),
         });
       }
       settings = result.data;
@@ -365,7 +366,9 @@ export function registerSvgToRaster(app: FastifyInstance) {
       const parsed = settingsRaw ? JSON.parse(settingsRaw) : {};
       const result = settingsSchema.safeParse(parsed);
       if (!result.success) {
-        return reply.status(400).send({ error: "Invalid settings", details: result.error.issues });
+        return reply
+          .status(400)
+          .send({ error: "Invalid settings", details: formatZodErrors(result.error.issues) });
       }
       settings = result.data;
     } catch {

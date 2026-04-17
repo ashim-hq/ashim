@@ -7,6 +7,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import sharp from "sharp";
 import { z } from "zod";
 import { autoOrient } from "../../lib/auto-orient.js";
+import { formatZodErrors } from "../../lib/errors.js";
 import { validateImageBuffer } from "../../lib/file-validation.js";
 import { decodeHeic } from "../../lib/heic-converter.js";
 import { createWorkspace, getWorkspacePath } from "../../lib/workspace.js";
@@ -275,15 +276,14 @@ export function registerPassportPhoto(app: FastifyInstance) {
   app.post(
     "/api/v1/tools/passport-photo/generate",
     async (request: FastifyRequest, reply: FastifyReply) => {
-      let parsed: z.infer<typeof generateSettingsSchema>;
-      try {
-        parsed = generateSettingsSchema.parse(request.body);
-      } catch (err) {
+      const parseResult = generateSettingsSchema.safeParse(request.body);
+      if (!parseResult.success) {
         return reply.status(400).send({
           error: "Invalid settings",
-          details: err instanceof Error ? err.message : String(err),
+          details: formatZodErrors(parseResult.error.issues),
         });
       }
+      const parsed = parseResult.data;
 
       const {
         jobId,

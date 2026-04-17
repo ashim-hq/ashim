@@ -1,6 +1,6 @@
 import { PYTHON_SIDECAR_TOOLS } from "@ashim/shared";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { formatHeaders } from "@/lib/api";
+import { formatHeaders, parseApiError } from "@/lib/api";
 import { generateId } from "@/lib/utils";
 import { useFileStore } from "@/stores/file-store";
 
@@ -233,10 +233,7 @@ export function useToolProcessor(toolId: string) {
         } else {
           try {
             const body = JSON.parse(xhr.responseText);
-            const msg = body.details
-              ? `${body.error}: ${body.details}`
-              : body.error || `Processing failed: ${xhr.status}`;
-            setError(msg);
+            setError(parseApiError(body, xhr.status));
           } catch {
             setError(`Processing failed: ${xhr.status}`);
           }
@@ -357,9 +354,7 @@ export function useToolProcessor(toolId: string) {
           let errorMsg: string;
           try {
             const body = JSON.parse(text);
-            errorMsg = body.details
-              ? `${body.error}: ${body.details}`
-              : body.error || `Batch processing failed: ${response.status}`;
+            errorMsg = parseApiError(body, response.status);
           } catch {
             errorMsg = `Batch processing failed: ${response.status}`;
           }

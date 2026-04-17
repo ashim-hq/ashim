@@ -4,6 +4,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import sharp from "sharp";
 import { z } from "zod";
 import { autoOrient } from "../../lib/auto-orient.js";
+import { formatZodErrors } from "../../lib/errors.js";
 import { validateImageBuffer } from "../../lib/file-validation.js";
 import { sanitizeFilename } from "../../lib/filename.js";
 import { decodeHeic } from "../../lib/heic-converter.js";
@@ -117,10 +118,7 @@ export function registerOptimizeForWeb(app: FastifyInstance) {
         if (!result.success) {
           return reply.status(400).send({
             error: "Invalid settings",
-            details: result.error.issues.map((i) => ({
-              path: i.path.join("."),
-              message: i.message,
-            })),
+            details: formatZodErrors(result.error.issues),
           });
         }
         settings = result.data;

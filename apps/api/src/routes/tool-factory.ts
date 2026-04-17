@@ -7,6 +7,7 @@ import sharp from "sharp";
 import type { z } from "zod";
 import { db, schema } from "../db/index.js";
 import { autoOrient } from "../lib/auto-orient.js";
+import { formatZodErrors } from "../lib/errors.js";
 import { validateImageBuffer } from "../lib/file-validation.js";
 import { sanitizeFilename } from "../lib/filename.js";
 import { decodeHeic } from "../lib/heic-converter.js";
@@ -185,10 +186,7 @@ export function createToolRoute<T>(app: FastifyInstance, config: ToolRouteConfig
         if (!result.success) {
           return reply.status(400).send({
             error: "Invalid settings",
-            details: result.error.issues.map((i) => ({
-              path: i.path.join("."),
-              message: i.message,
-            })),
+            details: formatZodErrors(result.error.issues),
           });
         }
         settings = result.data;

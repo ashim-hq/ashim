@@ -3,6 +3,7 @@ import { basename } from "node:path";
 import { extractText } from "@ashim/ai";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
+import { formatZodErrors } from "../../lib/errors.js";
 import { validateImageBuffer } from "../../lib/file-validation.js";
 import { createWorkspace } from "../../lib/workspace.js";
 import { updateSingleFileProgress } from "../progress.js";
@@ -66,7 +67,7 @@ export function registerOcr(app: FastifyInstance) {
         if (!result.success) {
           return reply
             .status(400)
-            .send({ error: "Invalid settings", details: result.error.issues });
+            .send({ error: "Invalid settings", details: formatZodErrors(result.error.issues) });
         }
         settings = result.data;
       } catch {
@@ -135,10 +136,18 @@ export function registerOcr(app: FastifyInstance) {
             });
           }
 
+          if (result.engine && result.engine !== tier) {
+            request.log.warn(
+              { toolId: "ocr", requested: tier, actual: result.engine },
+              `OCR engine fallback: requested ${tier} but used ${result.engine}`,
+            );
+          }
+
           return reply.send({
             jobId,
             filename,
             text: result.text,
+            engine: result.engine,
           });
         } catch (err) {
           lastError = err;

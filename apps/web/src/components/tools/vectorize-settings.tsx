@@ -115,41 +115,92 @@ export function VectorizeSettings() {
     setError(null);
     setDownloadUrl(null);
 
+    const settingsJson = JSON.stringify({
+      colorMode,
+      threshold,
+      colorPrecision,
+      layerDifference,
+      filterSpeckle,
+      pathMode,
+      cornerThreshold,
+      invert,
+    });
+
     try {
-      const formData = new FormData();
-      formData.append("file", files[0]);
-      formData.append(
-        "settings",
-        JSON.stringify({
-          colorMode,
-          threshold,
-          colorPrecision,
-          layerDifference,
-          filterSpeckle,
-          pathMode,
-          cornerThreshold,
-          invert,
-        }),
-      );
+      if (files.length === 1) {
+        const formData = new FormData();
+        formData.append("file", files[0]);
+        formData.append("settings", settingsJson);
 
-      const res = await fetch("/api/v1/tools/vectorize", {
-        method: "POST",
-        headers: formatHeaders(),
-        body: formData,
-      });
+        const res = await fetch("/api/v1/tools/vectorize", {
+          method: "POST",
+          headers: formatHeaders(),
+          body: formData,
+        });
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Failed: ${res.status}`);
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.error || `Failed: ${res.status}`);
+        }
+
+        const result = await res.json();
+        setJobId(result.jobId);
+        setProcessedUrl(result.downloadUrl);
+        setDownloadUrl(result.downloadUrl);
+        setOriginalSize(result.originalSize);
+        setProcessedSize(result.processedSize);
+        setSizes(result.originalSize, result.processedSize);
+      } else {
+        const { updateEntry, setBatchZip } = useFileStore.getState();
+        const JSZip = (await import("jszip")).default;
+        const zip = new JSZip();
+        let totalOriginal = 0;
+        let totalProcessed = 0;
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("settings", settingsJson);
+
+          const res = await fetch("/api/v1/tools/vectorize", {
+            method: "POST",
+            headers: formatHeaders(),
+            body: formData,
+          });
+
+          if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            updateEntry(i, {
+              status: "failed",
+              error: body.error || `Failed: ${res.status}`,
+            });
+            continue;
+          }
+
+          const result = await res.json();
+          totalOriginal += result.originalSize;
+          totalProcessed += result.processedSize;
+
+          const svgRes = await fetch(result.downloadUrl, { headers: formatHeaders() });
+          const svgBlob = await svgRes.blob();
+          const svgName = file.name.replace(/\.[^.]+$/, ".svg");
+          zip.file(svgName, svgBlob);
+
+          updateEntry(i, {
+            processedUrl: result.downloadUrl,
+            processedSize: result.processedSize,
+            status: "completed",
+            error: null,
+          });
+        }
+
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        setBatchZip(zipBlob, "vectorize-batch.zip");
+        setOriginalSize(totalOriginal);
+        setProcessedSize(totalProcessed);
+        setSizes(totalOriginal, totalProcessed);
       }
-
-      const result = await res.json();
-      setJobId(result.jobId);
-      setProcessedUrl(result.downloadUrl);
-      setDownloadUrl(result.downloadUrl);
-      setOriginalSize(result.originalSize);
-      setProcessedSize(result.processedSize);
-      setSizes(result.originalSize, result.processedSize);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Vectorization failed");
     } finally {

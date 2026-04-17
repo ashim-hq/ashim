@@ -17,6 +17,7 @@ import { z } from "zod";
 import { env } from "../config.js";
 import { db, schema } from "../db/index.js";
 import { autoOrient } from "../lib/auto-orient.js";
+import { formatZodErrors } from "../lib/errors.js";
 import { validateImageBuffer } from "../lib/file-validation.js";
 import { sanitizeFilename } from "../lib/filename.js";
 import { decodeHeic } from "../lib/heic-converter.js";
@@ -130,10 +131,7 @@ export async function registerPipelineRoutes(app: FastifyInstance): Promise<void
       if (!result.success) {
         return reply.status(400).send({
           error: "Invalid pipeline definition",
-          details: result.error.issues.map((i) => ({
-            path: i.path.join("."),
-            message: i.message,
-          })),
+          details: formatZodErrors(result.error.issues),
         });
       }
       pipeline = result.data;
@@ -431,10 +429,7 @@ export async function registerPipelineRoutes(app: FastifyInstance): Promise<void
       if (!result.success) {
         return reply.status(400).send({
           error: "Invalid pipeline definition",
-          details: result.error.issues.map((i) => ({
-            path: i.path.join("."),
-            message: i.message,
-          })),
+          details: formatZodErrors(result.error.issues),
         });
       }
       pipeline = result.data;

@@ -4,6 +4,7 @@ import { basename, join } from "node:path";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import sharp from "sharp";
 import { z } from "zod";
+import { formatZodErrors } from "../../lib/errors.js";
 import {
   buildTagArgs,
   type EditMetadataSettings,
@@ -150,10 +151,7 @@ export function registerEditMetadata(app: FastifyInstance) {
       if (!result.success) {
         return reply.status(400).send({
           error: "Invalid settings",
-          details: result.error.issues.map((i) => ({
-            path: i.path.join("."),
-            message: i.message,
-          })),
+          details: formatZodErrors(result.error.issues),
         });
       }
       settings = result.data;

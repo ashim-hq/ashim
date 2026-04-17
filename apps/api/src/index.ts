@@ -38,6 +38,18 @@ const app = Fastify({
   bodyLimit: env.MAX_UPLOAD_SIZE_MB * 1024 * 1024,
 });
 
+app.setErrorHandler((error: Error & { statusCode?: number }, request, reply) => {
+  const statusCode = error.statusCode ?? 500;
+  request.log.error(
+    { err: error, url: request.url, method: request.method },
+    "Unhandled request error",
+  );
+  reply.status(statusCode).send({
+    error: statusCode >= 500 ? "Internal server error" : error.message,
+    details: error.stack ?? error.message,
+  });
+});
+
 // Plugins
 await app.register(cors, {
   origin: env.CORS_ORIGIN

@@ -291,14 +291,14 @@ ENV PORT=1349 \
     CONCURRENT_JOBS=3 \
     MAX_MEGAPIXELS=100 \
     RATE_LIMIT_PER_MIN=100 \
-    LOG_LEVEL=info
+    LOG_LEVEL=debug
 
 # NVIDIA Container Toolkit env vars (harmless on non-GPU systems)
 ENV NVIDIA_VISIBLE_DEVICES=all \
     NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
 # Suppress noisy ML library output in docker logs
-ENV PYTHONWARNINGS=ignore \
+ENV PYTHONWARNINGS=default \
     TF_CPP_MIN_LOG_LEVEL=3 \
     PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True
 
