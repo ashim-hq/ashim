@@ -126,15 +126,19 @@ ARG SKIP_MODEL_DOWNLOADS=false
 ENV COREPACK_HOME=/usr/local/share/corepack
 
 # Install Node.js on amd64 (CUDA base has no Node; arm64 base already has it)
+# The CUDA base uses Ubuntu mirrors that can be flaky on CI runners.
+# Retry with exponential backoff and fall back to archive.ubuntu.com.
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y --no-install-recommends \
+    for i in 1 2 3; do apt-get -o Acquire::Retries=3 update && break || sleep $((i * 15)); done && \
+    apt-get install -y --no-install-recommends \
         curl ca-certificates gnupg && \
     mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | \
         gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
     echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" > \
         /etc/apt/sources.list.d/nodesource.list && \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y nodejs && \
+    for i in 1 2 3; do apt-get -o Acquire::Retries=3 update && break || sleep $((i * 15)); done && \
+    apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/* \
 ; fi
 
