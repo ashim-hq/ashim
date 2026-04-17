@@ -1,6 +1,25 @@
 const API_BASE = "/api";
 
-export function parseApiError(body: Record<string, unknown>, fallbackStatus: number): string {
+export interface FeatureNotInstalledError {
+  type: "feature_not_installed";
+  feature: string;
+  featureName: string;
+  estimatedSize: string;
+}
+
+export function parseApiError(
+  body: Record<string, unknown>,
+  fallbackStatus: number,
+): string | FeatureNotInstalledError {
+  if (body.code === "FEATURE_NOT_INSTALLED") {
+    return {
+      type: "feature_not_installed",
+      feature: body.feature as string,
+      featureName: body.featureName as string,
+      estimatedSize: body.estimatedSize as string,
+    };
+  }
+
   const error = typeof body.error === "string" ? body.error : "";
   const details = body.details;
   if (!details) {

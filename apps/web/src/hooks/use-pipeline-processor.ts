@@ -145,7 +145,14 @@ export function usePipelineProcessor() {
         } else {
           try {
             const body = JSON.parse(xhr.responseText);
-            setError(parseApiError(body, xhr.status));
+            const parsed = parseApiError(body, xhr.status);
+            if (typeof parsed === "object" && parsed.type === "feature_not_installed") {
+              setError(
+                `Feature "${parsed.featureName}" is not installed. Enable it in Settings → AI Features.`,
+              );
+            } else {
+              setError(parsed as string);
+            }
           } catch {
             setError(`Processing failed: ${xhr.status}`);
           }
@@ -270,7 +277,12 @@ export function usePipelineProcessor() {
                 errorMsg += ` (${body.errors.length} files failed)`;
               }
             } else {
-              errorMsg = parseApiError(body, response.status);
+              const parsed = parseApiError(body, response.status);
+              if (typeof parsed === "object" && parsed.type === "feature_not_installed") {
+                errorMsg = `Feature "${parsed.featureName}" is not installed. Enable it in Settings → AI Features.`;
+              } else {
+                errorMsg = parsed as string;
+              }
             }
           } catch {
             errorMsg = `Batch processing failed: ${response.status}`;
