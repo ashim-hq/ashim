@@ -7,6 +7,7 @@ import type { FastifyInstance } from "fastify";
 import * as mupdf from "mupdf";
 import sharp from "sharp";
 import { z } from "zod";
+import { formatZodErrors } from "../../lib/errors.js";
 import { encodeHeic } from "../../lib/heic-converter.js";
 import { createWorkspace } from "../../lib/workspace.js";
 
@@ -290,7 +291,9 @@ export function registerPdfToImage(app: FastifyInstance) {
       const parsed = settingsRaw ? JSON.parse(settingsRaw) : {};
       const result = settingsSchema.safeParse(parsed);
       if (!result.success) {
-        return reply.status(400).send({ error: "Invalid settings", details: result.error.issues });
+        return reply
+          .status(400)
+          .send({ error: "Invalid settings", details: formatZodErrors(result.error.issues) });
       }
       settings = result.data;
     } catch {

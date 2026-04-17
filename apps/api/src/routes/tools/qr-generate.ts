@@ -4,6 +4,7 @@ import { join } from "node:path";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import QRCode from "qrcode";
 import { z } from "zod";
+import { formatZodErrors } from "../../lib/errors.js";
 import { createWorkspace } from "../../lib/workspace.js";
 
 const settingsSchema = z.object({
@@ -37,10 +38,7 @@ export function registerQrGenerate(app: FastifyInstance) {
     if (!result.success) {
       return reply.status(400).send({
         error: "Invalid settings",
-        details: result.error.issues.map((i) => ({
-          path: i.path.join("."),
-          message: i.message,
-        })),
+        details: formatZodErrors(result.error.issues),
       });
     }
 

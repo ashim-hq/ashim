@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { formatHeaders } from "@/lib/api";
+import { formatHeaders, parseApiError } from "@/lib/api";
 import { generateId } from "@/lib/utils";
 import { useFileStore } from "@/stores/file-store";
 import type { PipelineStep } from "@/stores/pipeline-store";
@@ -145,10 +145,7 @@ export function usePipelineProcessor() {
         } else {
           try {
             const body = JSON.parse(xhr.responseText);
-            const msg = body.details
-              ? `${body.error}: ${body.details}`
-              : body.error || `Processing failed: ${xhr.status}`;
-            setError(msg);
+            setError(parseApiError(body, xhr.status));
           } catch {
             setError(`Processing failed: ${xhr.status}`);
           }
@@ -273,9 +270,7 @@ export function usePipelineProcessor() {
                 errorMsg += ` (${body.errors.length} files failed)`;
               }
             } else {
-              errorMsg = body.details
-                ? `${body.error}: ${body.details}`
-                : body.error || `Batch processing failed: ${response.status}`;
+              errorMsg = parseApiError(body, response.status);
             }
           } catch {
             errorMsg = `Batch processing failed: ${response.status}`;

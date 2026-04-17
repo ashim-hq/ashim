@@ -229,10 +229,13 @@ def main():
             emit_progress(10, "Detecting language")
             language = auto_detect_language(input_path)
 
+        engine_used = quality
+
         # Route to engine based on quality tier
         if quality == "fast":
             try:
                 text = run_tesseract(input_path, language, is_auto=was_auto)
+                engine_used = "tesseract"
             except FileNotFoundError:
                 print(json.dumps({"success": False, "error": "Tesseract is not installed"}))
                 sys.exit(1)
@@ -240,39 +243,63 @@ def main():
         elif quality == "balanced":
             try:
                 text = run_paddleocr_v5(input_path, language)
-            except ImportError:
-                print(json.dumps({"success": False, "error": "PaddleOCR is not installed"}))
+                engine_used = "paddleocr-v5"
+            except ImportError as e:
+                print(json.dumps({"success": False, "error": f"PaddleOCR is not installed: {e}"}))
                 sys.exit(1)
-            except Exception:
-                emit_progress(25, "Falling back")
+            except Exception as e:
+                print(json.dumps({
+                    "warning": f"PaddleOCR PP-OCRv5 failed ({type(e).__name__}: {e}), falling back to Tesseract"
+                }), file=sys.stderr, flush=True)
+                emit_progress(25, "PaddleOCR failed, falling back to Tesseract")
                 try:
                     text = run_tesseract(input_path, language, is_auto=was_auto)
+                    engine_used = "tesseract (fallback from balanced)"
                 except FileNotFoundError:
-                    print(json.dumps({"success": False, "error": "OCR engines unavailable"}))
+                    print(json.dumps({"success": False, "error": "OCR engines unavailable: PaddleOCR failed and Tesseract is not installed"}))
                     sys.exit(1)
 
         elif quality == "best":
             try:
                 text = run_paddleocr_vl(input_path)
-            except ImportError:
-                emit_progress(20, "Falling back")
+                engine_used = "paddleocr-vl"
+            except ImportError as e:
+                print(json.dumps({
+                    "warning": f"PaddleOCR-VL not available ({e}), trying PP-OCRv5"
+                }), file=sys.stderr, flush=True)
+                emit_progress(20, "VL model unavailable, trying PP-OCRv5")
                 try:
                     text = run_paddleocr_v5(input_path, language)
-                except Exception:
+                    engine_used = "paddleocr-v5 (fallback from best)"
+                except Exception as e2:
+                    print(json.dumps({
+                        "warning": f"PP-OCRv5 also failed ({type(e2).__name__}: {e2}), falling back to Tesseract"
+                    }), file=sys.stderr, flush=True)
+                    emit_progress(25, "PP-OCRv5 failed, falling back to Tesseract")
                     text = run_tesseract(input_path, language, is_auto=was_auto)
-            except Exception:
-                emit_progress(20, "Falling back")
+                    engine_used = "tesseract (fallback from best)"
+            except Exception as e:
+                print(json.dumps({
+                    "warning": f"PaddleOCR-VL failed ({type(e).__name__}: {e}), trying PP-OCRv5"
+                }), file=sys.stderr, flush=True)
+                emit_progress(20, "VL model failed, trying PP-OCRv5")
                 try:
                     text = run_paddleocr_v5(input_path, language)
-                except Exception:
+                    engine_used = "paddleocr-v5 (fallback from best)"
+                except Exception as e2:
+                    print(json.dumps({
+                        "warning": f"PP-OCRv5 also failed ({type(e2).__name__}: {e2}), falling back to Tesseract"
+                    }), file=sys.stderr, flush=True)
+                    emit_progress(25, "PP-OCRv5 failed, falling back to Tesseract")
                     text = run_tesseract(input_path, language, is_auto=was_auto)
+                    engine_used = "tesseract (fallback from best)"
 
         else:
             print(json.dumps({"success": False, "error": f"Unknown quality: {quality}"}))
             sys.exit(1)
 
         emit_progress(95, "Done")
-        print(json.dumps({"success": True, "text": text}))
+        print(json.dumps({"success": True, "text": text, "engine": engine_used}))
 
     except Exception as e:
         print(json.dumps({"success": False, "error": str(e)}))

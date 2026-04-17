@@ -1,5 +1,26 @@
 const API_BASE = "/api";
 
+export function parseApiError(body: Record<string, unknown>, fallbackStatus: number): string {
+  const error = typeof body.error === "string" ? body.error : "";
+  const details = body.details;
+  if (!details) {
+    return error || (body.message as string) || `Processing failed: ${fallbackStatus}`;
+  }
+  let detailsStr: string;
+  if (typeof details === "string") {
+    detailsStr = details;
+  } else if (Array.isArray(details)) {
+    detailsStr = details
+      .map((d) =>
+        typeof d === "string" ? d : (d as Record<string, unknown>)?.message || JSON.stringify(d),
+      )
+      .join("; ");
+  } else {
+    detailsStr = JSON.stringify(details);
+  }
+  return error ? `${error}: ${detailsStr}` : detailsStr;
+}
+
 // ── Auth Headers ───────────────────────────────────────────────
 
 function getToken(): string {

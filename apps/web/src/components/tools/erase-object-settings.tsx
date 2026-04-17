@@ -111,7 +111,13 @@ export function EraseObjectSettings({
       } else {
         try {
           const body = JSON.parse(xhr.responseText);
-          setError(body.error || body.details || `Failed: ${xhr.status}`);
+          setError(
+            typeof body.error === "string"
+              ? body.error
+              : typeof body.details === "string"
+                ? body.details
+                : `Failed: ${xhr.status}`,
+          );
         } catch {
           setError(`Processing failed: ${xhr.status}`);
         }

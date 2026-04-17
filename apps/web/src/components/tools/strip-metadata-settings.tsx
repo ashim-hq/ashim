@@ -197,8 +197,16 @@ export function StripMetadataControls({
 
 export function StripMetadataSettings() {
   const { entries, selectedIndex, files } = useFileStore();
-  const { processFiles, processing, error, downloadUrl, originalSize, processedSize, progress } =
-    useToolProcessor("strip-metadata");
+  const {
+    processFiles,
+    processAllFiles,
+    processing,
+    error,
+    downloadUrl,
+    originalSize,
+    processedSize,
+    progress,
+  } = useToolProcessor("strip-metadata");
 
   const [stripSettings, setStripSettings] = useState<Record<string, unknown>>({
     stripAll: true,
@@ -267,7 +275,11 @@ export function StripMetadataSettings() {
   }, [currentFile, fileKey, metadataCache]);
 
   const handleProcess = () => {
-    processFiles(files, stripSettings);
+    if (files.length > 1) {
+      processAllFiles(files, stripSettings);
+    } else {
+      processFiles(files, stripSettings);
+    }
   };
 
   const hasFile = files.length > 0;

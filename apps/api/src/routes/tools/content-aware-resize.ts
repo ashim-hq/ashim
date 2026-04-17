@@ -5,6 +5,7 @@ import { seamCarve } from "@ashim/ai";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { autoOrient } from "../../lib/auto-orient.js";
+import { formatZodErrors } from "../../lib/errors.js";
 import { validateImageBuffer } from "../../lib/file-validation.js";
 import { decodeHeic } from "../../lib/heic-converter.js";
 import { createWorkspace } from "../../lib/workspace.js";
@@ -82,10 +83,7 @@ export function registerContentAwareResize(app: FastifyInstance) {
         if (!result.success) {
           return reply.status(400).send({
             error: "Invalid settings",
-            details: result.error.issues.map((i) => ({
-              path: i.path.join("."),
-              message: i.message,
-            })),
+            details: formatZodErrors(result.error.issues),
           });
         }
         settings = result.data;

@@ -84,12 +84,24 @@ export function BlurFacesControls({ settings: initialSettings, onChange }: BlurF
 
 export function BlurFacesSettings() {
   const { files } = useFileStore();
-  const { processFiles, processing, error, downloadUrl, originalSize, processedSize, progress } =
-    useToolProcessor("blur-faces");
+  const {
+    processFiles,
+    processAllFiles,
+    processing,
+    error,
+    downloadUrl,
+    originalSize,
+    processedSize,
+    progress,
+  } = useToolProcessor("blur-faces");
   const [settings, setSettings] = useState<Record<string, unknown>>({});
 
   const handleProcess = () => {
-    processFiles(files, settings);
+    if (files.length > 1) {
+      processAllFiles(files, settings);
+    } else {
+      processFiles(files, settings);
+    }
   };
 
   const hasFile = files.length > 0;

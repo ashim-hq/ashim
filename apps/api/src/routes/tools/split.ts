@@ -5,6 +5,7 @@ import type { FastifyInstance } from "fastify";
 import sharp from "sharp";
 import { z } from "zod";
 import { autoOrient } from "../../lib/auto-orient.js";
+import { formatZodErrors } from "../../lib/errors.js";
 import { ensureSharpCompat } from "../../lib/heic-converter.js";
 
 const settingsSchema = z.object({
@@ -67,7 +68,9 @@ export function registerSplit(app: FastifyInstance) {
       const parsed = settingsRaw ? JSON.parse(settingsRaw) : {};
       const result = settingsSchema.safeParse(parsed);
       if (!result.success) {
-        return reply.status(400).send({ error: "Invalid settings", details: result.error.issues });
+        return reply
+          .status(400)
+          .send({ error: "Invalid settings", details: formatZodErrors(result.error.issues) });
       }
       settings = result.data;
     } catch {

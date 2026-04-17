@@ -133,8 +133,16 @@ function LabeledInput({
 
 export function EditMetadataSettings() {
   const { entries, selectedIndex, files } = useFileStore();
-  const { processFiles, processing, error, downloadUrl, originalSize, processedSize, progress } =
-    useToolProcessor("edit-metadata");
+  const {
+    processFiles,
+    processAllFiles,
+    processing,
+    error,
+    downloadUrl,
+    originalSize,
+    processedSize,
+    progress,
+  } = useToolProcessor("edit-metadata");
 
   const [form, setForm] = useState<FormFields>(EMPTY_FORM);
   const [initialForm, setInitialForm] = useState<FormFields>(EMPTY_FORM);
@@ -391,7 +399,11 @@ export function EditMetadataSettings() {
       settings.fieldsToRemove = Array.from(fieldsToRemove);
     }
 
-    processFiles(files, settings);
+    if (files.length > 1) {
+      processAllFiles(files, settings);
+    } else {
+      processFiles(files, settings);
+    }
   };
 
   return (

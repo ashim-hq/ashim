@@ -92,8 +92,6 @@ export function SplitSettings() {
     setZipBlobUrl(null);
 
     try {
-      const formData = new FormData();
-      formData.append("file", files[0]);
       const effectiveGrid = getEffectiveGrid();
       const settings: Record<string, unknown> = {
         columns: effectiveGrid.columns,
@@ -107,41 +105,60 @@ export function SplitSettings() {
       if (LOSSY_FORMATS.has(outputFormat)) {
         settings.quality = quality;
       }
-      formData.append("settings", JSON.stringify(settings));
-
-      const res = await fetch("/api/v1/tools/split", {
-        method: "POST",
-        headers: formatHeaders(),
-        body: formData,
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || `Failed: ${res.status}`);
-      }
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      setZipBlobUrl(url);
+      const settingsJson = JSON.stringify(settings);
 
       const JSZip = (await import("jszip")).default;
-      const zip = await JSZip.loadAsync(blob);
-      const tileEntries: Array<{ row: number; col: number; blobUrl: string | null }> = [];
+      const combinedZip = new JSZip();
+      const previewTiles: Array<{ row: number; col: number; blobUrl: string | null }> = [];
+      const multiFile = files.length > 1;
 
-      const fileNames = Object.keys(zip.files).filter((n) => !zip.files[n].dir);
-      fileNames.sort();
+      for (let fi = 0; fi < files.length; fi++) {
+        const file = files[fi];
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("settings", settingsJson);
 
-      for (const name of fileNames) {
-        const fileData = await zip.files[name].async("blob");
-        const tileBlobUrl = URL.createObjectURL(fileData);
-        const match = name.match(/_r(\d+)_c(\d+)/);
-        const row = match ? Number.parseInt(match[1], 10) : 0;
-        const col = match ? Number.parseInt(match[2], 10) : 0;
-        tileEntries.push({ row, col, blobUrl: tileBlobUrl });
+        const res = await fetch("/api/v1/tools/split", {
+          method: "POST",
+          headers: formatHeaders(),
+          body: formData,
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Failed to split ${file.name}: ${text || res.status}`);
+        }
+
+        const blob = await res.blob();
+        const fileZip = await JSZip.loadAsync(blob);
+        const baseName = file.name.replace(/\.[^.]+$/, "");
+        const prefix = multiFile ? `${baseName}/` : "";
+
+        const fileNames = Object.keys(fileZip.files).filter((n) => !fileZip.files[n].dir);
+        fileNames.sort();
+
+        for (const name of fileNames) {
+          const data = await fileZip.files[name].async("uint8array");
+          combinedZip.file(`${prefix}${name}`, data);
+
+          if (fi === 0) {
+            const tileBlob = new Blob([data as BlobPart]);
+            const tileBlobUrl = URL.createObjectURL(tileBlob);
+            const match = name.match(/_r(\d+)_c(\d+)/);
+            previewTiles.push({
+              row: match ? Number.parseInt(match[1], 10) : 0,
+              col: match ? Number.parseInt(match[2], 10) : 0,
+              blobUrl: tileBlobUrl,
+            });
+          }
+        }
       }
 
-      tileEntries.sort((a, b) => a.row - b.row || a.col - b.col);
+      const combinedBlob = await combinedZip.generateAsync({ type: "blob" });
+      setZipBlobUrl(URL.createObjectURL(combinedBlob));
+
+      previewTiles.sort((a, b) => a.row - b.row || a.col - b.col);
       setTiles(
-        tileEntries.map((t, i) => ({
+        previewTiles.map((t, i) => ({
           row: t.row,
           col: t.col,
           label: `${i + 1}`,
@@ -173,7 +190,8 @@ export function SplitSettings() {
     if (!zipBlobUrl) return;
     const a = document.createElement("a");
     a.href = zipBlobUrl;
-    const baseName = files[0]?.name?.replace(/\.[^.]+$/, "") ?? "split";
+    const baseName =
+      files.length > 1 ? "split-batch" : (files[0]?.name?.replace(/\.[^.]+$/, "") ?? "split");
     a.download = `${baseName}-${grid.columns}x${grid.rows}.zip`;
     a.click();
   }, [zipBlobUrl, files, grid]);
@@ -381,12 +399,20 @@ export function SplitSettings() {
         className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {processing && <Loader2 className="h-4 w-4 animate-spin" />}
-        {processing ? "Splitting..." : `Split into ${tileCount} Tiles`}
+        {processing
+          ? "Splitting..."
+          : files.length > 1
+            ? `Split ${files.length} Images (${tileCount} tiles each)`
+            : `Split into ${tileCount} Tiles`}
       </button>
 
       {hasTiles && (
         <div className="space-y-3 border-t border-border pt-3">
-          <p className="text-xs font-medium text-foreground">{tiles.length} Tiles Generated</p>
+          <p className="text-xs font-medium text-foreground">
+            {files.length > 1
+              ? `${files.length} images split (${tiles.length} tiles each)`
+              : `${tiles.length} Tiles Generated`}
+          </p>
           <div
             className="grid gap-1"
             style={{ gridTemplateColumns: `repeat(${grid.columns}, 1fr)` }}
