@@ -122,6 +122,13 @@ export function registerEnhanceFaces(app: FastifyInstance) {
         });
       }
 
+      if (model !== "auto" && result.model !== model) {
+        request.log.warn(
+          { toolId: "enhance-faces", requested: model, actual: result.model },
+          `Face enhance model mismatch: requested ${model} but used ${result.model}`,
+        );
+      }
+
       return reply.send({
         jobId,
         downloadUrl: `/api/v1/download/${jobId}/${encodeURIComponent(outputFilename)}`,

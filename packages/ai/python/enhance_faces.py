@@ -17,8 +17,8 @@ except (ImportError, ModuleNotFoundError):
         _shim = types.ModuleType("torchvision.transforms.functional_tensor")
         _shim.rgb_to_grayscale = _F.rgb_to_grayscale
         sys.modules["torchvision.transforms.functional_tensor"] = _shim
-    except ImportError:
-        pass  # torchvision not installed at all
+    except ImportError as e:
+        print(f"[enhance-faces] torchvision shim failed: {e}", file=sys.stderr, flush=True)
 
 
 def emit_progress(percent, stage):
@@ -196,6 +196,9 @@ def enhance_with_codeformer(img_array, fidelity_weight):
     finally:
         torch.cuda.is_available = _orig_cuda_check
 
+    if restored_bgr is None:
+        raise RuntimeError("CodeFormer returned no result (face detection may have failed)")
+
     restored_rgb = restored_bgr[:, :, ::-1].copy()
     return restored_rgb
 
@@ -258,7 +261,9 @@ def main():
         # progress and init messages to stdout which would corrupt
         # our JSON result.
         stdout_fd = os.dup(1)
+        sys.stdout.flush()  # Flush before redirect to avoid mixing buffers
         os.dup2(2, 1)
+        sys.stdout = os.fdopen(1, "w", closefd=False)  # Rebind sys.stdout to new fd 1
 
         enhanced = None
         model_used = None
@@ -281,14 +286,19 @@ def main():
                     fidelity_weight = 1.0 - strength
                     enhanced = enhance_with_codeformer(img_array, fidelity_weight)
                     model_used = "codeformer"
-                except Exception:
+                except Exception as e:
+                    import traceback
+                    print(f"[enhance-faces] CodeFormer failed, falling back to GFPGAN: {e}", file=sys.stderr, flush=True)
+                    traceback.print_exc(file=sys.stderr)
                     enhanced = enhance_with_gfpgan(img_array, only_center_face)
                     model_used = "gfpgan"
 
         finally:
             # Restore stdout after ALL AI processing
+            sys.stdout.flush()
             os.dup2(stdout_fd, 1)
             os.close(stdout_fd)
+            sys.stdout = sys.__stdout__  # Restore Python-level stdout
 
         if enhanced is None:
             raise RuntimeError("Face enhancement failed: no model available")

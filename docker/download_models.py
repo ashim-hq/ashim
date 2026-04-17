@@ -70,6 +70,37 @@ os.environ["PADDLE_DEVICE"] = "cpu"
 os.environ["FLAGS_use_cuda"] = "0"
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
+# Prevent ONNX Runtime from loading the CUDA Execution Provider at build time.
+# The cudnn-runtime base image includes cuDNN, which makes ONNX try to init
+# the CUDA EP.  Without a GPU driver (only available at container runtime),
+# this segfaults.  Temporarily renaming the provider .so is the most reliable
+# way to prevent this — env vars alone are not enough.
+def _hide_cuda_provider():
+    """Rename ONNX CUDA provider .so to prevent load at build time."""
+    try:
+        import onnxruntime as _ort
+        ep_dir = os.path.join(os.path.dirname(_ort.__file__), "capi")
+        for name in ("libonnxruntime_providers_cuda.so", "libonnxruntime_providers_tensorrt.so"):
+            src = os.path.join(ep_dir, name)
+            if os.path.exists(src):
+                os.rename(src, src + ".build_hide")
+    except ImportError:
+        pass
+
+def _restore_cuda_provider():
+    """Restore hidden ONNX CUDA provider .so after build-time downloads."""
+    try:
+        import onnxruntime as _ort
+        ep_dir = os.path.join(os.path.dirname(_ort.__file__), "capi")
+        for name in ("libonnxruntime_providers_cuda.so", "libonnxruntime_providers_tensorrt.so"):
+            bak = os.path.join(ep_dir, name + ".build_hide")
+            if os.path.exists(bak):
+                os.rename(bak, os.path.join(ep_dir, name))
+    except ImportError:
+        pass
+
+_hide_cuda_provider()
+
 LAMA_MODEL_DIR = "/opt/models/lama"
 LAMA_MODEL_URL = "https://huggingface.co/Carve/LaMa-ONNX/resolve/main/lama_fp32.onnx"
 LAMA_MODEL_PATH = os.path.join(LAMA_MODEL_DIR, "lama_fp32.onnx")
@@ -686,6 +717,7 @@ def main():
     print("\nAll downloads complete. Running verification...\n")
     verify_mediapipe()
     smoke_test()
+    _restore_cuda_provider()
     print("All models downloaded and verified.")
 
 

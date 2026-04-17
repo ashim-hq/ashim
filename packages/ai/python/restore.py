@@ -368,7 +368,8 @@ def enhance_faces(img_bgr, fidelity=0.7):
         # Run inference
         try:
             output = session.run(None, model_inputs)[0][0]  # (3, 512, 512)
-        except Exception:
+        except Exception as e:
+            print(f"[restore] CodeFormer inference failed for face {i}: {e}", file=sys.stderr, flush=True)
             continue
 
         # Postprocess: [-1, 1] -> [0, 255], RGB -> BGR
@@ -478,8 +479,8 @@ def colorize_bw(img_bgr, intensity=0.85):
         from gpu import gpu_available
         if gpu_available():
             providers.insert(0, "CUDAExecutionProvider")
-    except ImportError:
-        pass
+    except ImportError as e:
+        print(f"[restore] GPU detection unavailable: {e}", file=sys.stderr, flush=True)
 
     session = ort.InferenceSession(DDCOLOR_MODEL_PATH, providers=providers)
     input_name = session.get_inputs()[0].name

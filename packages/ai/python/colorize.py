@@ -188,18 +188,29 @@ def main():
                 if os.path.exists(DDCOLOR_MODEL_PATH):
                     result_bgr, method = colorize_ddcolor(img_bgr, intensity)
                 elif model_choice == "ddcolor":
-                    emit_progress(10, "DDColor model not found, using fallback")
+                    raise FileNotFoundError(f"DDColor model not found: {DDCOLOR_MODEL_PATH}")
             except Exception as e:
+                import traceback
+                print(f"[colorize] DDColor failed: {e}", file=sys.stderr, flush=True)
+                traceback.print_exc(file=sys.stderr)
                 if model_choice == "ddcolor":
-                    emit_progress(10, f"DDColor failed: {str(e)[:50]}")
+                    # User explicitly requested ddcolor — fail, don't degrade
+                    raise
                 result_bgr = None
 
-        # Try OpenCV fallback
+        # Try OpenCV fallback only in auto mode
         if result_bgr is None and model_choice in ("auto", "opencv"):
             try:
                 if os.path.exists(OPENCV_PROTO_PATH) and os.path.exists(OPENCV_MODEL_PATH):
                     result_bgr, method = colorize_opencv(img_bgr, intensity)
-            except Exception:
+                elif model_choice == "opencv":
+                    raise FileNotFoundError(f"OpenCV colorize models not found: {OPENCV_PROTO_PATH}")
+            except Exception as e:
+                import traceback
+                print(f"[colorize] OpenCV fallback failed: {e}", file=sys.stderr, flush=True)
+                traceback.print_exc(file=sys.stderr)
+                if model_choice == "opencv":
+                    raise
                 result_bgr = None
 
         if result_bgr is None:

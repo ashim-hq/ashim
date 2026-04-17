@@ -108,7 +108,7 @@ RUN set -e; \
 # Stage 3: Platform-specific base images
 # ============================================
 FROM node:22-bookworm AS base-linux-arm64
-FROM nvidia/cuda:12.6.3-runtime-ubuntu24.04 AS base-linux-amd64
+FROM nvidia/cuda:12.6.3-cudnn-runtime-ubuntu24.04 AS base-linux-amd64
 
 # Node.js donor: provides Node binaries for the CUDA amd64 image without
 # relying on NodeSource apt repos or Ubuntu mirrors (which are flaky on CI).
@@ -212,6 +212,18 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 RUN --mount=type=cache,target=/root/.cache/pip \
     /opt/venv/bin/pip install numpy==1.26.4
 
+# Re-align NCCL to match torch's requirement.  paddlepaddle-gpu pins an older
+# nvidia-nccl-cu12 which silently downgrades the version installed by torch,
+# causing "undefined symbol: ncclCommShrink" at import time.  NCCL is ABI-
+# backwards-compatible, so the newer version satisfies both packages.
+RUN --mount=type=cache,target=/root/.cache/pip \
+    if [ "$TARGETARCH" = "amd64" ]; then \
+    /opt/venv/bin/pip install $(/opt/venv/bin/python3 -c \
+        "from importlib.metadata import requires; \
+         print([r.split(';')[0].strip() for r in requires('torch') \
+                if 'nccl' in r][0])") \
+    ; fi
+
 # Pin rembg model storage to a fixed path so models downloaded at build time
 # (as root) are found at runtime (as the non-root ashim user, home=/app).
 # Without this, rembg defaults to ~/.u2net which differs between users.
@@ -227,7 +239,7 @@ COPY docker/download_models.py /tmp/download_models.py
 RUN if [ "$SKIP_MODEL_DOWNLOADS" = "true" ]; then \
         echo "Skipping model downloads (CI build)"; \
     else \
-        /opt/venv/bin/python3 /tmp/download_models.py; \
+        CUDA_VISIBLE_DEVICES="" /opt/venv/bin/python3 /tmp/download_models.py; \
     fi && rm -f /tmp/download_models.py && \
     # Symlink PaddleX model dir into both possible HOME locations so models are
     # found regardless of whether HOME=/root (build/root context) or HOME=/app

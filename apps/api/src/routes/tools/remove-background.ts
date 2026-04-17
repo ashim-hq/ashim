@@ -145,6 +145,7 @@ export function registerRemoveBackground(app: FastifyInstance) {
           originalSize: fileBuffer.length,
           processedSize: transparentResult.length,
           filename,
+          model: settings.model,
         });
       } catch (err) {
         request.log.error({ err, toolId: "remove-background" }, "Background removal failed");

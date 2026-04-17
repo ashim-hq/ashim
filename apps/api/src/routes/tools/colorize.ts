@@ -142,6 +142,13 @@ export function registerColorize(app: FastifyInstance) {
         });
       }
 
+      if (model !== "auto" && result.method !== model) {
+        request.log.warn(
+          { toolId: "colorize", requested: model, actual: result.method },
+          `Colorize model mismatch: requested ${model} but used ${result.method}`,
+        );
+      }
+
       return reply.send({
         jobId,
         downloadUrl: `/api/v1/download/${jobId}/${encodeURIComponent(outputFilename)}`,

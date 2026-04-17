@@ -32,8 +32,8 @@ available_modules = {}
 def _try_import(name, import_fn):
     try:
         available_modules[name] = import_fn()
-    except ImportError:
-        pass
+    except ImportError as e:
+        print(f"[dispatcher] Module '{name}' not available: {e}", file=sys.stderr, flush=True)
 
 
 _try_import("PIL", lambda: __import__("PIL"))
@@ -94,6 +94,8 @@ def _run_script_main(script_name, args):
     except SystemExit as e:
         exit_code = e.code if isinstance(e.code, int) else 1
     except Exception as e:
+        # Log full traceback to stderr for diagnostics
+        traceback.print_exc(file=sys.stderr)
         # Write error to the captured stdout
         sys.stdout.write(json.dumps({"success": False, "error": str(e)}) + "\n")
         sys.stdout.flush()
@@ -129,9 +131,10 @@ def main():
     try:
         from gpu import gpu_available
         gpu = gpu_available()
-    except ImportError:
-        pass
+    except ImportError as e:
+        print(f"[dispatcher] GPU detection failed: {e}", file=sys.stderr, flush=True)
     print(json.dumps({"ready": True, "gpu": gpu}), file=sys.stderr, flush=True)
+    print(f"[dispatcher] Ready. GPU: {gpu}. Modules: {list(available_modules.keys())}", file=sys.stderr, flush=True)
 
     for line in sys.stdin:
         line = line.strip()

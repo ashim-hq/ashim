@@ -17,8 +17,8 @@ except (ImportError, ModuleNotFoundError):
         _shim = types.ModuleType("torchvision.transforms.functional_tensor")
         _shim.rgb_to_grayscale = _F.rgb_to_grayscale
         sys.modules["torchvision.transforms.functional_tensor"] = _shim
-    except ImportError:
-        pass  # torchvision not installed at all, Real-ESRGAN unavailable
+    except ImportError as e:
+        print(f"[upscale] torchvision shim failed: {e}", file=sys.stderr, flush=True)
 
 
 def emit_progress(percent, stage):
@@ -167,14 +167,19 @@ def main():
                     os.dup2(stdout_fd, 1)
                     os.close(stdout_fd)
 
-            except (ImportError, FileNotFoundError, RuntimeError, OSError):
-                # RealESRGAN unavailable or failed
+            except (ImportError, FileNotFoundError, RuntimeError, OSError) as e:
+                import traceback
+                print(f"[upscale] Real-ESRGAN failed: {e}", file=sys.stderr, flush=True)
+                traceback.print_exc(file=sys.stderr)
                 if model_choice == "realesrgan":
-                    emit_progress(15, "AI model not available, using fast resize")
+                    # User explicitly requested realesrgan — fail, don't degrade
+                    raise RuntimeError(f"Real-ESRGAN unavailable: {e}") from e
                 result = None
 
-        # Fall back to Lanczos
+        # Lanczos path: used when explicitly requested or as auto fallback
         if result is None:
+            if model_choice not in ("auto", "lanczos"):
+                raise RuntimeError(f"Requested model '{model_choice}' is not available")
             emit_progress(50, "Upscaling with Lanczos")
             result = img.resize(new_size, Image.LANCZOS)
             method = "lanczos"

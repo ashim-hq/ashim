@@ -166,6 +166,13 @@ export function registerUpscale(app: FastifyInstance) {
         });
       }
 
+      if (model !== "auto" && result.method !== model) {
+        request.log.warn(
+          { toolId: "upscale", requested: model, actual: result.method },
+          `Upscale model mismatch: requested ${model} but used ${result.method}`,
+        );
+      }
+
       return reply.send({
         jobId,
         downloadUrl: `/api/v1/download/${jobId}/${encodeURIComponent(outputFilename)}`,

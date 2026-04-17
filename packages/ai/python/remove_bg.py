@@ -93,7 +93,8 @@ def main():
                 alpha_matting_foreground_threshold=240,
                 alpha_matting_background_threshold=10,
             )
-        except Exception:
+        except Exception as e:
+            print(f"[remove-bg] Alpha matting failed ({e}), using standard removal", file=sys.stderr, flush=True)
             output_data = remove(input_data, session=session)
 
         emit_progress(80, "Background removed")
@@ -107,11 +108,12 @@ def main():
 
         result = json.dumps({"success": True, "model": model})
 
-    except ImportError:
+    except ImportError as e:
+        print(f"[remove-bg] Import failed: {e}", file=sys.stderr, flush=True)
         result = json.dumps(
             {
                 "success": False,
-                "error": "rembg is not installed. Install with: pip install rembg[cpu]",
+                "error": f"rembg import failed: {e}",
             }
         )
     except Exception as e:
