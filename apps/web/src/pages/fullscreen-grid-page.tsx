@@ -11,7 +11,7 @@ import { useFeaturesStore } from "@/stores/features-store";
 
 export function FullscreenGridPage() {
   const [search, setSearch] = useState("");
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(true);
   const navigate = useNavigate();
   const [disabledTools, setDisabledTools] = useState<string[]>([]);
   const [experimentalEnabled, setExperimentalEnabled] = useState(false);

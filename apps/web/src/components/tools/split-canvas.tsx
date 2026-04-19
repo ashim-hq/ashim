@@ -88,9 +88,10 @@ export function SplitCanvas() {
 
   if (loadError) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-2 text-center p-4">
-        <p className="text-sm text-muted-foreground">Cannot preview this image format</p>
-        <p className="text-xs text-muted-foreground">{filename}</p>
+      <div className="flex flex-col items-center justify-center h-full gap-3 text-center p-4">
+        <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+        <p className="text-sm text-muted-foreground">Loading preview...</p>
+        <p className="text-xs text-muted-foreground/60">{filename}</p>
       </div>
     );
   }
