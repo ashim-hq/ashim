@@ -63,11 +63,11 @@ export function CollageSettings() {
     if (!hasImages || !template) return;
 
     store.setPhase("processing");
+    store.setProgress(0);
     store.setError(null);
 
     try {
       const formData = new FormData();
-      // Send images in cell-assignment order
       for (let i = 0; i < template.cells.length; i++) {
         const imgIdx = cellAssignments[i] ?? -1;
         if (imgIdx >= 0 && images[imgIdx]) {
@@ -94,18 +94,50 @@ export function CollageSettings() {
         }),
       );
 
-      const res = await fetch("/api/v1/tools/collage", {
-        method: "POST",
-        headers: formatHeaders(),
-        body: formData,
+      const result = await new Promise<{
+        downloadUrl: string;
+        processedSize: number;
+        originalSize: number;
+        jobId: string;
+      }>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/v1/tools/collage");
+
+        const headers = formatHeaders();
+        headers.forEach((value, key) => {
+          xhr.setRequestHeader(key, value);
+        });
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            store.setProgress(Math.round((e.loaded / e.total) * 80));
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            store.setProgress(100);
+            try {
+              resolve(JSON.parse(xhr.responseText));
+            } catch {
+              reject(new Error("Invalid response"));
+            }
+          } else {
+            try {
+              const body = JSON.parse(xhr.responseText);
+              reject(new Error(body.error || `Failed: ${xhr.status}`));
+            } catch {
+              reject(new Error(`Failed: ${xhr.status}`));
+            }
+          }
+        };
+
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.send(formData);
+
+        store.setProgress(5);
       });
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Failed: ${res.status}`);
-      }
-
-      const result = await res.json();
       store.setResult(result.downloadUrl, result.processedSize, result.originalSize, result.jobId);
     } catch (err) {
       store.setError(err instanceof Error ? err.message : "Collage failed");

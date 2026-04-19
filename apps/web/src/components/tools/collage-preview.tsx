@@ -61,12 +61,7 @@ export function CollagePreview() {
   }
 
   if (phase === "processing") {
-    return (
-      <div className="flex flex-col items-center justify-center h-full gap-3">
-        <Loader2 className="h-8 w-8 text-primary animate-spin" />
-        <p className="text-sm text-muted-foreground">Creating your collage...</p>
-      </div>
-    );
+    return <ProcessingView />;
   }
 
   if (phase === "result" && resultUrl) {
@@ -147,6 +142,29 @@ function UploadArea() {
         <p className="text-sm text-muted-foreground">Drop 2 or more images here to get started</p>
       </div>
     </section>
+  );
+}
+
+function ProcessingView() {
+  const progress = useCollageStore((s) => s.progress);
+  const label = progress < 80 ? "Uploading images..." : "Processing collage...";
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full gap-4 px-8">
+      <Loader2 className="h-8 w-8 text-primary animate-spin" />
+      <div className="w-full max-w-xs space-y-2">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>{label}</span>
+          <span className="font-mono">{progress}%</span>
+        </div>
+        <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+          <div
+            className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+    </div>
   );
 }
 

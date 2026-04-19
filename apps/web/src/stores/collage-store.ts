@@ -50,6 +50,7 @@ interface CollageState {
   // UI state
   selectedCell: number | null;
   phase: Phase;
+  progress: number;
   resultUrl: string | null;
   resultSize: number | null;
   originalSize: number | null;
@@ -74,6 +75,7 @@ interface CollageState {
   setQuality: (v: number) => void;
   setSelectedCell: (v: number | null) => void;
   setPhase: (v: Phase) => void;
+  setProgress: (v: number) => void;
   setResult: (url: string, size: number, originalSize: number, jobId: string) => void;
   setError: (e: string | null) => void;
   reset: () => void;
@@ -105,6 +107,7 @@ export const useCollageStore = create<CollageState>((set, get) => ({
   quality: 90,
   selectedCell: null,
   phase: "upload",
+  progress: 0,
   resultUrl: null,
   resultSize: null,
   originalSize: null,
@@ -263,6 +266,7 @@ export const useCollageStore = create<CollageState>((set, get) => ({
   setQuality: (v) => set({ quality: v, resultUrl: null }),
   setSelectedCell: (v) => set({ selectedCell: v }),
   setPhase: (v) => set({ phase: v }),
+  setProgress: (v) => set({ progress: v }),
   setResult: (url, size, originalSize, jobId) =>
     set({ resultUrl: url, resultSize: size, originalSize, jobId, phase: "result", error: null }),
   setError: (e) => set({ error: e, phase: "editing" }),
@@ -287,6 +291,7 @@ export const useCollageStore = create<CollageState>((set, get) => ({
       quality: 90,
       selectedCell: null,
       phase: "upload",
+      progress: 0,
       resultUrl: null,
       resultSize: null,
       originalSize: null,
