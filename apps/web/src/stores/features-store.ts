@@ -68,7 +68,14 @@ export const useFeaturesStore = create<FeaturesState>((set, get) => {
           }
           resolveCompletion(bundleId);
         } else if (updated.progress) {
-          set({ installing: { ...get().installing, [bundleId]: updated.progress } });
+          const current = get().installing[bundleId];
+          const percent = Math.max(updated.progress.percent, current?.percent ?? 0);
+          set({
+            installing: {
+              ...get().installing,
+              [bundleId]: { percent, stage: updated.progress.stage },
+            },
+          });
         }
       } catch {}
     }, 3000);
@@ -106,10 +113,12 @@ export const useFeaturesStore = create<FeaturesState>((set, get) => {
           resolveCompletion(bundleId);
           return;
         }
+        const current = get().installing[bundleId];
+        const percent = Math.max(data.percent, current?.percent ?? 0);
         set({
           installing: {
             ...get().installing,
-            [bundleId]: { percent: data.percent, stage: data.stage },
+            [bundleId]: { percent, stage: data.stage },
           },
         });
       } catch {}
