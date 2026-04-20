@@ -42,6 +42,7 @@ recoverInterruptedInstalls();
 const app = Fastify({
   logger: { level: env.LOG_LEVEL },
   bodyLimit: env.MAX_UPLOAD_SIZE_MB > 0 ? env.MAX_UPLOAD_SIZE_MB * 1024 * 1024 : 1073741824,
+  maxParamLength: 500,
 });
 
 app.setErrorHandler((error: Error & { statusCode?: number }, request, reply) => {
