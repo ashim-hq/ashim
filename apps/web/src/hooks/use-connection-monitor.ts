@@ -25,12 +25,16 @@ export function useConnectionMonitor() {
 
       if (state.status === "reconnected") {
         store.getState().stopPolling();
-        store.getState().refreshStaleData();
-        setTimeout(() => {
-          if (store.getState().status === "reconnected") {
-            store.setState({ status: "connected" });
-          }
-        }, 2500);
+        store
+          .getState()
+          .refreshStaleData()
+          .finally(() => {
+            setTimeout(() => {
+              if (store.getState().status === "reconnected") {
+                store.setState({ status: "connected" });
+              }
+            }, 2500);
+          });
       }
 
       if (state.status === "offline") {

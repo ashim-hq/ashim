@@ -162,11 +162,19 @@ export async function apiUpload(files: File[]): Promise<{
 }> {
   const formData = new FormData();
   for (const f of files) formData.append("files", f);
-  const res = await fetch("/api/v1/upload", {
-    method: "POST",
-    headers: formatHeaders(),
-    body: formData,
-  });
+  let res: Response;
+  try {
+    res = await fetch("/api/v1/upload", {
+      method: "POST",
+      headers: formatHeaders(),
+      body: formData,
+    });
+  } catch (error) {
+    if (error instanceof TypeError) {
+      useConnectionStore.getState().setDisconnected();
+    }
+    throw error;
+  }
   if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
   return res.json();
 }
@@ -224,21 +232,37 @@ export async function apiUploadUserFiles(
 ): Promise<{ files: Array<{ id: string; originalName: string; size: number; version: number }> }> {
   const formData = new FormData();
   for (const f of files) formData.append("files", f);
-  const res = await fetch("/api/v1/files/upload", {
-    method: "POST",
-    headers: formatHeaders(),
-    body: formData,
-  });
+  let res: Response;
+  try {
+    res = await fetch("/api/v1/files/upload", {
+      method: "POST",
+      headers: formatHeaders(),
+      body: formData,
+    });
+  } catch (error) {
+    if (error instanceof TypeError) {
+      useConnectionStore.getState().setDisconnected();
+    }
+    throw error;
+  }
   if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
   return res.json();
 }
 
 export async function apiDeleteUserFiles(ids: string[]): Promise<{ deleted: number }> {
-  const res = await fetch("/api/v1/files", {
-    method: "DELETE",
-    headers: formatHeaders({ "Content-Type": "application/json" }),
-    body: JSON.stringify({ ids }),
-  });
+  let res: Response;
+  try {
+    res = await fetch("/api/v1/files", {
+      method: "DELETE",
+      headers: formatHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ ids }),
+    });
+  } catch (error) {
+    if (error instanceof TypeError) {
+      useConnectionStore.getState().setDisconnected();
+    }
+    throw error;
+  }
   if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
   return res.json();
 }
@@ -252,9 +276,17 @@ export function getFileDownloadUrl(id: string): string {
 }
 
 export async function apiDownloadBlob(jobId: string, filename: string): Promise<Blob> {
-  const res = await fetch(getDownloadUrl(jobId, filename), {
-    headers: formatHeaders(),
-  });
+  let res: Response;
+  try {
+    res = await fetch(getDownloadUrl(jobId, filename), {
+      headers: formatHeaders(),
+    });
+  } catch (error) {
+    if (error instanceof TypeError) {
+      useConnectionStore.getState().setDisconnected();
+    }
+    throw error;
+  }
   if (!res.ok) throw new Error(`Download failed: ${res.status}`);
   return res.blob();
 }

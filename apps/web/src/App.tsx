@@ -5,7 +5,7 @@ import { ConnectionBanner } from "./components/common/connection-banner";
 import { KeyboardShortcutProvider } from "./components/common/keyboard-shortcut-provider";
 import { useAuth } from "./hooks/use-auth";
 import { useConnectionMonitor } from "./hooks/use-connection-monitor";
-import { lazyWithRetry } from "./lib/lazy-with-retry";
+import { isChunkError, lazyWithRetry } from "./lib/lazy-with-retry";
 
 // Lazy-load all pages with automatic retry so chunk failures from
 // deployments are recovered transparently instead of white-screening.
@@ -44,12 +44,7 @@ class ErrorBoundary extends Component<
   }
 
   static getDerivedStateFromError(error: Error) {
-    const msg = error.message.toLowerCase();
-    const isChunkError =
-      msg.includes("dynamically imported module") ||
-      msg.includes("loading chunk") ||
-      msg.includes("failed to fetch");
-    return { hasError: true, error, isChunkError };
+    return { hasError: true, error, isChunkError: isChunkError(error) };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {

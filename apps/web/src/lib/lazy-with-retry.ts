@@ -1,6 +1,6 @@
 import { type ComponentType, lazy } from "react";
 
-function isChunkError(error: unknown): boolean {
+export function isChunkError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   const msg = error.message.toLowerCase();
   return (
