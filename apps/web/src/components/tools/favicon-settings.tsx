@@ -73,7 +73,7 @@ export function FaviconSettings() {
     const xhr = new XMLHttpRequest();
     xhrRef.current = xhr;
     xhr.responseType = "blob";
-    xhr.timeout = 180_000;
+    xhr.timeout = 300_000;
 
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {

@@ -1062,8 +1062,8 @@ export function PassportPhotoPreview() {
       if (!dragStartRef.current) return;
       const dx = (e.clientX - dragStartRef.current.x) * 0.001;
       const dy = (e.clientY - dragStartRef.current.y) * 0.001;
-      setAdjustX(Math.max(-0.15, Math.min(0.15, dragStartRef.current.ax - dx)));
-      setAdjustY(Math.max(-0.15, Math.min(0.15, dragStartRef.current.ay - dy)));
+      setAdjustX(Math.max(-0.3, Math.min(0.3, dragStartRef.current.ax - dx)));
+      setAdjustY(Math.max(-0.3, Math.min(0.3, dragStartRef.current.ay - dy)));
     }
 
     function handleMouseUp() {
@@ -1083,7 +1083,7 @@ export function PassportPhotoPreview() {
   const handleWheel = useCallback(
     (e: React.WheelEvent<HTMLCanvasElement>) => {
       e.preventDefault();
-      setZoom(Math.max(0.5, Math.min(3, zoom + (e.deltaY > 0 ? -0.1 : 0.1))));
+      setZoom(Math.max(0.5, Math.min(5, zoom + (e.deltaY > 0 ? -0.1 : 0.1))));
     },
     [zoom, setZoom],
   );
@@ -1138,7 +1138,7 @@ export function PassportPhotoPreview() {
         </span>
         <button
           type="button"
-          onClick={() => setZoom(Math.min(3, zoom + 0.25))}
+          onClick={() => setZoom(Math.min(5, zoom + 0.25))}
           className="p-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           title="Zoom in"
         >

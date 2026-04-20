@@ -349,8 +349,8 @@ function CollageCell({
       if (first) memo = { panX: transform.panX, panY: transform.panY };
       const rect = cellRef.current?.getBoundingClientRect();
       if (!rect || !memo) return memo;
-      const panX = Math.max(-100, Math.min(100, memo.panX + (mx / rect.width) * 100));
-      const panY = Math.max(-100, Math.min(100, memo.panY + (my / rect.height) * 100));
+      const panX = Math.max(-200, Math.min(200, memo.panX + (mx / rect.width) * 100));
+      const panY = Math.max(-200, Math.min(200, memo.panY + (my / rect.height) * 100));
       store.setCellTransform(cellIndex, { panX, panY });
       return memo;
     },
@@ -360,11 +360,11 @@ function CollageCell({
   const bindPinch = usePinch(
     ({ offset: [scale] }) => {
       if (!image || !isSelected) return;
-      const zoom = Math.max(1, Math.min(3, scale));
+      const zoom = Math.max(1, Math.min(10, scale));
       store.setCellTransform(cellIndex, { zoom });
     },
     {
-      scaleBounds: { min: 1, max: 3 },
+      scaleBounds: { min: 1, max: 10 },
       from: () => [transform.zoom, 0],
     },
   );
@@ -378,7 +378,7 @@ function CollageCell({
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       const delta = e.deltaY > 0 ? -0.1 : 0.1;
-      const zoom = Math.max(1, Math.min(3, zoomRef.current + delta));
+      const zoom = Math.max(1, Math.min(10, zoomRef.current + delta));
       store.setCellTransform(cellIndex, { zoom });
     };
     el.addEventListener("wheel", handleWheel, { passive: false });
@@ -555,7 +555,7 @@ function CollageCell({
           <input
             type="range"
             min="1"
-            max="3"
+            max="10"
             step="0.1"
             value={transform.zoom}
             onChange={handleZoomSlider}

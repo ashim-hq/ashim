@@ -68,8 +68,8 @@ export const useSplitStore = create<SplitState>((set, get) => ({
 
   setMode: (mode) => set({ mode, tiles: [], zipBlobUrl: null, error: null }),
   setColumns: (columns) =>
-    set({ columns: Math.max(1, Math.min(20, columns)), tiles: [], zipBlobUrl: null }),
-  setRows: (rows) => set({ rows: Math.max(1, Math.min(20, rows)), tiles: [], zipBlobUrl: null }),
+    set({ columns: Math.max(1, Math.min(100, columns)), tiles: [], zipBlobUrl: null }),
+  setRows: (rows) => set({ rows: Math.max(1, Math.min(100, rows)), tiles: [], zipBlobUrl: null }),
   setTileWidth: (tileWidth) =>
     set({ tileWidth: Math.max(10, tileWidth), tiles: [], zipBlobUrl: null }),
   setTileHeight: (tileHeight) =>

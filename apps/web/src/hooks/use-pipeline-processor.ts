@@ -86,8 +86,8 @@ export function usePipelineProcessor() {
       const xhr = new XMLHttpRequest();
       xhrRef.current = xhr;
 
-      // Pipeline runs multiple steps sequentially, allow up to 3 minutes
-      xhr.timeout = 180_000;
+      // Pipeline runs multiple steps sequentially, allow up to 10 minutes
+      xhr.timeout = 600_000;
 
       // Pipeline is always "medium" speed: upload = 0-40%, processing = 40-95%
       const UPLOAD_WEIGHT = 40;

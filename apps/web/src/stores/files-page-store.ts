@@ -35,7 +35,7 @@ export const useFilesPageStore = create<FilesPageState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const { searchQuery } = get();
-      const result = await apiListFiles({ search: searchQuery || undefined, limit: 100 });
+      const result = await apiListFiles({ search: searchQuery || undefined, limit: 200 });
       set({ files: result.files, total: result.total, loading: false });
     } catch (err) {
       set({ error: err instanceof Error ? err.message : "Failed to load files", loading: false });

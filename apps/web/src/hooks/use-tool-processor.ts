@@ -153,8 +153,8 @@ export function useToolProcessor(toolId: string) {
       const xhr = new XMLHttpRequest();
       xhrRef.current = xhr;
 
-      // Timeout: 60s for fast tools, 3 min for medium (seam carving), 5 min for AI
-      xhr.timeout = isAiTool ? 300_000 : isMediumTool ? 180_000 : 60_000;
+      // Timeout: 2 min for fast tools, 5 min for medium (seam carving), 10 min for AI
+      xhr.timeout = isAiTool ? 600_000 : isMediumTool ? 300_000 : 120_000;
 
       // For AI tools: upload = 0-15%, processing = 15-100% (SSE-driven)
       // For medium tools: upload = 0-40%, processing = 40-95% (gradual fill)

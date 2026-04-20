@@ -72,7 +72,7 @@ function scanOneFile(
     formData.append("settings", JSON.stringify({ tryHarder }));
 
     const xhr = new XMLHttpRequest();
-    xhr.timeout = 60_000;
+    xhr.timeout = 300_000;
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) onUploadProgress((e.loaded / e.total) * 100);

@@ -27,7 +27,7 @@ interface ImageViewerProps {
   imageWrapperStyle?: React.CSSProperties;
 }
 
-const ZOOM_STEPS = [25, 50, 75, 100, 125, 150, 200, 300];
+const ZOOM_STEPS = [10, 25, 50, 75, 100, 150, 200, 300, 500, 1000];
 const DEFAULT_ZOOM = 100;
 
 export function ImageViewer({
