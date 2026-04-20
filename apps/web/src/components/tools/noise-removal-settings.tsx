@@ -180,7 +180,7 @@ export function NoiseRemovalControls({
 
       {/* Quality slider (lossy formats only) */}
       {LOSSY_FORMATS.has(outputFormat) && (
-        <div>
+        <div data-testid="quality-slider">
           <div className="flex justify-between items-center">
             <p className="text-sm font-medium text-muted-foreground">Quality</p>
             <span className="text-sm font-mono tabular-nums font-medium">{quality}</span>

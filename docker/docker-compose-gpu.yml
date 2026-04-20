@@ -1,9 +1,8 @@
 name: ashim
 
-# Usage:
-#   CPU:  docker compose up -d
-#   GPU:  docker compose -f docker-compose-gpu.yml up -d
-#         (requires NVIDIA GPU + nvidia-container-toolkit; Linux/Windows WSL2 only)
+# NVIDIA GPU version
+# Usage: docker compose -f docker-compose-gpu.yml up -d
+# Requires: NVIDIA GPU + nvidia-container-toolkit (Linux/Windows WSL2 only)
 
 services:
   ashim:
@@ -35,6 +34,13 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
 volumes:
   ashim-data:

@@ -196,8 +196,10 @@ test.describe("Automate Page", () => {
     await expect(page.getByPlaceholder("Pipeline name")).not.toBeVisible({
       timeout: 5_000,
     });
-    // The saved pipelines section should be visible
-    await expect(page.getByText("SAVED PIPELINES")).toBeVisible();
+    // The saved pipeline should appear by name
+    await expect(page.getByText(uniqueName).first()).toBeVisible({
+      timeout: 5_000,
+    });
   });
 
   // --- Pipeline Execution ---
