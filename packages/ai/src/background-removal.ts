@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { readFile, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import sharp from "sharp";
 import { type ProgressCallback, parseStdoutJson, runPythonWithProgress } from "./bridge.js";
 
 export interface RemoveBackgroundOptions {
@@ -21,8 +22,10 @@ export async function removeBackground(
 
   await writeFile(inputPath, inputBuffer);
   try {
-    // BiRefNet models need longer timeout (up to 10 min for first load)
-    const timeout = options.model?.startsWith("birefnet") ? 600000 : 300000;
+    const meta = await sharp(inputBuffer).metadata();
+    const megapixels = ((meta.width ?? 0) * (meta.height ?? 0)) / 1_000_000;
+    const baseTimeout = options.model?.startsWith("birefnet") ? 600000 : 300000;
+    const timeout = Math.max(baseTimeout, megapixels * 30 * 1000);
     const { stdout } = await runPythonWithProgress(
       "remove_bg.py",
       [inputPath, outputPath, JSON.stringify(options)],

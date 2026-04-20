@@ -218,7 +218,11 @@ function dispatcherRun(
   if (!proc || !proc.stdin || !dispatcherReady) return null;
 
   const id = randomUUID();
-  const timeout = options.timeout ?? 300000;
+  const timeout =
+    options.timeout ??
+    (process.env.PROCESSING_TIMEOUT_S && parseInt(process.env.PROCESSING_TIMEOUT_S, 10) > 0
+      ? parseInt(process.env.PROCESSING_TIMEOUT_S, 10) * 1000
+      : 600000);
 
   return new Promise((resolvePromise, rejectPromise) => {
     const timer = setTimeout(() => {
@@ -278,7 +282,11 @@ function runPythonPerRequest(
   } = {},
 ): Promise<{ stdout: string; stderr: string }> {
   const scriptPath = resolve(PYTHON_DIR, scriptName);
-  const timeout = options.timeout ?? 300000;
+  const timeout =
+    options.timeout ??
+    (process.env.PROCESSING_TIMEOUT_S && parseInt(process.env.PROCESSING_TIMEOUT_S, 10) > 0
+      ? parseInt(process.env.PROCESSING_TIMEOUT_S, 10) * 1000
+      : 600000);
 
   return new Promise((resolvePromise, rejectPromise) => {
     const trySpawn = (pythonBin: string, isFallback: boolean) => {

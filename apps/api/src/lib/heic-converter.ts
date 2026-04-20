@@ -45,7 +45,7 @@ export async function decodeHeic(buffer: Buffer): Promise<Buffer> {
 
   try {
     await writeFile(inputPath, buffer);
-    await execFileAsync(cmd, [inputPath, outputPath], { timeout: 30_000 });
+    await execFileAsync(cmd, [inputPath, outputPath], { timeout: 120_000 });
 
     // Single-image HEIF: exact filename. Multi-image: -1 suffix on first image.
     try {
@@ -94,7 +94,7 @@ export async function encodeHeic(buffer: Buffer, quality = 80): Promise<Buffer> 
   try {
     await writeFile(inputPath, buffer);
     await execFileAsync("heif-enc", ["-q", String(quality), "-o", outputPath, inputPath], {
-      timeout: 30_000,
+      timeout: 120_000,
     });
     return await readFile(outputPath);
   } finally {

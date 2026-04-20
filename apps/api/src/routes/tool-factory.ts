@@ -15,6 +15,7 @@ import { sanitizeFilename } from "../lib/filename.js";
 import { decodeHeic } from "../lib/heic-converter.js";
 import type { WorkerInput, WorkerOutput } from "../lib/image-worker.js";
 import { sanitizeSvg } from "../lib/svg-sanitize.js";
+import { computeTimeout } from "../lib/timeout.js";
 import { getWorkerPool } from "../lib/worker-pool.js";
 import { createWorkspace } from "../lib/workspace.js";
 
@@ -227,8 +228,11 @@ export function createToolRoute<T>(app: FastifyInstance, config: ToolRouteConfig
               filename,
               inputFormat: validation.format,
             };
+            const meta = await sharp(fileBuffer).metadata();
+            const megapixels = ((meta.width ?? 0) * (meta.height ?? 0)) / 1_000_000;
+            const timeoutMs = computeTimeout(megapixels, "sharp");
             const workerResult: WorkerOutput = await pool.run(workerInput, {
-              signal: AbortSignal.timeout(30_000),
+              signal: AbortSignal.timeout(timeoutMs),
             });
             result = {
               buffer: Buffer.from(workerResult.buffer),

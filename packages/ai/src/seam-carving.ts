@@ -122,7 +122,9 @@ export async function seamCarve(
     if (options.blurRadius !== undefined) args.push("-blur", String(options.blurRadius));
     if (options.sobelThreshold !== undefined) args.push("-sobel", String(options.sobelThreshold));
 
-    await execFileAsync(cairePath, args, { timeout: 120_000 });
+    const megapixels = (origWidth * origHeight) / 1_000_000;
+    const timeoutMs = Math.max(120_000, megapixels * 10 * 1000);
+    await execFileAsync(cairePath, args, { timeout: timeoutMs });
 
     const buffer = await readFile(outputPath);
     const outMeta = await sharp(buffer).metadata();

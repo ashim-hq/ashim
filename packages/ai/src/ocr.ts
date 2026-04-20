@@ -31,9 +31,13 @@ export async function extractText(
   const pngBuffer = await sharp(inputBuffer).png().toBuffer();
   await writeFile(inputPath, pngBuffer);
 
+  const meta = await sharp(inputBuffer).metadata();
+  const megapixels = ((meta.width ?? 0) * (meta.height ?? 0)) / 1_000_000;
+  const timeout = Math.max(600_000, megapixels * 30 * 1000);
+
   const { stdout } = await runPythonWithProgress("ocr.py", [inputPath, JSON.stringify(options)], {
     onProgress,
-    timeout: 600_000, // 10 min timeout for VLM on CPU
+    timeout,
   });
 
   const result = parseStdoutJson(stdout);

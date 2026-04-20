@@ -13,7 +13,7 @@ const sqlite: DatabaseType = new Database(env.DB_PATH);
 // Critical SQLite pragmas for reliability.
 // busy_timeout must be set first so journal_mode = WAL can retry
 // if another connection holds the lock (e.g. parallel test files).
-sqlite.pragma("busy_timeout = 5000");
+sqlite.pragma("busy_timeout = 10000");
 sqlite.pragma("journal_mode = WAL");
 sqlite.pragma("synchronous = NORMAL");
 sqlite.pragma("foreign_keys = ON");

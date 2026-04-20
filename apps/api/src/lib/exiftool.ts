@@ -51,7 +51,7 @@ export async function inspectMetadata(buffer: Buffer, filename: string): Promise
   try {
     await writeFile(tempPath, buffer);
     const { stdout } = await execFileAsync(bin, ["-json", "-G", "-struct", "-n", tempPath], {
-      timeout: 30_000,
+      timeout: 60_000,
       maxBuffer: 10 * 1024 * 1024,
     });
 
@@ -126,7 +126,7 @@ export async function writeMetadata(
   try {
     await writeFile(tempPath, buffer);
     await execFileAsync(bin, ["-overwrite_original", ...tags, tempPath], {
-      timeout: 30_000,
+      timeout: 60_000,
       maxBuffer: 10 * 1024 * 1024,
     });
     return await readFile(tempPath);
