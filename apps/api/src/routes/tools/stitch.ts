@@ -4,13 +4,12 @@ import { basename, join } from "node:path";
 import type { FastifyInstance } from "fastify";
 import sharp from "sharp";
 import { z } from "zod";
+import { env } from "../../config.js";
 import { autoOrient } from "../../lib/auto-orient.js";
 import { formatZodErrors } from "../../lib/errors.js";
 import { validateImageBuffer } from "../../lib/file-validation.js";
 import { ensureSharpCompat } from "../../lib/heic-converter.js";
 import { createWorkspace } from "../../lib/workspace.js";
-
-const MAX_CANVAS_PIXELS = 100_000_000;
 
 const settingsSchema = z.object({
   direction: z.enum(["horizontal", "vertical", "grid"]).default("horizontal"),
@@ -180,9 +179,10 @@ export function registerStitch(app: FastifyInstance) {
         }
       }
 
-      if (canvasWidth * canvasHeight > MAX_CANVAS_PIXELS) {
+      const maxCanvasPixels = env.MAX_CANVAS_PIXELS > 0 ? env.MAX_CANVAS_PIXELS : Infinity;
+      if (canvasWidth * canvasHeight > maxCanvasPixels) {
         return reply.status(422).send({
-          error: `Canvas too large: ${canvasWidth}x${canvasHeight} (${Math.round((canvasWidth * canvasHeight) / 1_000_000)}MP exceeds 100MP limit)`,
+          error: `Canvas too large: ${canvasWidth}x${canvasHeight} (${Math.round((canvasWidth * canvasHeight) / 1_000_000)}MP exceeds ${Math.round(maxCanvasPixels / 1_000_000)}MP limit)`,
         });
       }
 

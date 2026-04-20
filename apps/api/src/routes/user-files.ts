@@ -102,7 +102,7 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
       const user = requireAuth(request, reply);
       if (!user) return;
 
-      const limit = Math.min(parseInt(request.query.limit ?? "50", 10) || 50, 200);
+      const limit = parseInt(request.query.limit ?? "50", 10) || 50;
       const offset = parseInt(request.query.offset ?? "0", 10) || 0;
       const search = request.query.search?.trim();
 

@@ -15,6 +15,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import PQueue from "p-queue";
 import { env } from "../config.js";
 import { autoOrient } from "../lib/auto-orient.js";
+import { resolveConcurrency } from "../lib/env.js";
 import { formatZodErrors } from "../lib/errors.js";
 import { isToolInstalled } from "../lib/feature-status.js";
 import { validateImageBuffer } from "../lib/file-validation.js";
@@ -90,7 +91,7 @@ export async function registerBatchRoutes(app: FastifyInstance): Promise<void> {
       }
 
       // Enforce batch size limit
-      if (files.length > env.MAX_BATCH_SIZE) {
+      if (env.MAX_BATCH_SIZE > 0 && files.length > env.MAX_BATCH_SIZE) {
         return reply.status(400).send({
           error: `Too many files. Maximum batch size is ${env.MAX_BATCH_SIZE}`,
         });
@@ -126,7 +127,7 @@ export async function registerBatchRoutes(app: FastifyInstance): Promise<void> {
       updateJobProgress({ ...progress });
 
       // Use p-queue for concurrency control
-      const queue = new PQueue({ concurrency: env.CONCURRENT_JOBS });
+      const queue = new PQueue({ concurrency: resolveConcurrency(env) });
 
       // All processed buffers are held in memory until ZIP streaming begins.
       // Peak memory scales with files.length * avg output size. MAX_BATCH_SIZE bounds this.

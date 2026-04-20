@@ -7,6 +7,7 @@ import PQueue from "p-queue";
 import sharp from "sharp";
 import { z } from "zod";
 import { env } from "../../config.js";
+import { resolveConcurrency } from "../../lib/env.js";
 import { formatZodErrors } from "../../lib/errors.js";
 import { sanitizeFilename } from "../../lib/filename.js";
 import { decodeHeic, encodeHeic } from "../../lib/heic-converter.js";
@@ -135,7 +136,7 @@ export function registerSvgToRaster(app: FastifyInstance) {
       return reply.status(400).send({ error: "No SVG files provided" });
     }
 
-    if (files.length > env.MAX_BATCH_SIZE) {
+    if (env.MAX_BATCH_SIZE > 0 && files.length > env.MAX_BATCH_SIZE) {
       return reply.status(400).send({
         error: `Too many files. Maximum batch size is ${env.MAX_BATCH_SIZE}`,
       });
@@ -157,7 +158,7 @@ export function registerSvgToRaster(app: FastifyInstance) {
     }
 
     const jobId = clientJobId || randomUUID();
-    const queue = new PQueue({ concurrency: env.CONCURRENT_JOBS });
+    const queue = new PQueue({ concurrency: resolveConcurrency(env) });
     const results: ({ buffer: Buffer; filename: string } | null)[] = new Array(files.length).fill(
       null,
     );

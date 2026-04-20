@@ -47,17 +47,11 @@ async function findCaire(): Promise<string> {
   );
 }
 
-/** Max pixels on the longest edge before downscaling for caire. */
-const MAX_CAIRE_DIMENSION = 1200;
-
 /**
  * Content-aware resize using caire (Go seam carving engine).
  * Supports both shrinking and enlarging via seam removal/insertion.
- *
- * Large images (>1200px longest edge) are downscaled first because
- * seam carving is O(width * height * seams) and becomes impractical
- * on high-resolution inputs. JPEG intermediate is used because Go's
- * JPEG decoder is significantly faster than PNG for large images.
+ * Processes at native resolution -- JPEG intermediate is used because
+ * Go's JPEG decoder is significantly faster than PNG for large images.
  */
 export async function seamCarve(
   inputBuffer: Buffer,
@@ -66,35 +60,18 @@ export async function seamCarve(
 ): Promise<SeamCarveResult> {
   const cairePath = await findCaire();
   const id = randomUUID();
-  // Use JPEG for input (fast decode in Go) and PNG for output (lossless)
   const inputPath = join(outputDir, `caire-in-${id}.jpg`);
   const outputPath = join(outputDir, `caire-out-${id}.png`);
 
   try {
-    // Downscale large images and convert to JPEG for fast caire processing
     const meta = await sharp(inputBuffer).metadata();
-    const origWidth = meta.width ?? 0;
-    const origHeight = meta.height ?? 0;
-    const longest = Math.max(origWidth, origHeight);
+    const width = meta.width ?? 0;
+    const height = meta.height ?? 0;
 
-    let width = origWidth;
-    let height = origHeight;
-
-    if (longest > MAX_CAIRE_DIMENSION) {
-      const scale = MAX_CAIRE_DIMENSION / longest;
-      width = Math.round(origWidth * scale);
-      height = Math.round(origHeight * scale);
-    }
-
-    // Always output JPEG for caire input (Go decodes JPEG 3-5x faster than PNG)
-    const processBuffer = await sharp(inputBuffer)
-      .resize(width, height, { fit: "fill" })
-      .jpeg({ quality: 95 })
-      .toBuffer();
+    const processBuffer = await sharp(inputBuffer).jpeg({ quality: 95 }).toBuffer();
 
     await writeFile(inputPath, processBuffer);
 
-    // Build caire arguments
     const args = ["-in", inputPath, "-out", outputPath, "-preview=false"];
 
     if (options.square) {
@@ -102,19 +79,10 @@ export async function seamCarve(
       args.push("-square", "-width", String(shortest), "-height", String(shortest));
     } else {
       if (options.width) {
-        // Scale user-specified dimensions proportionally if image was downscaled
-        const targetW =
-          longest > MAX_CAIRE_DIMENSION
-            ? Math.round(options.width * (MAX_CAIRE_DIMENSION / longest))
-            : options.width;
-        args.push("-width", String(targetW));
+        args.push("-width", String(options.width));
       }
       if (options.height) {
-        const targetH =
-          longest > MAX_CAIRE_DIMENSION
-            ? Math.round(options.height * (MAX_CAIRE_DIMENSION / longest))
-            : options.height;
-        args.push("-height", String(targetH));
+        args.push("-height", String(options.height));
       }
     }
 
@@ -122,7 +90,7 @@ export async function seamCarve(
     if (options.blurRadius !== undefined) args.push("-blur", String(options.blurRadius));
     if (options.sobelThreshold !== undefined) args.push("-sobel", String(options.sobelThreshold));
 
-    const megapixels = (origWidth * origHeight) / 1_000_000;
+    const megapixels = (width * height) / 1_000_000;
     const timeoutMs = Math.max(120_000, megapixels * 10 * 1000);
     await execFileAsync(cairePath, args, { timeout: timeoutMs });
 

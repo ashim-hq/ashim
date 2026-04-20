@@ -7,6 +7,7 @@ import type { FastifyInstance } from "fastify";
 import * as mupdf from "mupdf";
 import sharp from "sharp";
 import { z } from "zod";
+import { env } from "../../config.js";
 import { formatZodErrors } from "../../lib/errors.js";
 import { encodeHeic } from "../../lib/heic-converter.js";
 import { createWorkspace } from "../../lib/workspace.js";
@@ -229,7 +230,7 @@ export function registerPdfToImage(app: FastifyInstance) {
         return reply.status(400).send({ error: "Password-protected PDFs are not supported" });
       }
       const pageCount = doc.countPages();
-      const maxPages = Math.min(pageCount, 200);
+      const maxPages = env.MAX_PDF_PAGES > 0 ? Math.min(pageCount, env.MAX_PDF_PAGES) : pageCount;
       const thumbnails: Array<{
         page: number;
         dataUrl: string;

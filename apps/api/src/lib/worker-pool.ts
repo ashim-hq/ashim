@@ -4,15 +4,14 @@
  * Uses Piscina (backed by worker_threads) so Sharp operations don't block
  * HTTP request handling, SSE streams, or health checks.
  */
-import { availableParallelism } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import Piscina from "piscina";
+import { loadEnv, resolveWorkerThreads } from "./env.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Size the pool: leave 1 thread for the event loop, min 1 worker
-const maxThreads = Math.max(1, Math.min(availableParallelism() - 1, 4));
+const maxThreads = resolveWorkerThreads(loadEnv());
 
 let pool: Piscina | null = null;
 

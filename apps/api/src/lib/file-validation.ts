@@ -90,7 +90,7 @@ export async function validateImageBuffer(
     const height = metadata.height ?? 0;
     const megapixels = (width * height) / 1_000_000;
 
-    if (megapixels > env.MAX_MEGAPIXELS) {
+    if (env.MAX_MEGAPIXELS > 0 && megapixels > env.MAX_MEGAPIXELS) {
       return {
         valid: false,
         reason: `Image exceeds maximum size: ${megapixels.toFixed(1)}MP (limit: ${env.MAX_MEGAPIXELS}MP)`,

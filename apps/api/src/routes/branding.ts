@@ -11,13 +11,14 @@ import { join } from "node:path";
 import { eq } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import sharp from "sharp";
+import { env } from "../config.js";
 import { db, schema } from "../db/index.js";
 import { ensureSharpCompat } from "../lib/heic-converter.js";
 import { requireAdmin } from "../plugins/auth.js";
 
 const BRANDING_DIR = join(process.cwd(), "data", "branding");
 const LOGO_PATH = join(BRANDING_DIR, "logo.png");
-const MAX_LOGO_SIZE = 500 * 1024; // 500 KB
+const maxLogoSize = env.MAX_LOGO_SIZE_KB * 1024;
 
 function upsertSetting(key: string, value: string): void {
   const existing = db.select().from(schema.settings).where(eq(schema.settings.key, key)).get();
@@ -51,10 +52,11 @@ export async function brandingRoutes(app: FastifyInstance): Promise<void> {
     const buffer = await file.toBuffer();
 
     // Validate size
-    if (buffer.length > MAX_LOGO_SIZE) {
-      return reply
-        .status(400)
-        .send({ error: "Logo must be 500KB or smaller", code: "VALIDATION_ERROR" });
+    if (buffer.length > maxLogoSize) {
+      return reply.status(400).send({
+        error: `Logo must be ${env.MAX_LOGO_SIZE_KB}KB or smaller`,
+        code: "VALIDATION_ERROR",
+      });
     }
 
     // Decode HEIC/HEIF if needed, then convert to PNG, resize to max 128x128

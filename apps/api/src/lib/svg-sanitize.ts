@@ -1,12 +1,13 @@
-const MAX_SVG_SIZE = 10 * 1024 * 1024; // 10MB
+import { env } from "../config.js";
 
 /**
  * Sanitize an SVG buffer to prevent XXE, SSRF, and script injection.
  * Throws if the SVG exceeds the maximum allowed size.
  */
 export function sanitizeSvg(buffer: Buffer): Buffer {
-  if (buffer.length > MAX_SVG_SIZE) {
-    throw new Error(`SVG exceeds maximum size of ${MAX_SVG_SIZE / 1024 / 1024}MB`);
+  const maxSvgSize = env.MAX_SVG_SIZE_MB > 0 ? env.MAX_SVG_SIZE_MB * 1024 * 1024 : Infinity;
+  if (buffer.length > maxSvgSize) {
+    throw new Error(`SVG exceeds maximum size of ${env.MAX_SVG_SIZE_MB}MB`);
   }
   let svg = buffer.toString("utf-8");
   // Remove DOCTYPE (XXE prevention, including internal subsets)

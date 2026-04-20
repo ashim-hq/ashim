@@ -5,8 +5,8 @@ import { env } from "../config.js";
 export async function registerUpload(app: FastifyInstance): Promise<void> {
   await app.register(multipart, {
     limits: {
-      fileSize: env.MAX_UPLOAD_SIZE_MB * 1024 * 1024,
-      files: env.MAX_BATCH_SIZE,
+      fileSize: env.MAX_UPLOAD_SIZE_MB > 0 ? env.MAX_UPLOAD_SIZE_MB * 1024 * 1024 : undefined,
+      files: env.MAX_BATCH_SIZE > 0 ? env.MAX_BATCH_SIZE : undefined,
     },
   });
 }

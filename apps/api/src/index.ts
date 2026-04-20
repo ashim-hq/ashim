@@ -41,7 +41,7 @@ recoverInterruptedInstalls();
 
 const app = Fastify({
   logger: { level: env.LOG_LEVEL },
-  bodyLimit: env.MAX_UPLOAD_SIZE_MB * 1024 * 1024,
+  bodyLimit: env.MAX_UPLOAD_SIZE_MB > 0 ? env.MAX_UPLOAD_SIZE_MB * 1024 * 1024 : 1073741824,
 });
 
 app.setErrorHandler((error: Error & { statusCode?: number }, request, reply) => {
@@ -79,12 +79,13 @@ app.addHook("onSend", async (_request, reply) => {
   }
 });
 
-await app.register(rateLimit, {
-  max: env.RATE_LIMIT_PER_MIN,
-  timeWindow: "1 minute",
-  // Only rate-limit API endpoints — static files and the SPA fallback must never be throttled
-  allowList: (request) => !request.url.startsWith("/api/"),
-});
+if (env.RATE_LIMIT_PER_MIN > 0) {
+  await app.register(rateLimit, {
+    max: env.RATE_LIMIT_PER_MIN,
+    timeWindow: "1 minute",
+    allowList: (request) => !request.url.startsWith("/api/"),
+  });
+}
 
 // Multipart upload support
 await registerUpload(app);
@@ -195,7 +196,7 @@ try {
 }
 
 // Graceful shutdown
-const SHUTDOWN_TIMEOUT_MS = 8000;
+const SHUTDOWN_TIMEOUT_MS = 30000;
 let shuttingDown = false;
 async function shutdown(signal: string) {
   if (shuttingDown) return;

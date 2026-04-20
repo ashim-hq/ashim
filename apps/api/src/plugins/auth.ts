@@ -98,7 +98,7 @@ export function requireAdmin(request: FastifyRequest, reply: FastifyReply): Auth
 
 // ── Session helpers ────────────────────────────────────────────────
 
-const SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+const SESSION_DURATION_MS = env.SESSION_DURATION_HOURS * 60 * 60 * 1000;
 
 function createSessionToken(): string {
   return randomUUID();
@@ -137,10 +137,7 @@ export async function ensureDefaultAdmin(): Promise<void> {
 
 // ── Login attempt limit ──────────────────────────────────────────
 
-const DEFAULT_LOGIN_ATTEMPT_LIMIT = 10;
-
 function getLoginAttemptLimit(): number {
-  // Allow override via RATE_LIMIT_PER_MIN for test environments
   if (env.RATE_LIMIT_PER_MIN > 1000) return env.RATE_LIMIT_PER_MIN;
   const row = db
     .select()
@@ -151,7 +148,7 @@ function getLoginAttemptLimit(): number {
     const parsed = parseInt(row.value, 10);
     if (!Number.isNaN(parsed) && parsed > 0) return parsed;
   }
-  return DEFAULT_LOGIN_ATTEMPT_LIMIT;
+  return env.LOGIN_ATTEMPT_LIMIT;
 }
 
 // ── Auth routes ────────────────────────────────────────────────────
