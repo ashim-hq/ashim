@@ -331,7 +331,7 @@ def enhance_faces(img_bgr, fidelity=0.7):
     result = img_bgr.copy()
     faces_enhanced = 0
 
-    for face_box in face_boxes:
+    for i, face_box in enumerate(face_boxes):
         x = face_box["x"]
         y = face_box["y"]
         w = face_box["w"]

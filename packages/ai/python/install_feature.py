@@ -90,8 +90,11 @@ def cpu_fallback_packages(packages: list[str]) -> list[str]:
 
         name = pkg.split("==")[0].split(">=")[0].split("[")[0].strip()
         if name in replacements:
-            version = pkg[len(name):]  # e.g. "==1.20.1"
-            result.append(replacements[name] + version)
+            # Extract only the version spec, drop any inline flags
+            # (e.g. "--extra-index-url https://...cu126/" is GPU-specific)
+            tokens = pkg.split()
+            version_token = tokens[0][len(name):]  # e.g. ">=3.2.1"
+            result.append(replacements[name] + version_token)
         else:
             result.append(pkg)
     return result

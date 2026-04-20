@@ -1,7 +1,7 @@
 """Runtime GPU/CUDA detection utility."""
-import ctypes
 import functools
 import os
+import subprocess
 import sys
 
 
@@ -28,31 +28,25 @@ def gpu_available():
     except ImportError as e:
         print(f"[gpu] torch not importable: {e}", file=sys.stderr, flush=True)
 
-    # Fallback: check if onnxruntime's CUDA provider can actually load.
-    # get_available_providers() only reports *compiled-in* backends, not whether
-    # the required libraries (cuDNN, etc.) are present at runtime.  We verify
-    # by creating a minimal CUDA session — this transitively checks that cuDNN
-    # and all required libraries are present.
+    # Fallback: check if onnxruntime-gpu is installed and CUDA EP is available,
+    # then verify an actual NVIDIA GPU is present via nvidia-smi.
     try:
         import onnxruntime as _ort
         providers = _ort.get_available_providers()
         if "CUDAExecutionProvider" not in providers:
             return False
-        # Smoke-test: create a session with CUDA to verify libraries load
-        import numpy as _np
-        _ort.InferenceSession(
-            _np.zeros(0, dtype=_np.uint8).tobytes(),
-            providers=["CUDAExecutionProvider"],
+        # CUDA EP is compiled in — verify hardware is actually present.
+        # nvidia-smi is the most reliable cross-platform check.
+        result = subprocess.run(
+            ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"],
+            capture_output=True, text=True, timeout=5,
         )
-        # If we get here without error, CUDA provider is functional
-        # (the empty model will fail, but the provider DLLs loaded)
-        return True
-    except Exception as e:
-        # CUDA provider may report as available but fail to load (missing cuDNN, etc.)
-        # Any error here means CUDA isn't usable — fall back to CPU
-        err_str = str(e).lower()
-        if "cuda" in err_str or "cudnn" in err_str or "provider" in err_str:
-            print(f"[gpu] ONNX CUDA provider not functional: {e}", file=sys.stderr, flush=True)
+        if result.returncode == 0 and result.stdout.strip():
+            print(f"[gpu] CUDA available via ONNX Runtime + nvidia-smi: {result.stdout.strip()}",
+                  file=sys.stderr, flush=True)
+            return True
+        return False
+    except (ImportError, FileNotFoundError, subprocess.TimeoutExpired):
         return False
 
 
