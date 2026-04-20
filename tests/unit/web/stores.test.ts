@@ -799,3 +799,30 @@ describe("API lib", () => {
     });
   });
 });
+
+// ==========================================================================
+// useAuth security
+// ==========================================================================
+
+describe("useAuth security — network error", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+  });
+
+  it("does NOT grant admin when API is unreachable", async () => {
+    fetchMock.mockRejectedValue(new TypeError("Failed to fetch"));
+
+    const { renderHook, act } = await import("@testing-library/react");
+    const { useAuth } = await import("@/hooks/use-auth");
+
+    const { result } = renderHook(() => useAuth());
+
+    // Flush the async checkAuth() call
+    await act(async () => {});
+
+    // loading stays true — setState was never called
+    expect(result.current.loading).toBe(true);
+    expect(result.current.isAuthenticated).toBe(false);
+    expect(result.current.role).toBeNull();
+  });
+});
