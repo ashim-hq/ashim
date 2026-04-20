@@ -148,7 +148,7 @@ RUN for i in 1 2 3; do apt-get -o Acquire::Retries=3 update && break || sleep $(
     potrace \
     curl \
     gosu \
-    libheif-examples libheif-plugin-x265 \
+    libheif-examples \
     libimage-exiftool-perl \
     python3 python3-pip python3-venv python3-dev \
     tesseract-ocr tesseract-ocr-eng tesseract-ocr-deu tesseract-ocr-fra tesseract-ocr-spa \
@@ -157,6 +157,9 @@ RUN for i in 1 2 3; do apt-get -o Acquire::Retries=3 update && break || sleep $(
     libgl1 libglib2.0-0 \
     libegl1 libwayland-egl1 libwayland-client0 libwayland-cursor0 \
     libxkbcommon-x11-0 libxkbcommon0 libxcursor1 \
+    && if apt-cache show libheif-plugin-x265 >/dev/null 2>&1; then \
+         apt-get install -y --no-install-recommends libheif-plugin-x265; \
+       fi \
     && rm -rf /var/lib/apt/lists/*
 
 # Caire binary (content-aware seam carving)

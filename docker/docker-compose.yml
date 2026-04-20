@@ -1,57 +1,40 @@
 name: ashim
 
 # Usage:
-#   CPU:   docker compose --profile cpu up -d
-#   GPU:   docker compose --profile gpu up -d
-
-x-common: &common
-  build:
-    context: ..
-    dockerfile: docker/Dockerfile
-  image: ashim:latest
-  ports:
-    - "1349:1349"
-  volumes:
-    - ashim-data:/data
-    - ashim-workspace:/tmp/workspace
-  environment:
-    - AUTH_ENABLED=true
-    - DEFAULT_USERNAME=admin
-    - DEFAULT_PASSWORD=admin
-    - SKIP_MUST_CHANGE_PASSWORD=${SKIP_MUST_CHANGE_PASSWORD:-false}
-    - RATE_LIMIT_PER_MIN=${RATE_LIMIT_PER_MIN:-100}
-  restart: unless-stopped
-  healthcheck:
-    test: ["CMD", "curl", "-f", "http://localhost:1349/api/v1/health"]
-    interval: 30s
-    timeout: 5s
-    start_period: 60s
-    retries: 3
-  logging:
-    driver: json-file
-    options:
-      max-size: "10m"
-      max-file: "3"
+#   CPU:   docker compose up -d
+#   GPU:   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+#          (requires NVIDIA GPU + nvidia-container-toolkit; not supported on macOS)
 
 services:
   ashim:
-    <<: *common
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: ashim:latest
     container_name: ashim
-    profiles:
-      - cpu
-
-  ashim-gpu:
-    <<: *common
-    container_name: ashim-gpu
-    profiles:
-      - gpu
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    ports:
+      - "1349:1349"
+    volumes:
+      - ashim-data:/data
+      - ashim-workspace:/tmp/workspace
+    environment:
+      - AUTH_ENABLED=true
+      - DEFAULT_USERNAME=admin
+      - DEFAULT_PASSWORD=admin
+      - SKIP_MUST_CHANGE_PASSWORD=${SKIP_MUST_CHANGE_PASSWORD:-false}
+      - RATE_LIMIT_PER_MIN=${RATE_LIMIT_PER_MIN:-100}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1349/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   ashim-data:
