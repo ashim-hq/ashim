@@ -11,6 +11,12 @@ const FORMAT_MAP: Record<string, string> = {
   gif: "gif",
 };
 
+function formatOpts(format: string, quality: number): Record<string, unknown> {
+  const opts: Record<string, unknown> = { quality };
+  if (format === "avif") opts.effort = 4;
+  return opts;
+}
+
 export async function compress(image: Sharp, options: CompressOptions): Promise<Sharp> {
   const { quality, targetSizeBytes, format } = options;
 
@@ -32,7 +38,7 @@ export async function compress(image: Sharp, options: CompressOptions): Promise<
     throw new Error("Quality must be between 1 and 100");
   }
 
-  return image.toFormat(outputFormat, { quality: q });
+  return image.toFormat(outputFormat, formatOpts(outputFormat, q));
 }
 
 async function compressToTargetSize(
@@ -49,7 +55,7 @@ async function compressToTargetSize(
 
   for (let i = 0; i < maxIterations && low <= high; i++) {
     const mid = Math.min(100, Math.max(1, Math.round((low + high) / 2)));
-    const attempt = sharp(inputBuffer).toFormat(format, { quality: mid });
+    const attempt = sharp(inputBuffer).toFormat(format, formatOpts(format, mid));
     const resultBuffer = await attempt.toBuffer();
     const resultSize = resultBuffer.length;
 
@@ -68,11 +74,11 @@ async function compressToTargetSize(
     }
   }
 
-  // If we never found a suitable buffer, compress at lowest quality found
   if (bestBuffer === null) {
-    bestBuffer = await sharp(inputBuffer).toFormat(format, { quality: bestQuality }).toBuffer();
+    bestBuffer = await sharp(inputBuffer)
+      .toFormat(format, formatOpts(format, bestQuality))
+      .toBuffer();
   }
 
-  // Preserve format + quality so the caller's .toBuffer() doesn't re-encode at defaults
-  return sharp(bestBuffer).toFormat(format, { quality: bestQuality });
+  return sharp(bestBuffer).toFormat(format, formatOpts(format, bestQuality));
 }

@@ -45,7 +45,6 @@ const BROWSER_PREVIEWABLE_EXTS = new Set([
   "webp",
   "svg",
   "bmp",
-  "ico",
   "avif",
 ]);
 

@@ -295,7 +295,6 @@ export function createToolRoute<T>(app: FastifyInstance, config: ToolRouteConfig
           "image/svg+xml",
           "image/bmp",
           "image/avif",
-          "image/x-icon",
         ]);
         let previewUrl: string | undefined;
         if (!BROWSER_PREVIEWABLE.has(result.contentType)) {

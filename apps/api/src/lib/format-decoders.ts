@@ -8,7 +8,7 @@ import { promisify } from "node:util";
 const execFileAsync = promisify(execFile);
 
 /** Formats that need external CLI tools (not decodable by Sharp). */
-const CLI_DECODED_FORMATS = new Set(["raw", "tga", "psd", "exr", "hdr"]);
+const CLI_DECODED_FORMATS = new Set(["raw", "ico", "tga", "psd", "exr", "hdr"]);
 
 export function needsCliDecode(format: string): boolean {
   return CLI_DECODED_FORMATS.has(format);
@@ -22,6 +22,8 @@ export async function decodeToSharpCompat(buffer: Buffer, format: string): Promi
   switch (format) {
     case "raw":
       return decodeRaw(buffer);
+    case "ico":
+      return decodeIco(buffer);
     case "psd":
       return decodePsd(buffer);
     case "tga":
@@ -55,6 +57,29 @@ async function findMagickCmd(): Promise<string> {
 
 function magickArgs(cmd: string, args: string[]): string[] {
   return cmd === "magick" ? ["convert", ...args] : args;
+}
+
+// ── ICO decoder ────────────────────────────────────────────────
+
+async function decodeIco(buffer: Buffer): Promise<Buffer> {
+  const cmd = await findMagickCmd();
+  const id = randomUUID();
+  const inputPath = join(tmpdir(), `ico-in-${id}.ico`);
+  const outputPath = join(tmpdir(), `ico-out-${id}.png`);
+
+  try {
+    await writeFile(inputPath, buffer);
+    // ICO contains multiple sizes; extract the largest by sorting
+    await execFileAsync(
+      cmd,
+      magickArgs(cmd, [`${inputPath}[-1]`, `png:${outputPath}`]),
+      { timeout: 120_000 },
+    );
+    return await readFile(outputPath);
+  } finally {
+    await rm(inputPath, { force: true }).catch(() => {});
+    await rm(outputPath, { force: true }).catch(() => {});
+  }
 }
 
 // ── RAW decoder (ImageMagick with LibRaw delegate) ─────────────

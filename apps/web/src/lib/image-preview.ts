@@ -3,6 +3,7 @@ import { formatHeaders } from "@/lib/api";
 const SERVER_PREVIEW_EXTENSIONS = new Set([
   "heic", "heif", "hif",                       // HEIF
   "jxl",                                         // JPEG XL (Chrome dropped support)
+  "ico",                                         // ICO (Sharp can't decode)
   "dng", "cr2", "nef", "arw", "orf", "rw2",     // Camera RAW
   "tga",                                         // Targa
   "psd",                                         // Photoshop
