@@ -1,6 +1,8 @@
 import { basename } from "node:path";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import sharp from "sharp";
+import { validateImageBuffer } from "../../lib/file-validation.js";
+import { decodeToSharpCompat, needsCliDecode } from "../../lib/format-decoders.js";
 import { ensureSharpCompat } from "../../lib/heic-converter.js";
 
 /**
@@ -36,12 +38,20 @@ export function registerInfo(app: FastifyInstance) {
     }
 
     try {
-      // Read metadata from original buffer (Sharp can read HEIF container metadata)
-      const metadata = await sharp(fileBuffer).metadata();
+      // Detect format for CLI-decoded formats (PSD, TGA, EXR, HDR, ICO, RAW)
+      const validation = await validateImageBuffer(fileBuffer, filename);
+      const detectedFormat = validation.valid ? validation.format : null;
 
-      // stats() requires pixel decoding, so decode HEIC/HEIF first
-      const decodedBuffer = await ensureSharpCompat(fileBuffer);
-      const stats = await sharp(decodedBuffer).stats();
+      // Decode CLI formats and HEIC before reading metadata
+      let metaBuffer = fileBuffer;
+      if (detectedFormat && needsCliDecode(detectedFormat)) {
+        metaBuffer = await decodeToSharpCompat(fileBuffer, detectedFormat);
+      } else {
+        metaBuffer = await ensureSharpCompat(fileBuffer);
+      }
+
+      const metadata = await sharp(metaBuffer).metadata();
+      const stats = await sharp(metaBuffer).stats();
 
       // Build histogram data from stats
       const histogram = stats.channels.map((ch, i) => ({
