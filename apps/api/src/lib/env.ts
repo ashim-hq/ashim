@@ -35,7 +35,7 @@ const envSchema = z.object({
   MAX_PIPELINE_STEPS: z.coerce.number().default(0),
   MAX_CANVAS_PIXELS: z.coerce.number().default(0),
   MAX_SVG_SIZE_MB: z.coerce.number().default(0),
-  MAX_LOGO_SIZE_KB: z.coerce.number().default(2048),
+  MAX_LOGO_SIZE_KB: z.coerce.number().default(500),
   MAX_SPLIT_GRID: z.coerce.number().default(100),
   MAX_PDF_PAGES: z.coerce.number().default(0),
   SESSION_DURATION_HOURS: z.coerce.number().default(168),
