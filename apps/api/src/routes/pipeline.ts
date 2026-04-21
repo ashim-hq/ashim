@@ -37,25 +37,23 @@ const pipelineStepSchema = z.object({
 });
 
 /** Schema for a full pipeline definition. */
+const maxSteps = env.MAX_PIPELINE_STEPS > 0 ? env.MAX_PIPELINE_STEPS : 20;
+
 const pipelineDefinitionSchema = z.object({
   steps: z
     .array(pipelineStepSchema)
     .min(1, "Pipeline must have at least one step")
-    .refine((steps) => env.MAX_PIPELINE_STEPS === 0 || steps.length <= env.MAX_PIPELINE_STEPS, {
-      message: "Pipeline exceeds maximum steps",
-    }),
+    .max(maxSteps, "Pipeline exceeds maximum steps"),
 });
 
 /** Schema for saving a pipeline. */
 const savePipelineSchema = z.object({
-  name: z.string().min(1, "Pipeline name is required").max(255),
-  description: z.string().max(2000).optional(),
+  name: z.string().min(1, "Pipeline name is required").max(100),
+  description: z.string().max(500).optional(),
   steps: z
     .array(pipelineStepSchema)
     .min(1, "Pipeline must have at least one step")
-    .refine((steps) => env.MAX_PIPELINE_STEPS === 0 || steps.length <= env.MAX_PIPELINE_STEPS, {
-      message: "Pipeline exceeds maximum steps",
-    }),
+    .max(maxSteps, "Pipeline exceeds maximum steps"),
 });
 
 export async function registerPipelineRoutes(app: FastifyInstance): Promise<void> {

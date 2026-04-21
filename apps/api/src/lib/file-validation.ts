@@ -156,9 +156,7 @@ export async function validateImageBuffer(
 
     return { valid: true, format: detectedFormat, width, height };
   } catch {
-    // Sharp failed but we already confirmed valid magic bytes / extension.
-    // This can happen for JXL, ICO, or other formats Sharp partially supports.
-    return { valid: true, format: detectedFormat, width: 0, height: 0 };
+    return { valid: false, reason: "Failed to read image metadata" };
   }
 }
 
