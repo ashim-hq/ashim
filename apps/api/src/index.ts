@@ -9,7 +9,8 @@ import { runMigrations } from "./db/migrate.js";
 import { startCleanupCron } from "./lib/cleanup.js";
 import { ensureAiDirs, recoverInterruptedInstalls } from "./lib/feature-status.js";
 import { shutdownWorkerPool } from "./lib/worker-pool.js";
-import { authMiddleware, authRoutes, ensureDefaultAdmin, requireAdmin } from "./plugins/auth.js";
+import { requirePermission } from "./permissions.js";
+import { authMiddleware, authRoutes, ensureDefaultAdmin } from "./plugins/auth.js";
 import { registerStatic } from "./plugins/static.js";
 import { registerUpload } from "./plugins/upload.js";
 import { apiKeyRoutes } from "./routes/api-keys.js";
@@ -157,7 +158,7 @@ app.get("/api/v1/health", async (_request, reply) => {
 
 // Admin health check (full diagnostics)
 app.get("/api/v1/admin/health", async (request, reply) => {
-  const admin = requireAdmin(request, reply);
+  const admin = requirePermission("system:health")(request, reply);
   if (!admin) return;
 
   let dbOk = false;
