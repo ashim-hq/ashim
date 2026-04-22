@@ -9,7 +9,6 @@
 import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { Role } from "@ashim/shared";
 import { getBundleForTool, TOOL_BUNDLE_MAP } from "@ashim/shared";
 import archiver from "archiver";
 import { eq } from "drizzle-orm";
@@ -27,7 +26,7 @@ import { sanitizeFilename } from "../lib/filename.js";
 import { decodeToSharpCompat, needsCliDecode } from "../lib/format-decoders.js";
 import { decodeHeic } from "../lib/heic-converter.js";
 import { createWorkspace } from "../lib/workspace.js";
-import { hasPermission } from "../permissions.js";
+import { hasEffectivePermission } from "../permissions.js";
 import { requireAuth } from "../plugins/auth.js";
 import { type JobProgress, updateJobProgress } from "./progress.js";
 import { getRegisteredToolIds, getToolConfig } from "./tool-factory.js";
@@ -337,7 +336,7 @@ export async function registerPipelineRoutes(app: FastifyInstance): Promise<void
 
     // Admins see all pipelines; regular users see their own + legacy (no owner)
     const allRows = db.select().from(schema.pipelines).all();
-    const rows = hasPermission(user.role as Role, "pipelines:all")
+    const rows = hasEffectivePermission(user, "pipelines:all")
       ? allRows
       : allRows.filter((row) => !row.userId || row.userId === user.id);
 
@@ -375,7 +374,7 @@ export async function registerPipelineRoutes(app: FastifyInstance): Promise<void
       if (
         existing.userId &&
         existing.userId !== user.id &&
-        !hasPermission(user.role as Role, "pipelines:all")
+        !hasEffectivePermission(user, "pipelines:all")
       ) {
         return reply.status(403).send({ error: "Not authorized to delete this pipeline" });
       }

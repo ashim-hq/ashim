@@ -1,6 +1,6 @@
 import type { Permission, Role } from "@ashim/shared";
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { getAuthUser } from "./plugins/auth.js";
+import { type AuthUser, getAuthUser } from "./plugins/auth.js";
 
 const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   admin: [
@@ -40,6 +40,14 @@ export function hasPermission(role: Role, permission: Permission): boolean {
   return getPermissions(role).includes(permission);
 }
 
+export function hasEffectivePermission(user: AuthUser, permission: Permission): boolean {
+  if (!hasPermission(user.role as Role, permission)) return false;
+  if (user.apiKeyPermissions) {
+    return user.apiKeyPermissions.includes(permission);
+  }
+  return true;
+}
+
 export function requirePermission(permission: Permission) {
   return (request: FastifyRequest, reply: FastifyReply) => {
     const user = getAuthUser(request);
@@ -47,7 +55,7 @@ export function requirePermission(permission: Permission) {
       reply.status(401).send({ error: "Authentication required", code: "AUTH_REQUIRED" });
       return null;
     }
-    if (!hasPermission(user.role as Role, permission)) {
+    if (!hasEffectivePermission(user, permission)) {
       reply.status(403).send({ error: "Insufficient permissions", code: "FORBIDDEN" });
       return null;
     }
@@ -66,7 +74,7 @@ export function requireOwnershipOrPermission(
     reply.status(401).send({ error: "Authentication required", code: "AUTH_REQUIRED" });
     return null;
   }
-  if (resourceUserId !== user.id && !hasPermission(user.role as Role, allPermission)) {
+  if (resourceUserId !== user.id && !hasEffectivePermission(user, allPermission)) {
     return null;
   }
   return user;

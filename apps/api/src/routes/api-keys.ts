@@ -11,7 +11,7 @@ import { and, eq } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { db, schema } from "../db/index.js";
 import { auditLog } from "../lib/audit.js";
-import { hasPermission } from "../permissions.js";
+import { getPermissions, hasEffectivePermission } from "../permissions.js";
 import { computeKeyPrefix, hashPassword, requireAuth } from "../plugins/auth.js";
 
 export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
@@ -20,7 +20,7 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
     const user = requireAuth(request, reply);
     if (!user) return;
 
-    const body = request.body as { name?: string } | null;
+    const body = request.body as { name?: string; permissions?: string[] } | null;
     const name = body?.name?.trim() || "Default API Key";
 
     if (name.length > 100) {
@@ -28,6 +28,19 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
         error: "Key name must be 100 characters or fewer",
         code: "VALIDATION_ERROR",
       });
+    }
+
+    let scopedPermissions: string[] | null = null;
+    if (Array.isArray(body?.permissions) && body.permissions.length > 0) {
+      const userPerms = getPermissions(user.role as Role);
+      const invalid = body.permissions.filter((p: string) => !userPerms.includes(p as any));
+      if (invalid.length > 0) {
+        return reply.status(400).send({
+          error: `Cannot scope key with permissions you don't have: ${invalid.join(", ")}`,
+          code: "VALIDATION_ERROR",
+        });
+      }
+      scopedPermissions = body.permissions;
     }
 
     // Generate a raw API key: "si_" prefix + 48 random bytes as hex
@@ -43,6 +56,7 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
         keyHash,
         keyPrefix,
         name,
+        permissions: scopedPermissions ? JSON.stringify(scopedPermissions) : null,
       })
       .run();
 
@@ -53,6 +67,7 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
       id,
       key: rawKey,
       name,
+      permissions: scopedPermissions,
       createdAt: new Date().toISOString(),
     });
   });
@@ -65,10 +80,11 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
     const selectFields = {
       id: schema.apiKeys.id,
       name: schema.apiKeys.name,
+      permissions: schema.apiKeys.permissions,
       createdAt: schema.apiKeys.createdAt,
       lastUsedAt: schema.apiKeys.lastUsedAt,
     };
-    const keys = hasPermission(user.role as Role, "apikeys:all")
+    const keys = hasEffectivePermission(user, "apikeys:all")
       ? db.select(selectFields).from(schema.apiKeys).all()
       : db
           .select(selectFields)
@@ -80,6 +96,7 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
       apiKeys: keys.map((k) => ({
         id: k.id,
         name: k.name,
+        permissions: k.permissions ? JSON.parse(k.permissions) : null,
         createdAt: k.createdAt.toISOString(),
         lastUsedAt: k.lastUsedAt?.toISOString() ?? null,
       })),

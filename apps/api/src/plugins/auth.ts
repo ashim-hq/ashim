@@ -15,6 +15,7 @@ export interface AuthUser {
   id: string;
   username: string;
   role: "admin" | "editor" | "user";
+  apiKeyPermissions?: string[];
 }
 
 const MAX_USERS = env.MAX_USERS;
@@ -729,10 +730,14 @@ export async function authMiddleware(app: FastifyInstance): Promise<void> {
               .where(eq(schema.users.id, key.userId))
               .get();
             if (apiUser) {
+              const keyPermissions = key.permissions
+                ? JSON.parse(key.permissions as string)
+                : undefined;
               (request as FastifyRequest & { user?: AuthUser }).user = {
                 id: apiUser.id,
                 username: apiUser.username,
                 role: apiUser.role as "admin" | "editor" | "user",
+                apiKeyPermissions: keyPermissions,
               };
               return;
             }
