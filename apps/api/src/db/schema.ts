@@ -72,6 +72,7 @@ export const apiKeys = sqliteTable("api_keys", {
     .notNull()
     .$defaultFn(() => new Date()),
   lastUsedAt: integer("last_used_at", { mode: "timestamp" }),
+  expiresAt: integer("expires_at", { mode: "timestamp" }),
 });
 
 export const pipelines = sqliteTable("pipelines", {

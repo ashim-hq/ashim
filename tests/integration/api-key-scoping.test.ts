@@ -114,3 +114,66 @@ describe("API key permission scoping", () => {
     expect(scopedKey.permissions).toEqual(["tools:use", "files:own"]);
   });
 });
+
+describe("API key expiration", () => {
+  it("creates key with expiration", async () => {
+    const future = new Date(Date.now() + 86400000).toISOString(); // 24h from now
+    const res = await testApp.app.inject({
+      method: "POST",
+      url: "/api/v1/api-keys",
+      headers: { authorization: `Bearer ${adminToken}` },
+      payload: { name: "expiring-key", expiresAt: future },
+    });
+    expect(res.statusCode).toBe(201);
+    const body = JSON.parse(res.body);
+    expect(body.expiresAt).toBeTruthy();
+  });
+
+  it("rejects past expiration date", async () => {
+    const past = new Date(Date.now() - 86400000).toISOString();
+    const res = await testApp.app.inject({
+      method: "POST",
+      url: "/api/v1/api-keys",
+      headers: { authorization: `Bearer ${adminToken}` },
+      payload: { name: "past-key", expiresAt: past },
+    });
+    expect(res.statusCode).toBe(400);
+  });
+
+  it("expired key returns 401", async () => {
+    // Create a key, then manually set its expiration to the past
+    const createRes = await testApp.app.inject({
+      method: "POST",
+      url: "/api/v1/api-keys",
+      headers: { authorization: `Bearer ${adminToken}` },
+      payload: { name: "will-expire", expiresAt: new Date(Date.now() + 86400000).toISOString() },
+    });
+    const apiKey = JSON.parse(createRes.body).key;
+    const keyId = JSON.parse(createRes.body).id;
+
+    // Manually expire the key in DB
+    db.update(schema.apiKeys)
+      .set({ expiresAt: new Date(Date.now() - 1000) })
+      .where(eq(schema.apiKeys.id, keyId))
+      .run();
+
+    const res = await testApp.app.inject({
+      method: "GET",
+      url: "/api/v1/settings",
+      headers: { authorization: `Bearer ${apiKey}` },
+    });
+    expect(res.statusCode).toBe(401);
+  });
+
+  it("GET returns expiresAt field", async () => {
+    const res = await testApp.app.inject({
+      method: "GET",
+      url: "/api/v1/api-keys",
+      headers: { authorization: `Bearer ${adminToken}` },
+    });
+    const body = JSON.parse(res.body);
+    const expiringKey = body.apiKeys.find((k: any) => k.name === "expiring-key");
+    expect(expiringKey).toBeDefined();
+    expect(expiringKey.expiresAt).toBeTruthy();
+  });
+});

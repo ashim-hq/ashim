@@ -19,7 +19,11 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
     const user = requireAuth(request, reply);
     if (!user) return;
 
-    const body = request.body as { name?: string; permissions?: string[] } | null;
+    const body = request.body as {
+      name?: string;
+      permissions?: string[];
+      expiresAt?: string;
+    } | null;
     const name = body?.name?.trim() || "Default API Key";
 
     if (name.length > 100) {
@@ -42,6 +46,22 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
       scopedPermissions = body.permissions;
     }
 
+    let expiresAt: Date | null = null;
+    if (body?.expiresAt) {
+      const parsed = new Date(body.expiresAt);
+      if (Number.isNaN(parsed.getTime())) {
+        return reply
+          .status(400)
+          .send({ error: "Invalid expiresAt date", code: "VALIDATION_ERROR" });
+      }
+      if (parsed <= new Date()) {
+        return reply
+          .status(400)
+          .send({ error: "expiresAt must be in the future", code: "VALIDATION_ERROR" });
+      }
+      expiresAt = parsed;
+    }
+
     // Generate a raw API key: "si_" prefix + 48 random bytes as hex
     const rawKey = `si_${randomBytes(48).toString("hex")}`;
     const keyHash = await hashPassword(rawKey);
@@ -56,6 +76,7 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
         keyPrefix,
         name,
         permissions: scopedPermissions ? JSON.stringify(scopedPermissions) : null,
+        expiresAt,
       })
       .run();
 
@@ -67,6 +88,7 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
       key: rawKey,
       name,
       permissions: scopedPermissions,
+      expiresAt: expiresAt?.toISOString() ?? null,
       createdAt: new Date().toISOString(),
     });
   });
@@ -82,6 +104,7 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
       permissions: schema.apiKeys.permissions,
       createdAt: schema.apiKeys.createdAt,
       lastUsedAt: schema.apiKeys.lastUsedAt,
+      expiresAt: schema.apiKeys.expiresAt,
     };
     const keys = hasEffectivePermission(user, "apikeys:all")
       ? db.select(selectFields).from(schema.apiKeys).all()
@@ -98,6 +121,7 @@ export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
         permissions: k.permissions ? JSON.parse(k.permissions) : null,
         createdAt: k.createdAt.toISOString(),
         lastUsedAt: k.lastUsedAt?.toISOString() ?? null,
+        expiresAt: k.expiresAt?.toISOString() ?? null,
       })),
     });
   });

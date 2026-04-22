@@ -769,6 +769,11 @@ export async function authMiddleware(app: FastifyInstance): Promise<void> {
         for (const key of keysToCheck) {
           const matches = await verifyPassword(token, key.keyHash);
           if (matches) {
+            // Check expiration
+            if (key.expiresAt && key.expiresAt < new Date()) {
+              // Key expired — skip it
+              continue;
+            }
             // Backfill prefix for legacy keys
             if (!key.keyPrefix) {
               db.update(schema.apiKeys)
