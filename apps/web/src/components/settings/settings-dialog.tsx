@@ -158,6 +158,7 @@ interface ApiKeyEntry {
   name: string;
   prefix: string;
   createdAt: string;
+  permissions: string[] | null;
 }
 
 interface UserEntry {
@@ -934,8 +935,9 @@ function PeopleSection() {
               onChange={(e) => setNewRole(e.target.value)}
               className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground"
             >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
+              <option value="user">User — Basic tool access</option>
+              <option value="editor">Editor — All files &amp; pipelines</option>
+              <option value="admin">Admin — Full access</option>
             </select>
             <select
               value={newTeam}
@@ -984,8 +986,9 @@ function PeopleSection() {
               onChange={(e) => setEditRole(e.target.value)}
               className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground"
             >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
+              <option value="user">User — Basic tool access</option>
+              <option value="editor">Editor — All files &amp; pipelines</option>
+              <option value="admin">Admin — Full access</option>
             </select>
             <select
               value={editTeam}
@@ -1178,6 +1181,9 @@ function ApiKeysSection() {
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [keyName, setKeyName] = useState("");
+  const [showScoping, setShowScoping] = useState(false);
+  const [scopedPerms, setScopedPerms] = useState<string[]>([]);
+  const { permissions } = useAuth();
 
   const loadKeys = useCallback(async () => {
     try {
@@ -1198,18 +1204,22 @@ function ApiKeysSection() {
     setGenerating(true);
     setNewKey(null);
     try {
-      const data = await apiPost<{ key: string }>("/v1/api-keys", {
-        name: keyName || "default",
-      });
+      const payload: Record<string, unknown> = { name: keyName || "default" };
+      if (showScoping && scopedPerms.length > 0) {
+        payload.permissions = scopedPerms;
+      }
+      const data = await apiPost<{ key: string }>("/v1/api-keys", payload);
       setNewKey(data.key);
       setKeyName("");
+      setScopedPerms([]);
+      setShowScoping(false);
       await loadKeys();
     } catch {
       // Silently fail
     } finally {
       setGenerating(false);
     }
-  }, [keyName, loadKeys]);
+  }, [keyName, showScoping, scopedPerms, loadKeys]);
 
   const copyKey = useCallback(async (key: string) => {
     const ok = await copyToClipboard(key);
@@ -1269,6 +1279,39 @@ function ApiKeysSection() {
         </button>
       </div>
 
+      {/* Permission scoping */}
+      <div className="space-y-2">
+        <button
+          type="button"
+          onClick={() => setShowScoping(!showScoping)}
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {showScoping ? "Remove permission scoping" : "Restrict permissions (optional)"}
+        </button>
+
+        {showScoping && (
+          <div className="flex flex-wrap gap-2 p-3 rounded-lg border border-border bg-muted/20">
+            {permissions.map((perm) => (
+              <label key={perm} className="flex items-center gap-1.5 text-xs cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={scopedPerms.includes(perm)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setScopedPerms([...scopedPerms, perm]);
+                    } else {
+                      setScopedPerms(scopedPerms.filter((p) => p !== perm));
+                    }
+                  }}
+                  className="rounded border-border"
+                />
+                <span className="font-mono">{perm}</span>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Newly generated key display */}
       {newKey && (
         <div className="space-y-2">
@@ -1305,6 +1348,11 @@ function ApiKeysSection() {
                 <p className="text-xs text-muted-foreground font-mono">
                   {k.prefix}... &middot; Created {new Date(k.createdAt).toLocaleDateString()}
                 </p>
+                {k.permissions && (
+                  <p className="text-xs text-muted-foreground font-mono mt-0.5">
+                    Scoped: {k.permissions.join(", ")}
+                  </p>
+                )}
               </div>
               <button
                 type="button"
