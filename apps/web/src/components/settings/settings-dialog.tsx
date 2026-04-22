@@ -4,6 +4,7 @@ import {
   Copy,
   Eye,
   EyeOff,
+  FileText,
   Info,
   Key,
   Loader2,
@@ -25,7 +26,7 @@ import {
   Wrench,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { apiDelete, apiGet, apiPost, apiPut, clearToken, formatHeaders } from "@/lib/api";
 import { cn, copyToClipboard } from "@/lib/utils";
@@ -45,6 +46,7 @@ type Section =
   | "people"
   | "teams"
   | "roles"
+  | "audit-log"
   | "api-keys"
   | "ai-features"
   | "tools"
@@ -64,6 +66,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "people", label: "People", icon: Users, requiredPermission: "users:manage" },
   { id: "teams", label: "Teams", icon: UsersRound, requiredPermission: "teams:manage" },
   { id: "roles", label: "Roles", icon: Shield, requiredPermission: "users:manage" },
+  { id: "audit-log", label: "Audit Log", icon: FileText, requiredPermission: "audit:read" },
   { id: "api-keys", label: "API Keys", icon: Key },
   { id: "ai-features", label: "AI Features", icon: Sparkles, requiredPermission: "settings:write" },
   { id: "tools", label: "Tools", icon: Wrench },
@@ -140,6 +143,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
           {section === "people" && <PeopleSection />}
           {section === "teams" && <TeamsSection />}
           {section === "roles" && <RolesSection />}
+          {section === "audit-log" && <AuditLogSection />}
           {section === "api-keys" && <ApiKeysSection />}
           {section === "ai-features" && <AiFeaturesSection />}
           {section === "tools" && <ToolsSection />}
@@ -2084,6 +2088,187 @@ function RolesSection() {
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+/* ────────────────────── Audit Log ────────────────────── */
+
+const AUDIT_ACTIONS = [
+  "LOGIN_SUCCESS",
+  "LOGIN_FAILED",
+  "USER_CREATED",
+  "USER_UPDATED",
+  "USER_DELETED",
+  "PASSWORD_CHANGED",
+  "PASSWORD_RESET",
+  "API_KEY_CREATED",
+  "API_KEY_DELETED",
+  "ROLE_CREATED",
+  "ROLE_UPDATED",
+  "ROLE_DELETED",
+  "SETTINGS_UPDATED",
+] as const;
+
+interface AuditEntry {
+  id: string;
+  actorUsername: string;
+  action: string;
+  targetType: string | null;
+  targetId: string | null;
+  details: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+function formatRelativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(iso).toLocaleDateString();
+}
+
+function AuditLogSection() {
+  const [entries, setEntries] = useState<AuditEntry[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [actionFilter, setActionFilter] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const limit = 25;
+
+  const fetchEntries = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+      if (actionFilter) params.set("action", actionFilter);
+      const data = await apiGet<{ entries: AuditEntry[]; total: number }>(
+        `/v1/audit-log?${params}`,
+      );
+      setEntries(data.entries);
+      setTotal(data.total);
+    } catch {
+      setEntries([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, actionFilter]);
+
+  useEffect(() => {
+    fetchEntries();
+  }, [fetchEntries]);
+
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+
+  const handleFilterChange = (value: string) => {
+    setActionFilter(value);
+    setPage(1);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-foreground">Audit Log</h3>
+        <select
+          value={actionFilter}
+          onChange={(e) => handleFilterChange(e.target.value)}
+          className="text-sm border border-border rounded-lg px-2 py-1.5 bg-background text-foreground"
+        >
+          <option value="">All actions</option>
+          {AUDIT_ACTIONS.map((a) => (
+            <option key={a} value={a}>
+              {a.replaceAll("_", " ")}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : entries.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">No audit log entries.</p>
+      ) : (
+        <div className="border border-border rounded-lg overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="text-left px-3 py-2 font-medium text-muted-foreground">Time</th>
+                <th className="text-left px-3 py-2 font-medium text-muted-foreground">User</th>
+                <th className="text-left px-3 py-2 font-medium text-muted-foreground">Action</th>
+                <th className="text-left px-3 py-2 font-medium text-muted-foreground">Target</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entries.map((entry) => (
+                <Fragment key={entry.id}>
+                  <tr
+                    className="border-b border-border last:border-0 hover:bg-muted/20 cursor-pointer transition-colors"
+                    onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
+                  >
+                    <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">
+                      {formatRelativeTime(entry.createdAt)}
+                    </td>
+                    <td className="px-3 py-2 text-foreground">{entry.actorUsername}</td>
+                    <td className="px-3 py-2">
+                      <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
+                        {entry.action}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-muted-foreground">
+                      {entry.targetType
+                        ? `${entry.targetType}${entry.targetId ? ` #${entry.targetId}` : ""}`
+                        : "—"}
+                    </td>
+                  </tr>
+                  {expandedId === entry.id && entry.details && (
+                    <tr className="border-b border-border last:border-0">
+                      <td colSpan={4} className="px-3 py-2 bg-muted/10">
+                        <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-mono overflow-x-auto">
+                          {JSON.stringify(entry.details, null, 2)}
+                        </pre>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">
+            Page {page} of {totalPages} ({total} entries)
+          </span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => p - 1)}
+              className="px-3 py-1 rounded-lg border border-border text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => p + 1)}
+              className="px-3 py-1 rounded-lg border border-border text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
