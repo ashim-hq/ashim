@@ -1,6 +1,6 @@
 import { createHash, randomBytes, randomUUID, scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { env } from "../config.js";
 import { db, schema } from "../db/index.js";
@@ -395,6 +395,17 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       ? (body.role as "admin" | "editor" | "user")
       : "user";
 
+    // Escalation prevention
+    const roleHierarchy: Record<string, number> = { admin: 3, editor: 2, user: 1 };
+    const actorLevel = roleHierarchy[admin.role] ?? 0;
+    const targetLevel = roleHierarchy[role] ?? 0;
+    if (targetLevel > actorLevel) {
+      return reply.status(403).send({
+        error: "Cannot create a user with a higher role than your own",
+        code: "ESCALATION_DENIED",
+      });
+    }
+
     // Resolve team — frontend sends team name (e.g. "Default"), not ID
     const requestedTeam = (body as { team?: string }).team;
     let teamId: string;
@@ -497,6 +508,19 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
         updatedAt: new Date(),
       };
 
+      // Escalation prevention
+      if (body?.role) {
+        const roleHierarchy: Record<string, number> = { admin: 3, editor: 2, user: 1 };
+        const actorLevel = roleHierarchy[admin.role] ?? 0;
+        const targetLevel = roleHierarchy[body.role] ?? 0;
+        if (targetLevel > actorLevel) {
+          return reply.status(403).send({
+            error: "Cannot assign a role higher than your own",
+            code: "ESCALATION_DENIED",
+          });
+        }
+      }
+
       if (body?.role === "admin" || body?.role === "editor" || body?.role === "user") {
         // Prevent removing your own admin role
         if (id === admin.id && body.role !== "admin") {
@@ -505,6 +529,22 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
             code: "SELF_DEMOTE",
           });
         }
+
+        // Last admin protection
+        if (user.role === "admin" && body?.role !== "admin") {
+          const adminCount = db
+            .select({ count: sql<number>`COUNT(*)` })
+            .from(schema.users)
+            .where(eq(schema.users.role, "admin"))
+            .get();
+          if (adminCount && adminCount.count <= 1) {
+            return reply.status(400).send({
+              error: "Cannot demote the last admin",
+              code: "LAST_ADMIN",
+            });
+          }
+        }
+
         updates.role = body.role as "admin" | "editor" | "user";
       }
 
