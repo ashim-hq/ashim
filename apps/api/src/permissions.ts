@@ -16,6 +16,18 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "users:manage",
     "teams:manage",
     "branding:manage",
+    "features:manage",
+    "system:health",
+    "audit:read",
+  ],
+  editor: [
+    "tools:use",
+    "files:own",
+    "files:all",
+    "apikeys:own",
+    "pipelines:own",
+    "pipelines:all",
+    "settings:read",
   ],
   user: ["tools:use", "files:own", "apikeys:own", "pipelines:own", "settings:read"],
 };
@@ -41,4 +53,21 @@ export function requirePermission(permission: Permission) {
     }
     return user;
   };
+}
+
+export function requireOwnershipOrPermission(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  resourceUserId: string | null,
+  allPermission: Permission,
+) {
+  const user = getAuthUser(request);
+  if (!user) {
+    reply.status(401).send({ error: "Authentication required", code: "AUTH_REQUIRED" });
+    return null;
+  }
+  if (resourceUserId !== user.id && !hasPermission(user.role as Role, allPermission)) {
+    return null;
+  }
+  return user;
 }
