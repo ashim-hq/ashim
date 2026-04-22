@@ -9,6 +9,9 @@ interface AuthState {
   mustChangePassword: boolean;
   role: string | null;
   permissions: string[];
+  analyticsEnabled: boolean | null;
+  analyticsConsentShownAt: number | null;
+  analyticsConsentRemindAt: number | null;
 }
 
 const USER_PERMISSIONS = [
@@ -27,6 +30,9 @@ export function useAuth() {
     mustChangePassword: false,
     role: null,
     permissions: [],
+    analyticsEnabled: null,
+    analyticsConsentShownAt: null,
+    analyticsConsentRemindAt: null,
   });
 
   useEffect(() => {
@@ -46,6 +52,9 @@ export function useAuth() {
               mustChangePassword: false,
               role: "user",
               permissions: USER_PERMISSIONS,
+              analyticsEnabled: null,
+              analyticsConsentShownAt: null,
+              analyticsConsentRemindAt: null,
             });
           return;
         }
@@ -60,6 +69,9 @@ export function useAuth() {
               mustChangePassword: false,
               role: null,
               permissions: [],
+              analyticsEnabled: null,
+              analyticsConsentShownAt: null,
+              analyticsConsentRemindAt: null,
             });
           return;
         }
@@ -79,6 +91,9 @@ export function useAuth() {
               mustChangePassword: mustChange,
               role: session.user?.role ?? null,
               permissions: session.user?.permissions ?? [],
+              analyticsEnabled: session.user?.analyticsEnabled ?? null,
+              analyticsConsentShownAt: session.user?.analyticsConsentShownAt ?? null,
+              analyticsConsentRemindAt: session.user?.analyticsConsentRemindAt ?? null,
             });
         } else {
           localStorage.removeItem("ashim-token");
@@ -90,6 +105,9 @@ export function useAuth() {
               mustChangePassword: false,
               role: null,
               permissions: [],
+              analyticsEnabled: null,
+              analyticsConsentShownAt: null,
+              analyticsConsentRemindAt: null,
             });
         }
       } catch {

@@ -22,6 +22,9 @@ const LoginPage = lazy(() => import("./pages/login-page").then((m) => ({ default
 const PrivacyPolicyPage = lazy(() =>
   import("./pages/privacy-policy-page").then((m) => ({ default: m.PrivacyPolicyPage })),
 );
+const AnalyticsConsentPage = lazy(() =>
+  import("./pages/analytics-consent-page").then((m) => ({ default: m.AnalyticsConsentPage })),
+);
 const ToolPage = lazy(() => import("./pages/tool-page").then((m) => ({ default: m.ToolPage })));
 
 class ErrorBoundary extends Component<
@@ -69,14 +72,22 @@ class ErrorBoundary extends Component<
 }
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { loading, authEnabled, isAuthenticated, mustChangePassword } = useAuth();
+  const {
+    loading,
+    authEnabled,
+    isAuthenticated,
+    mustChangePassword,
+    analyticsEnabled,
+    analyticsConsentShownAt,
+  } = useAuth();
   const location = useLocation();
 
   // Don't guard the login or change-password pages
   if (
     location.pathname === "/login" ||
     location.pathname === "/change-password" ||
-    location.pathname === "/privacy"
+    location.pathname === "/privacy" ||
+    location.pathname === "/analytics-consent"
   ) {
     return <>{children}</>;
   }
@@ -99,6 +110,10 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   // Force password change before allowing access to the app
   if (authEnabled && mustChangePassword) {
     return <Navigate to="/change-password" replace />;
+  }
+
+  if (authEnabled && analyticsEnabled === null && analyticsConsentShownAt === null) {
+    return <Navigate to="/analytics-consent" replace />;
   }
 
   return <>{children}</>;
@@ -137,6 +152,7 @@ export function App() {
                 <Route path="/saturation" element={<Navigate to="/adjust-colors" replace />} />
                 <Route path="/color-channels" element={<Navigate to="/adjust-colors" replace />} />
                 <Route path="/color-effects" element={<Navigate to="/adjust-colors" replace />} />
+                <Route path="/analytics-consent" element={<AnalyticsConsentPage />} />
                 <Route path="/:toolId" element={<ToolPage />} />
                 <Route path="/" element={<HomePage />} />
               </Routes>
