@@ -7,10 +7,12 @@ import {
   Info,
   Key,
   Loader2,
+  Lock,
   LogOut,
   Monitor,
   MoreVertical,
   Pencil,
+  Plus,
   RotateCcw,
   Search,
   Settings,
@@ -42,6 +44,7 @@ type Section =
   | "security"
   | "people"
   | "teams"
+  | "roles"
   | "api-keys"
   | "ai-features"
   | "tools"
@@ -60,6 +63,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "security", label: "Security", icon: Shield },
   { id: "people", label: "People", icon: Users, requiredPermission: "users:manage" },
   { id: "teams", label: "Teams", icon: UsersRound, requiredPermission: "teams:manage" },
+  { id: "roles", label: "Roles", icon: Shield, requiredPermission: "users:manage" },
   { id: "api-keys", label: "API Keys", icon: Key },
   { id: "ai-features", label: "AI Features", icon: Sparkles, requiredPermission: "settings:write" },
   { id: "tools", label: "Tools", icon: Wrench },
@@ -135,6 +139,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
           {section === "security" && <SecuritySection />}
           {section === "people" && <PeopleSection />}
           {section === "teams" && <TeamsSection />}
+          {section === "roles" && <RolesSection />}
           {section === "api-keys" && <ApiKeysSection />}
           {section === "ai-features" && <AiFeaturesSection />}
           {section === "tools" && <ToolsSection />}
@@ -159,6 +164,16 @@ interface ApiKeyEntry {
   prefix: string;
   createdAt: string;
   permissions: string[] | null;
+  expiresAt: string | null;
+}
+
+interface RoleEntry {
+  id: string;
+  name: string;
+  description: string;
+  permissions: string[];
+  isBuiltin: boolean;
+  userCount: number;
 }
 
 interface UserEntry {
@@ -705,6 +720,7 @@ function PeopleSection() {
     null,
   );
   const [teams, setTeams] = useState<TeamEntry[]>([]);
+  const [availableRoles, setAvailableRoles] = useState<RoleEntry[]>([]);
 
   const loadTeams = useCallback(async () => {
     try {
@@ -730,6 +746,9 @@ function PeopleSection() {
   useEffect(() => {
     loadUsers();
     loadTeams();
+    apiGet<{ roles: RoleEntry[] }>("/v1/roles")
+      .then((data) => setAvailableRoles(data.roles))
+      .catch(() => setAvailableRoles([]));
   }, [loadUsers, loadTeams]);
 
   // Close dropdown when clicking outside
@@ -935,9 +954,20 @@ function PeopleSection() {
               onChange={(e) => setNewRole(e.target.value)}
               className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground"
             >
-              <option value="user">User — Basic tool access</option>
-              <option value="editor">Editor — All files &amp; pipelines</option>
-              <option value="admin">Admin — Full access</option>
+              {availableRoles.length > 0 ? (
+                availableRoles.map((r) => (
+                  <option key={r.name} value={r.name}>
+                    {r.name.charAt(0).toUpperCase() + r.name.slice(1)} —{" "}
+                    {r.description || "No description"}
+                  </option>
+                ))
+              ) : (
+                <>
+                  <option value="user">User — Basic tool access</option>
+                  <option value="editor">Editor — All files &amp; pipelines</option>
+                  <option value="admin">Admin — Full access</option>
+                </>
+              )}
             </select>
             <select
               value={newTeam}
@@ -986,9 +1016,20 @@ function PeopleSection() {
               onChange={(e) => setEditRole(e.target.value)}
               className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground"
             >
-              <option value="user">User — Basic tool access</option>
-              <option value="editor">Editor — All files &amp; pipelines</option>
-              <option value="admin">Admin — Full access</option>
+              {availableRoles.length > 0 ? (
+                availableRoles.map((r) => (
+                  <option key={r.name} value={r.name}>
+                    {r.name.charAt(0).toUpperCase() + r.name.slice(1)} —{" "}
+                    {r.description || "No description"}
+                  </option>
+                ))
+              ) : (
+                <>
+                  <option value="user">User — Basic tool access</option>
+                  <option value="editor">Editor — All files &amp; pipelines</option>
+                  <option value="admin">Admin — Full access</option>
+                </>
+              )}
             </select>
             <select
               value={editTeam}
@@ -1183,6 +1224,7 @@ function ApiKeysSection() {
   const [keyName, setKeyName] = useState("");
   const [showScoping, setShowScoping] = useState(false);
   const [scopedPerms, setScopedPerms] = useState<string[]>([]);
+  const [expiresAt, setExpiresAt] = useState("");
   const { permissions } = useAuth();
 
   const loadKeys = useCallback(async () => {
@@ -1208,18 +1250,22 @@ function ApiKeysSection() {
       if (showScoping && scopedPerms.length > 0) {
         payload.permissions = scopedPerms;
       }
+      if (expiresAt) {
+        payload.expiresAt = new Date(expiresAt).toISOString();
+      }
       const data = await apiPost<{ key: string }>("/v1/api-keys", payload);
       setNewKey(data.key);
       setKeyName("");
       setScopedPerms([]);
       setShowScoping(false);
+      setExpiresAt("");
       await loadKeys();
     } catch {
       // Silently fail
     } finally {
       setGenerating(false);
     }
-  }, [keyName, showScoping, scopedPerms, loadKeys]);
+  }, [keyName, showScoping, scopedPerms, expiresAt, loadKeys]);
 
   const copyKey = useCallback(async (key: string) => {
     const ok = await copyToClipboard(key);
@@ -1312,6 +1358,29 @@ function ApiKeysSection() {
         )}
       </div>
 
+      {/* Expiration date */}
+      <div className="flex items-center gap-2">
+        <label className="text-xs text-muted-foreground flex items-center gap-2">
+          Expires:
+          <input
+            type="datetime-local"
+            value={expiresAt}
+            onChange={(e) => setExpiresAt(e.target.value)}
+            className="px-2 py-1 rounded border border-border bg-background text-xs text-foreground"
+            min={new Date().toISOString().slice(0, 16)}
+          />
+        </label>
+        {expiresAt && (
+          <button
+            type="button"
+            onClick={() => setExpiresAt("")}
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
       {/* Newly generated key display */}
       {newKey && (
         <div className="space-y-2">
@@ -1352,6 +1421,11 @@ function ApiKeysSection() {
                   <p className="text-xs text-muted-foreground font-mono mt-0.5">
                     Scoped: {k.permissions.join(", ")}
                   </p>
+                )}
+                {k.expiresAt && (
+                  <span className="text-xs text-amber-500">
+                    Expires {new Date(k.expiresAt).toLocaleDateString()}
+                  </span>
                 )}
               </div>
               <button
@@ -1640,6 +1714,371 @@ function TeamsSection() {
                     </button>
                   </div>
                 )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────── Roles ────────────────────── */
+
+const PERMISSION_GROUPS = [
+  { label: "Tools", permissions: ["tools:use"] },
+  { label: "Files", permissions: ["files:own", "files:all"] },
+  { label: "API Keys", permissions: ["apikeys:own", "apikeys:all"] },
+  { label: "Pipelines", permissions: ["pipelines:own", "pipelines:all"] },
+  { label: "Settings", permissions: ["settings:read", "settings:write"] },
+  { label: "Users", permissions: ["users:manage"] },
+  { label: "Teams", permissions: ["teams:manage"] },
+  { label: "Branding", permissions: ["branding:manage"] },
+  {
+    label: "System",
+    permissions: ["features:manage", "system:health", "audit:read"],
+  },
+];
+
+function RolesSection() {
+  const [roles, setRoles] = useState<RoleEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newPermissions, setNewPermissions] = useState<string[]>([]);
+  const [editingRole, setEditingRole] = useState<RoleEntry | null>(null);
+  const [editPermissions, setEditPermissions] = useState<string[]>([]);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [actionMsg, setActionMsg] = useState<{ type: "success" | "error"; text: string } | null>(
+    null,
+  );
+
+  const loadRoles = useCallback(async () => {
+    try {
+      const data = await apiGet<{ roles: RoleEntry[] }>("/v1/roles");
+      setRoles(data.roles);
+    } catch {
+      setRoles([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadRoles();
+  }, [loadRoles]);
+
+  const handleCreate = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newName.trim()) return;
+      try {
+        await apiPost("/v1/roles", {
+          name: newName.trim().toLowerCase(),
+          description: newDescription.trim(),
+          permissions: newPermissions,
+        });
+        setNewName("");
+        setNewDescription("");
+        setNewPermissions([]);
+        setShowCreateForm(false);
+        setActionMsg({ type: "success", text: "Role created successfully" });
+        await loadRoles();
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Failed to create role";
+        setActionMsg({
+          type: "error",
+          text: msg.includes("409") ? "A role with that name already exists" : msg,
+        });
+      }
+      setTimeout(() => setActionMsg(null), 3000);
+    },
+    [newName, newDescription, newPermissions, loadRoles],
+  );
+
+  const handleUpdate = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!editingRole) return;
+      try {
+        await apiPut(`/v1/roles/${editingRole.id}`, {
+          name: editName.trim().toLowerCase(),
+          description: editDescription.trim(),
+          permissions: editPermissions,
+        });
+        setEditingRole(null);
+        setActionMsg({ type: "success", text: "Role updated" });
+        await loadRoles();
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Failed to update role";
+        setActionMsg({ type: "error", text: msg });
+      }
+      setTimeout(() => setActionMsg(null), 3000);
+    },
+    [editingRole, editName, editDescription, editPermissions, loadRoles],
+  );
+
+  const handleDelete = useCallback(
+    async (role: RoleEntry) => {
+      const msg =
+        role.userCount > 0
+          ? `Delete role "${role.name}"? ${role.userCount} user${role.userCount !== 1 ? "s" : ""} will need to be reassigned.`
+          : `Delete role "${role.name}"?`;
+      if (!confirm(msg)) return;
+      try {
+        await apiDelete(`/v1/roles/${role.id}`);
+        setActionMsg({ type: "success", text: `Role "${role.name}" deleted` });
+        await loadRoles();
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : "Failed to delete role";
+        setActionMsg({ type: "error", text: errMsg });
+      }
+      setTimeout(() => setActionMsg(null), 3000);
+    },
+    [loadRoles],
+  );
+
+  const togglePermission = (perm: string, list: string[], setter: (v: string[]) => void) => {
+    setter(list.includes(perm) ? list.filter((p) => p !== perm) : [...list, perm]);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h3 className="text-lg font-semibold text-foreground">Roles</h3>
+        <p className="text-sm text-muted-foreground mt-1">
+          Manage roles and their permissions. Built-in roles cannot be modified.
+        </p>
+      </div>
+
+      {actionMsg && (
+        <div
+          className={cn(
+            "text-sm px-3 py-2 rounded-lg",
+            actionMsg.type === "error"
+              ? "bg-destructive/10 text-destructive"
+              : "bg-green-500/10 text-green-600 dark:text-green-400",
+          )}
+        >
+          {actionMsg.text}
+        </div>
+      )}
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setShowCreateForm(!showCreateForm)}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          Create Custom Role
+        </button>
+      </div>
+
+      {/* Create role form */}
+      {showCreateForm && (
+        <form
+          onSubmit={handleCreate}
+          className="p-4 rounded-lg border border-border bg-muted/20 space-y-3"
+        >
+          <h4 className="text-sm font-medium text-foreground">New Role</h4>
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="Role name"
+              required
+              className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground"
+            />
+            <input
+              type="text"
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              placeholder="Description (optional)"
+              className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground"
+            />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted-foreground mb-2">Permissions</p>
+            <div className="grid grid-cols-2 gap-3">
+              {PERMISSION_GROUPS.map((group) => (
+                <div key={group.label} className="space-y-1">
+                  <p className="text-xs font-semibold text-foreground">{group.label}</p>
+                  {group.permissions.map((perm) => (
+                    <label key={perm} className="flex items-center gap-1.5 text-xs cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={newPermissions.includes(perm)}
+                        onChange={() => togglePermission(perm, newPermissions, setNewPermissions)}
+                        className="rounded border-border"
+                      />
+                      <span className="font-mono">{perm}</span>
+                    </label>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              Create
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowCreateForm(false);
+                setNewName("");
+                setNewDescription("");
+                setNewPermissions([]);
+              }}
+              className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:bg-muted transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Edit role form */}
+      {editingRole && (
+        <form
+          onSubmit={handleUpdate}
+          className="p-4 rounded-lg border border-primary/30 bg-primary/5 space-y-3"
+        >
+          <h4 className="text-sm font-medium text-foreground">Edit Role: {editingRole.name}</h4>
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              type="text"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              placeholder="Role name"
+              required
+              className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground"
+            />
+            <input
+              type="text"
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
+              placeholder="Description (optional)"
+              className="px-3 py-2 rounded-lg border border-border bg-background text-sm text-foreground"
+            />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted-foreground mb-2">Permissions</p>
+            <div className="grid grid-cols-2 gap-3">
+              {PERMISSION_GROUPS.map((group) => (
+                <div key={group.label} className="space-y-1">
+                  <p className="text-xs font-semibold text-foreground">{group.label}</p>
+                  {group.permissions.map((perm) => (
+                    <label key={perm} className="flex items-center gap-1.5 text-xs cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={editPermissions.includes(perm)}
+                        onChange={() => togglePermission(perm, editPermissions, setEditPermissions)}
+                        className="rounded border-border"
+                      />
+                      <span className="font-mono">{perm}</span>
+                    </label>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditingRole(null)}
+              className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:bg-muted transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Role cards */}
+      <div className="space-y-3">
+        {roles.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8">No roles found.</p>
+        ) : (
+          roles.map((role) => (
+            <div
+              key={role.id}
+              className="p-4 rounded-lg border border-border bg-muted/20 space-y-2"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-foreground capitalize">
+                    {role.name}
+                  </span>
+                  {role.isBuiltin && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                      <Lock className="h-3 w-3" />
+                      Built-in
+                    </span>
+                  )}
+                  <span className="inline-block px-2 py-0.5 rounded-full bg-primary/10 text-xs font-medium text-primary">
+                    {role.userCount} user{role.userCount !== 1 ? "s" : ""}
+                  </span>
+                </div>
+                {!role.isBuiltin && (
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingRole(role);
+                        setEditName(role.name);
+                        setEditDescription(role.description);
+                        setEditPermissions([...role.permissions]);
+                      }}
+                      className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      title="Edit role"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(role)}
+                      className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                      title="Delete role"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+              {role.description && (
+                <p className="text-xs text-muted-foreground">{role.description}</p>
+              )}
+              <div className="flex flex-wrap gap-1.5">
+                {role.permissions.map((perm) => (
+                  <span
+                    key={perm}
+                    className="inline-block px-2 py-0.5 rounded-full bg-muted text-xs font-mono text-muted-foreground"
+                  >
+                    {perm}
+                  </span>
+                ))}
               </div>
             </div>
           ))
