@@ -8,9 +8,7 @@ export function Hero() {
       <div className="mx-auto max-w-4xl text-center">
         <FadeIn>
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-            Your images.
-            <br />
-            Your infrastructure.
+            Your images. Stay yours.
           </h1>
         </FadeIn>
 
