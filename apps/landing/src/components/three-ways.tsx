@@ -18,7 +18,7 @@ const ways = [
   {
     title: "Pipelines",
     description:
-      "Chain up to 20 tools in sequence. Batch process up to 200 images at once. Automate your image workflows.",
+      "Chain multiple tools in sequence. Batch process unlimited images at once. Automate your entire image workflow.",
     icon: Workflow,
   },
 ];
