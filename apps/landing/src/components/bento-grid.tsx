@@ -454,14 +454,7 @@ export function BentoGrid() {
                   }
                 >
                   <Icon size={30} style={{ color: cat?.color }} className="mb-3 shrink-0" />
-                  <div className="flex items-center justify-center gap-1.5">
-                    <span className="font-bold text-sm">{tool.name}</span>
-                    {tool.category === "ai" && (
-                      <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold leading-none text-amber-700">
-                        AI
-                      </span>
-                    )}
-                  </div>
+                  <span className="font-bold text-sm">{tool.name}</span>
                   <p className="mt-1.5 text-xs leading-relaxed text-muted">{tool.description}</p>
                 </div>
               );
