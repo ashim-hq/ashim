@@ -3,7 +3,7 @@ import { FadeIn } from "./fade-in";
 
 export function OpenSource() {
   return (
-    <section className="bg-background-alt px-6 py-24 md:py-36">
+    <section id="open-source" className="bg-background-alt px-6 py-24 md:py-36">
       <div className="mx-auto max-w-3xl text-center">
         <FadeIn>
           <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Open source. Always.</h2>

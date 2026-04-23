@@ -1,13 +1,16 @@
 "use client";
 
-import { Github, Menu, X } from "lucide-react";
+import { Github, Menu, Star, X } from "lucide-react";
 import { useState } from "react";
 
 const links = [
   { label: "Features", href: "#features" },
-  { label: "Enterprise", href: "#enterprise" },
+  { label: "Download", href: "#how-it-works" },
+  { label: "API", href: "#api" },
+  { label: "Pricing", href: "#enterprise" },
   { label: "Docs", href: "https://docs.snapotter.com" },
-  { label: "GitHub", href: "https://github.com/ashim-hq/ashim", icon: Github },
+  { label: "About", href: "#open-source" },
+  { label: "Contact", href: "mailto:contact@snapotter.com" },
 ];
 
 export function Navbar() {
@@ -23,36 +26,48 @@ export function Navbar() {
           <span className="text-lg font-bold tracking-tight">SnapOtter</span>
         </a>
 
-        <div className="hidden items-center gap-8 md:flex">
-          {links.map((item) => {
-            const Icon = item.icon;
-            return (
-              <a
-                key={item.label}
-                href={item.href}
-                className="flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground"
-                {...(item.href.startsWith("http")
-                  ? { target: "_blank", rel: "noopener noreferrer" }
-                  : {})}
-              >
-                {Icon && <Icon size={16} />}
-                {item.label}
-              </a>
-            );
-          })}
+        <div className="hidden items-center gap-6 lg:flex">
+          {links.map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              className="text-sm text-muted transition-colors hover:text-foreground"
+              {...(item.href.startsWith("http") || item.href.startsWith("mailto")
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
+            >
+              {item.label}
+            </a>
+          ))}
         </div>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-3 md:flex">
+          <a
+            href="https://github.com/ashim-hq/ashim"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-background-alt"
+          >
+            <Github size={16} />
+            <Star size={12} className="text-accent" />
+            <span>Star</span>
+          </a>
           <a
             href="https://demo.snapotter.com"
-            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover"
+            className="rounded-lg border border-accent px-4 py-1.5 text-sm font-medium text-accent transition-colors hover:bg-accent/10"
           >
             Try Demo
+          </a>
+          <a
+            href="mailto:contact@snapotter.com?subject=Book%20a%20Demo"
+            className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover"
+          >
+            Book a Demo
           </a>
         </div>
 
         <button
-          className="md:hidden text-muted"
+          className="text-muted lg:hidden"
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
           type="button"
@@ -62,23 +77,41 @@ export function Navbar() {
       </div>
 
       {open && (
-        <div className="border-t border-border bg-background px-6 py-4 md:hidden">
-          {links.map((link) => (
+        <div className="border-t border-border bg-background px-6 py-4 lg:hidden">
+          {links.map((item) => (
             <a
-              key={link.label}
-              href={link.href}
+              key={item.label}
+              href={item.href}
               className="block py-2 text-sm text-muted"
               onClick={() => setOpen(false)}
             >
-              {link.label}
+              {item.label}
             </a>
           ))}
-          <a
-            href="https://demo.snapotter.com"
-            className="mt-2 block rounded-lg bg-accent px-4 py-2 text-center text-sm font-medium text-accent-foreground"
-          >
-            Try Demo
-          </a>
+          <div className="mt-3 flex flex-col gap-2">
+            <a
+              href="https://github.com/ashim-hq/ashim"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium"
+            >
+              <Github size={16} />
+              <Star size={12} className="text-accent" />
+              Star on GitHub
+            </a>
+            <a
+              href="https://demo.snapotter.com"
+              className="block rounded-lg border border-accent px-4 py-2 text-center text-sm font-medium text-accent"
+            >
+              Try Demo
+            </a>
+            <a
+              href="mailto:contact@snapotter.com?subject=Book%20a%20Demo"
+              className="block rounded-lg bg-accent px-4 py-2 text-center text-sm font-medium text-accent-foreground"
+            >
+              Book a Demo
+            </a>
+          </div>
         </div>
       )}
     </nav>
