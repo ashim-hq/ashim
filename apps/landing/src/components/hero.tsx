@@ -1,4 +1,7 @@
+"use client";
+
 import { Github } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FadeIn } from "./fade-in";
 import { TypingCursor } from "./typing-cursor";
 
@@ -44,20 +47,58 @@ const wordCloud = [
   { text: "Vectorize", x: 65, y: 92, size: 12, opacity: 0.08 },
 ];
 
+function useMouseParallax(strength = 30) {
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const rafRef = useRef(0);
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+        setOffset({
+          x: ((e.clientX - cx) / cx) * strength,
+          y: ((e.clientY - cy) / cy) * strength,
+        });
+      });
+    },
+    [strength],
+  );
+
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [handleMouseMove]);
+
+  return offset;
+}
+
 export function Hero() {
+  const mouse = useMouseParallax(25);
+
   return (
     <section className="relative overflow-hidden px-6 pt-32 pb-24 md:pt-44 md:pb-36">
-      {/* Gradient mesh background */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
+      {/* Gradient mesh background - follows mouse */}
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 transition-transform duration-700 ease-out"
+        style={{ transform: `translate(${mouse.x}px, ${mouse.y}px)` }}
+      >
         <div className="absolute -top-[40%] -left-[20%] h-[80%] w-[60%] rounded-full bg-amber-400/20 blur-[120px]" />
         <div className="absolute -top-[20%] -right-[10%] h-[70%] w-[50%] rounded-full bg-orange-300/15 blur-[100px]" />
         <div className="absolute top-[20%] left-[30%] h-[60%] w-[40%] rounded-full bg-yellow-200/10 blur-[140px]" />
         <div className="absolute -bottom-[30%] -right-[20%] h-[60%] w-[50%] rounded-full bg-orange-500/10 blur-[120px]" />
-        <div className="absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />
       </div>
+      <div className="pointer-events-none absolute bottom-0 left-0 -z-10 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />
 
-      {/* Word cloud background */}
-      <div className="pointer-events-none absolute inset-0 -z-10 hidden md:block">
+      {/* Word cloud background - follows mouse in opposite direction */}
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 hidden transition-transform duration-1000 ease-out md:block"
+        style={{ transform: `translate(${mouse.x * -0.4}px, ${mouse.y * -0.4}px)` }}
+      >
         {wordCloud.map((word) => (
           <span
             key={word.text}
