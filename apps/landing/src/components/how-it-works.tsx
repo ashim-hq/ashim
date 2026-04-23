@@ -45,27 +45,26 @@ export function HowItWorks() {
                   <Terminal size={13} />
                   <span className="text-xs">Quick Start</span>
                 </div>
-                <div className="w-[52px]" />
-              </div>
-
-              <div className="flex items-center gap-3 overflow-x-auto px-6 py-5">
-                <span className="shrink-0 text-emerald-400 font-mono text-sm">$</span>
-                <code className="whitespace-nowrap font-mono text-[13px] text-white/90">
-                  {command}
-                </code>
-                <span className="ml-auto shrink-0 pl-3">
+                <span>
                   {copied ? (
-                    <span className="flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-2.5 py-1 text-emerald-400">
+                    <span className="flex items-center gap-1.5 text-emerald-400">
                       <Check size={13} />
                       <span className="text-xs font-medium">Copied!</span>
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-white/25 transition-colors group-hover:bg-white/5 group-hover:text-white/60">
+                    <span className="flex items-center gap-1.5 text-white/30 transition-colors group-hover:text-white/60">
                       <Copy size={13} />
-                      <span className="hidden text-xs md:inline">Copy</span>
+                      <span className="text-xs">Copy</span>
                     </span>
                   )}
                 </span>
+              </div>
+
+              <div className="overflow-x-auto px-6 py-5">
+                <p className="whitespace-nowrap font-mono text-[13px]">
+                  <span className="text-emerald-400">$</span>{" "}
+                  <span className="text-white/90">{command}</span>
+                </p>
               </div>
             </button>
           </div>
