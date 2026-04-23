@@ -21,6 +21,8 @@ __pycache__/
 *.pyc
 
 # Build artifacts
+.next/
+out/
 coverage/
 *.tsbuildinfo
 
