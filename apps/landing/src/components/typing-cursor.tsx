@@ -4,12 +4,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 
 const phrases = [
+  "No signups. No accounts.",
   "100% local processing.",
+  "Unlimited use. Forever free.",
+  "Works fully offline.",
   "Zero data leaves your network.",
   "50+ image tools.",
   "14 AI models. Your hardware.",
   "Air-gapped ready.",
-  "Enterprise-grade. Free forever.",
   "One Docker container.",
   "Open source. Always.",
 ];
