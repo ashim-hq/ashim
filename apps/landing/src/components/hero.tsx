@@ -153,12 +153,6 @@ export function Hero() {
             </a>
           </div>
         </FadeIn>
-
-        <FadeIn delay={0.3}>
-          <p className="mt-8 text-sm text-muted">
-            AGPL-3.0 &middot; Docker one-liner &middot; Free forever
-          </p>
-        </FadeIn>
       </div>
     </section>
   );

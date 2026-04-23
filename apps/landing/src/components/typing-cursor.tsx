@@ -7,7 +7,7 @@ const phrases = [
   "No signups. No accounts.",
   "No uploads to the cloud. Ever.",
   "100% local processing.",
-  "Forever free. No paywalls.",
+  "Free. Forever.",
   "No limits. No hidden caps.",
   "Works fully offline.",
   "Unlimited batch processing.",
