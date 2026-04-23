@@ -135,21 +135,15 @@ export function Hero() {
         </FadeIn>
 
         <FadeIn delay={0.2}>
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a
-              href="https://demo.snapotter.com"
-              className="rounded-xl bg-accent px-8 py-3.5 text-base font-semibold text-accent-foreground shadow-lg shadow-accent/20 transition-colors hover:bg-accent-hover"
-            >
-              Try the Demo &rarr;
-            </a>
+          <div className="mt-10">
             <a
               href="https://github.com/ashim-hq/ashim"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl border border-border px-8 py-3.5 text-base font-semibold transition-colors hover:bg-background-alt"
+              className="inline-flex items-center gap-2 rounded-xl bg-accent px-10 py-4 text-base font-semibold text-accent-foreground shadow-lg shadow-accent/20 transition-colors hover:bg-accent-hover"
             >
-              <Github size={18} />
-              View on GitHub
+              <Github size={20} />
+              Get Started for Free
             </a>
           </div>
         </FadeIn>
