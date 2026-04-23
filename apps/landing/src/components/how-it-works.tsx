@@ -5,7 +5,8 @@ import { useState } from "react";
 
 import { FadeIn } from "./fade-in";
 
-const command = "docker run -d -p 1349:1349 ghcr.io/ashim-hq/ashim";
+const command =
+  "docker run -d --name ashim -p 1349:1349 -v ashim-data:/data ghcr.io/ashim-hq/ashim:latest";
 
 export function HowItWorks() {
   const [copied, setCopied] = useState(false);
@@ -18,7 +19,7 @@ export function HowItWorks() {
 
   return (
     <section id="how-it-works" className="bg-background-alt px-6 py-20 md:py-28">
-      <div className="mx-auto max-w-2xl text-center">
+      <div className="mx-auto max-w-3xl text-center">
         <FadeIn>
           <p className="text-sm font-medium text-accent">Get started in seconds</p>
           <h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">
@@ -27,29 +28,29 @@ export function HowItWorks() {
         </FadeIn>
 
         <FadeIn delay={0.1}>
-          <div className="mt-8 overflow-hidden rounded-xl border border-border bg-[#1e1e1e] shadow-lg">
-            <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
-              <div className="flex items-center gap-2">
-                <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-                <div className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
-                <div className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-              </div>
-              <button
-                type="button"
-                onClick={copyCommand}
-                className="text-white/40 transition-colors hover:text-white/80"
-                aria-label="Copy command"
-              >
-                {copied ? <Check size={14} /> : <Copy size={14} />}
-              </button>
+          <button
+            type="button"
+            onClick={copyCommand}
+            className="group relative mt-8 w-full cursor-pointer overflow-hidden rounded-xl border border-border bg-[#1e1e1e] text-left shadow-lg transition-all hover:border-accent/40"
+          >
+            <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap px-5 py-4 font-mono text-xs md:text-sm">
+              <span className="text-green-400 shrink-0">$</span>
+              <span className="text-white">{command}</span>
+              <span className="ml-auto shrink-0 pl-4">
+                {copied ? (
+                  <span className="flex items-center gap-1.5 text-green-400">
+                    <Check size={14} />
+                    <span className="text-xs">Copied!</span>
+                  </span>
+                ) : (
+                  <Copy
+                    size={14}
+                    className="text-white/30 transition-colors group-hover:text-white/70"
+                  />
+                )}
+              </span>
             </div>
-            <div className="overflow-x-auto whitespace-nowrap px-5 py-4 text-left font-mono text-sm">
-              <p className="text-white">
-                <span className="text-green-400">$</span>{" "}
-                <span className="select-all">{command}</span>
-              </p>
-            </div>
-          </div>
+          </button>
         </FadeIn>
 
         <FadeIn delay={0.15}>
