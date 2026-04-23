@@ -1,5 +1,6 @@
 import { Github } from "lucide-react";
 import { FadeIn } from "./fade-in";
+import { TypingCursor } from "./typing-cursor";
 
 export function Hero() {
   return (
@@ -21,9 +22,8 @@ export function Hero() {
         </FadeIn>
 
         <FadeIn delay={0.1}>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted md:text-xl">
-            50+ image processing tools with local AI. Self-hosted, air-gapped, and fully offline. No
-            data ever leaves your network.
+          <p className="mt-6 text-xl md:text-2xl">
+            <TypingCursor />
           </p>
         </FadeIn>
 
