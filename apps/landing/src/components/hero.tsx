@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FadeIn } from "./fade-in";
 import { TypingCursor } from "./typing-cursor";
 
 const wordCloud = [
@@ -115,39 +114,31 @@ export function Hero() {
       </div>
 
       <div className="relative mx-auto max-w-4xl text-center">
-        <FadeIn>
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-            Your images. Stay yours.
-          </h1>
-        </FadeIn>
+        <h1 className="animate-[fadeUp_0.6s_ease-out_both] text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+          Your images. Stay yours.
+        </h1>
 
-        <FadeIn delay={0.1}>
-          <p className="mt-4 text-lg text-muted md:text-xl">
-            The open-source, self-hosted image processing platform.
-          </p>
-        </FadeIn>
+        <p className="mt-4 animate-[fadeUp_0.6s_ease-out_0.1s_both] text-lg text-muted md:text-xl">
+          The open-source, self-hosted image processing platform.
+        </p>
 
-        <FadeIn delay={0.15}>
-          <p className="mt-4 text-xl font-medium md:text-2xl">
-            <TypingCursor />
-          </p>
-        </FadeIn>
+        <p className="mt-4 animate-[fadeUp_0.6s_ease-out_0.2s_both] text-xl font-medium md:text-2xl">
+          <TypingCursor />
+        </p>
 
-        <FadeIn delay={0.2}>
-          <div className="mt-10">
-            <a
-              href="https://github.com/ashim-hq/ashim"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 bg-[length:200%_100%] px-10 py-4 text-base font-semibold text-white shadow-[0_0_32px_-8px] shadow-amber-500/40 transition-all duration-500 hover:bg-[position:100%_0] hover:shadow-[0_0_40px_-4px] hover:shadow-amber-500/50"
-            >
-              Get it for free
-              <span className="transition-transform duration-300 group-hover:translate-x-1">
-                &rarr;
-              </span>
-            </a>
-          </div>
-        </FadeIn>
+        <div className="mt-10 animate-[fadeUp_0.6s_ease-out_0.3s_both]">
+          <a
+            href="https://github.com/ashim-hq/ashim"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 bg-[length:200%_100%] px-10 py-4 text-base font-semibold text-white shadow-[0_0_32px_-8px] shadow-amber-500/40 transition-all duration-500 hover:bg-[position:100%_0] hover:shadow-[0_0_40px_-4px] hover:shadow-amber-500/50"
+          >
+            Get it for free
+            <span className="transition-transform duration-300 group-hover:translate-x-1">
+              &rarr;
+            </span>
+          </a>
+        </div>
       </div>
     </section>
   );
