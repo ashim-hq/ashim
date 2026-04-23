@@ -1,4 +1,5 @@
 import {
+  Brain,
   Crop,
   Droplets,
   FileType,
@@ -9,73 +10,6 @@ import {
   Zap,
 } from "lucide-react";
 import { FadeIn } from "./fade-in";
-
-const categories = [
-  {
-    name: "Essentials",
-    count: 5,
-    tools: "Resize, Crop, Rotate, Convert, Compress",
-    color: "#3B82F6",
-    icon: Crop,
-    span: "md:col-span-1 md:row-span-1",
-  },
-  {
-    name: "AI Tools",
-    count: 14,
-    tools: "Background Removal, Upscaling, OCR, Face Detection, Colorization, Object Eraser",
-    color: "#F59E0B",
-    icon: Sparkles,
-    span: "md:col-span-1 md:row-span-2",
-  },
-  {
-    name: "Optimization",
-    count: 6,
-    tools: "Web Optimize, Metadata, Bulk Rename, Favicon",
-    color: "#10B981",
-    icon: Zap,
-    span: "md:col-span-1 md:row-span-1",
-  },
-  {
-    name: "Adjustments",
-    count: 3,
-    tools: "Colors, Sharpening, Replace Color",
-    color: "#8B5CF6",
-    icon: SlidersHorizontal,
-    span: "md:col-span-1 md:row-span-1",
-  },
-  {
-    name: "Watermark & Overlay",
-    count: 4,
-    tools: "Text Watermark, Image Watermark, Text Overlay, Composition",
-    color: "#EF4444",
-    icon: Droplets,
-    span: "md:col-span-1 md:row-span-1",
-  },
-  {
-    name: "Utilities",
-    count: 7,
-    tools: "Image Info, Compare, Duplicates, Color Palette, QR Code",
-    color: "#6366F1",
-    icon: Wrench,
-    span: "md:col-span-1 md:row-span-1",
-  },
-  {
-    name: "Layout & Composition",
-    count: 4,
-    tools: "Collage, Stitch, Split, Border & Frame",
-    color: "#EC4899",
-    icon: LayoutGrid,
-    span: "md:col-span-1 md:row-span-1",
-  },
-  {
-    name: "Format & Conversion",
-    count: 4,
-    tools: "SVG to Raster, Vectorize, GIF Tools, PDF to Image",
-    color: "#14B8A6",
-    icon: FileType,
-    span: "md:col-span-1 md:row-span-1",
-  },
-];
 
 export function BentoGrid() {
   return (
@@ -90,32 +24,157 @@ export function BentoGrid() {
           </p>
         </FadeIn>
 
-        <div className="mt-16 grid gap-4 md:auto-rows-[minmax(160px,auto)] md:grid-cols-3">
-          {categories.map((cat, i) => (
-            <FadeIn key={cat.name} delay={i * 0.05} className={cat.span}>
-              <div
-                className="group h-full rounded-2xl border border-border bg-background p-6 transition-all hover:shadow-lg"
-                style={{ borderLeftColor: cat.color, borderLeftWidth: "3px" }}
-              >
+        <div className="mt-16 grid gap-4 md:grid-cols-4 md:grid-rows-3">
+          {/* AI Tools — hero card, spans 2 cols + 2 rows */}
+          <FadeIn className="md:col-span-2 md:row-span-2">
+            <div className="relative h-full overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-8 text-white">
+              <div className="absolute -right-8 -bottom-8 opacity-10">
+                <Sparkles size={200} strokeWidth={1} />
+              </div>
+              <div className="relative">
                 <div className="flex items-center gap-3">
-                  <cat.icon size={20} style={{ color: cat.color }} />
-                  <h3 className="font-semibold">{cat.name}</h3>
-                  <span
-                    className="ml-auto rounded-full px-2.5 py-0.5 text-xs font-medium"
-                    style={{
-                      backgroundColor: `${cat.color}15`,
-                      color: cat.color,
-                    }}
-                  >
-                    {cat.count}
+                  <Brain size={24} />
+                  <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur-sm">
+                    14 models
                   </span>
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-muted">{cat.tools}</p>
+                <h3 className="mt-4 text-2xl font-bold md:text-3xl">AI Tools</h3>
+                <p className="mt-3 max-w-sm text-base leading-relaxed text-white/80">
+                  Background removal, upscaling, OCR, face detection, colorization, object eraser,
+                  noise removal, and more — all running locally on your hardware.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {[
+                    "Remove BG",
+                    "Upscale",
+                    "OCR",
+                    "Face Blur",
+                    "Colorize",
+                    "Denoise",
+                    "Restore",
+                  ].map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur-sm"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </FadeIn>
-          ))}
+            </div>
+          </FadeIn>
+
+          {/* Essentials */}
+          <FadeIn delay={0.05}>
+            <Card
+              name="Essentials"
+              count={5}
+              tools="Resize, Crop, Rotate, Convert, Compress"
+              color="#3B82F6"
+              icon={Crop}
+            />
+          </FadeIn>
+
+          {/* Optimization */}
+          <FadeIn delay={0.1}>
+            <Card
+              name="Optimization"
+              count={6}
+              tools="Web Optimize, Metadata, Bulk Rename, Favicon"
+              color="#10B981"
+              icon={Zap}
+            />
+          </FadeIn>
+
+          {/* Adjustments */}
+          <FadeIn delay={0.15}>
+            <Card
+              name="Adjustments"
+              count={3}
+              tools="Colors, Sharpening, Replace Color"
+              color="#8B5CF6"
+              icon={SlidersHorizontal}
+            />
+          </FadeIn>
+
+          {/* Watermark & Overlay */}
+          <FadeIn delay={0.2}>
+            <Card
+              name="Watermark & Overlay"
+              count={4}
+              tools="Text & Image Watermark, Text Overlay, Composition"
+              color="#EF4444"
+              icon={Droplets}
+            />
+          </FadeIn>
+
+          {/* Utilities — wider card */}
+          <FadeIn delay={0.25} className="md:col-span-2">
+            <Card
+              name="Utilities"
+              count={7}
+              tools="Image Info, Compare, Find Duplicates, Color Palette, QR Code, Barcode Reader, Base64"
+              color="#6366F1"
+              icon={Wrench}
+            />
+          </FadeIn>
+
+          {/* Layout & Composition */}
+          <FadeIn delay={0.3}>
+            <Card
+              name="Layout & Composition"
+              count={4}
+              tools="Collage, Stitch, Split, Border & Frame"
+              color="#EC4899"
+              icon={LayoutGrid}
+            />
+          </FadeIn>
+
+          {/* Format & Conversion */}
+          <FadeIn delay={0.35}>
+            <Card
+              name="Format & Conversion"
+              count={4}
+              tools="SVG to Raster, Vectorize, GIF Tools, PDF to Image"
+              color="#14B8A6"
+              icon={FileType}
+            />
+          </FadeIn>
         </div>
       </div>
     </section>
+  );
+}
+
+function Card({
+  name,
+  count,
+  tools,
+  color,
+  icon: Icon,
+}: {
+  name: string;
+  count: number;
+  tools: string;
+  color: string;
+  icon: React.ComponentType<{ size?: number; className?: string; style?: React.CSSProperties }>;
+}) {
+  return (
+    <div className="group h-full rounded-2xl border border-border bg-background p-6 transition-all hover:shadow-lg hover:-translate-y-0.5">
+      <div className="flex items-start justify-between">
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-xl"
+          style={{ backgroundColor: `${color}15` }}
+        >
+          <Icon size={20} style={{ color }} />
+        </div>
+        <span className="text-2xl font-bold tabular-nums" style={{ color }}>
+          {count}
+        </span>
+      </div>
+      <h3 className="mt-4 font-semibold">{name}</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted">{tools}</p>
+    </div>
   );
 }

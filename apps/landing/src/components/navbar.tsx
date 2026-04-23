@@ -24,19 +24,22 @@ export function Navbar() {
         </a>
 
         <div className="hidden items-center gap-8 md:flex">
-          {links.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground"
-              {...(link.href.startsWith("http")
-                ? { target: "_blank", rel: "noopener noreferrer" }
-                : {})}
-            >
-              {link.icon && <link.icon size={16} />}
-              {link.label}
-            </a>
-          ))}
+          {links.map((item) => {
+            const Icon = item.icon;
+            return (
+              <a
+                key={item.label}
+                href={item.href}
+                className="flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground"
+                {...(item.href.startsWith("http")
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
+              >
+                {Icon && <Icon size={16} />}
+                {item.label}
+              </a>
+            );
+          })}
         </div>
 
         <div className="hidden md:block">
