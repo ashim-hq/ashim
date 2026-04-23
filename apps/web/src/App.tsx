@@ -87,15 +87,23 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const setStoreConsent = useAnalyticsStore((s) => s.setConsent);
   const location = useLocation();
 
-  // Hydrate the analytics store from session data on initial load
+  // Hydrate the analytics store from session data on initial load.
+  // Only hydrate if the store is still in its initial state (user hasn't taken
+  // an explicit action like accepting/declining on the consent page).
   useEffect(() => {
-    if (!loading && analyticsEnabled !== undefined) {
+    if (
+      !loading &&
+      analyticsEnabled !== undefined &&
+      storeConsent.analyticsConsentShownAt === null &&
+      storeConsent.analyticsEnabled === null
+    ) {
       setStoreConsent({
         analyticsEnabled: analyticsEnabled ?? null,
         analyticsConsentShownAt: analyticsConsentShownAt ?? null,
         analyticsConsentRemindAt: null,
       });
     }
+    // eslint-disable-next-line -- only hydrate on session load, not on store changes
   }, [loading, analyticsEnabled, analyticsConsentShownAt, setStoreConsent]);
 
   // Don't guard the login or change-password pages
