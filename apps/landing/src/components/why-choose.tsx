@@ -1,4 +1,15 @@
-import { BadgeCheck, CircleDollarSign, Layers, ShieldCheck, UserRoundX, Zap } from "lucide-react";
+import {
+  BadgeCheck,
+  CircleDollarSign,
+  Code,
+  Layers,
+  Plug,
+  ShieldCheck,
+  UserRoundX,
+  Workflow,
+  Zap,
+} from "lucide-react";
+
 import { FadeIn } from "./fade-in";
 
 const benefits = [
@@ -31,6 +42,21 @@ const benefits = [
     title: "Lightning Fast",
     description: "Powered by Sharp. Process images instantly.",
     icon: Zap,
+  },
+  {
+    title: "Open Source",
+    description: "AGPL-3.0 licensed. Inspect every line of code.",
+    icon: Code,
+  },
+  {
+    title: "REST API",
+    description: "Every tool accessible via HTTP. Full OpenAPI docs.",
+    icon: Plug,
+  },
+  {
+    title: "Pipeline Automation",
+    description: "Chain tools together. Automate your workflows.",
+    icon: Workflow,
   },
 ];
 
