@@ -33,7 +33,8 @@ blob-report/
 CLAUDE.md
 .claude/
 .superpowers/
-docs/superpowers/
+docs/*
+!docs/COMMUNITY_GUIDE.md
 PRD.md
 
 # Ad-hoc test screenshots and reports
@@ -46,5 +47,4 @@ audit_report.md
 .worktrees/
 .release-version
 .models
-docs/specs/
 .local-wiki/
