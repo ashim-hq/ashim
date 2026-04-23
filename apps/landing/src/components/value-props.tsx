@@ -13,14 +13,14 @@ const props = [
     number: "02",
     title: "AI That Stays Local",
     description:
-      "Background removal, upscaling, OCR, face detection — 14 AI models running entirely on your hardware.",
+      "Background removal, upscaling, OCR, face detection. 14 AI models running entirely on your hardware.",
     icon: Brain,
   },
   {
     number: "03",
     title: "50+ Tools, One Platform",
     description:
-      "Resize, crop, compress, watermark, convert, compose — everything your team needs in a single self-hosted suite.",
+      "Resize, crop, compress, watermark, convert, compose. Everything your team needs in a single self-hosted suite.",
     icon: Layers,
   },
 ];

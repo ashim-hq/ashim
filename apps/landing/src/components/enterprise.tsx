@@ -32,7 +32,7 @@ export function Enterprise() {
             Built for organizations that take data seriously.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-center text-lg text-dark-muted">
-            Healthcare, legal, defense, finance — when images are sensitive, SnapOtter keeps them on
+            Healthcare, legal, defense, finance. When images are sensitive, SnapOtter keeps them on
             your infrastructure.
           </p>
         </FadeIn>
