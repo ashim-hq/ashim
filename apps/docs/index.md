@@ -19,7 +19,7 @@ features:
   - title: Local AI
     details: 14 AI-powered tools - remove backgrounds, upscale, enhance images, restore and colorize old photos, erase objects, blur faces, enhance faces, extract text (OCR). All on your hardware, no internet required.
   - title: Pipelines
-    details: Chain tools into reusable workflows with up to 20 steps. Batch process up to 200 images at once with a single request.
+    details: Chain tools into reusable workflows with unlimited steps. Batch process unlimited images at once with a single request.
   - title: REST API
     details: Every tool available via API with API key auth. Interactive docs at /api/docs, plus /llms.txt and /llms-full.txt for AI agents.
   - title: File Library

@@ -92,10 +92,10 @@ Chain tools into multi-step workflows and apply them to one image or a whole bat
 
 1. Open **Pipelines** in the sidebar.
 2. Add steps (any tool, any settings).
-3. Run on a single file - or up to 200 files at once.
+3. Run on a single file - or an entire batch at once.
 4. Save the pipeline for later reuse.
 
-Pipelines can have up to 20 steps.
+Pipelines have unlimited steps by default.
 
 ### File Library
 

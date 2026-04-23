@@ -121,46 +121,153 @@ docker logs ashim 2>&1 | head -20
 
 ## Hardware Requirements
 
-### Minimum (basic image tools only)
+These numbers come from benchmarks run across four systems (Apple M2 Max, AMD Ryzen 5 7500F + RTX 4070, Intel i7-7600U, Docker Desktop on Windows). See `docs/HARDWARE_RECOMMENDATIONS.md` in the repo for full methodology and raw data.
+
+### Quick Reference
+
+| Tier | Use Case | CPU | RAM | GPU | Storage |
+|------|----------|-----|-----|-----|---------|
+| Minimum | Core tools, single user | 1 core | 1 GB | None | 5 GB |
+| Recommended | All tools + AI on CPU | 4 cores | 4 GB | None | 20 GB |
+| Full | All tools + AI on GPU | 4+ cores | 8 GB | NVIDIA 8 GB+ | 30 GB |
+
+### Minimum (core image tools)
 
 | Resource | Requirement |
 |---|---|
-| CPU | 2 cores |
+| CPU | 1 core |
 | RAM | 1 GB |
 | Disk | 3 GB (image) + 1 GB (data volume) |
 | GPU | Not required |
 
-Basic tools (resize, crop, rotate, convert, watermark, border, etc.) work on any hardware. They use Sharp (libvips) and complete in milliseconds.
+All 35 non-AI tools (resize, crop, rotate, convert, compress, watermark, collage, etc.) run on any hardware. Most operations complete in under 1 second even on a single core. The exception is AVIF encoding, which takes ~27s on 1 core but drops to ~5s on 4 cores.
 
-### Recommended (AI tools)
+```yaml
+deploy:
+  resources:
+    limits:
+      cpus: '1'
+      memory: 1G
+```
+
+### Recommended (AI tools on CPU)
+
+| Resource | Requirement |
+|---|---|
+| CPU | 4 cores |
+| RAM | 4 GB |
+| Disk | 3 GB (image) + 14 GB (AI models) + workspace |
+| GPU | Not required (CPU fallback) |
+
+AI tools work on CPU but are significantly slower. Some tools are practical on CPU, others are not:
+
+| AI Tool | CPU Time | Usable? |
+|---|---|---|
+| blur-faces, smart-crop, red-eye-removal | 2-5s | Yes |
+| remove-background | 37-41s | Marginal (long wait) |
+| upscale (small image) | 22s | Marginal |
+| upscale (large image) | 241s | No |
+| enhance-faces, colorize, noise-removal | 30-90s | Marginal to No |
+
+AI model download sizes:
+
+| Bundle | Disk Size |
+|---|---|
+| Background removal | 3-4 GB |
+| Upscale + Face enhance + Noise removal | 4-5 GB |
+| Face detection | 200-300 MB |
+| Object eraser + Colorize | 1-2 GB |
+| OCR | 3-4 GB |
+| Photo restoration | 800 MB - 1 GB |
+| **All bundles** | **~14 GB** |
+
+```yaml
+deploy:
+  resources:
+    limits:
+      cpus: '4'
+      memory: 4G
+```
+
+### Full (AI tools on GPU)
 
 | Resource | Requirement |
 |---|---|
 | CPU | 4+ cores |
-| RAM | 4 GB minimum, 8 GB recommended |
-| Disk | 3 GB (image) + 10-25 GB (AI models, downloaded on first use) |
-| GPU | NVIDIA with 4+ GB VRAM (optional but 5-20x faster) |
-
-AI tools (background removal, upscaling, face enhancement, OCR, object erasing) download models on first use. Model sizes:
-
-| Feature | Model Size | VRAM Usage |
-|---|---|---|
-| Background removal | ~200 MB | ~1 GB |
-| Face detection | ~10 MB | ~500 MB |
-| Upscale + Face enhance | ~1.5 GB | ~4 GB |
-| OCR | ~200 MB | ~1 GB |
-| Object eraser + Colorize | ~500 MB | ~2 GB |
-
-### Heavy workloads (upscale + GFPGAN)
-
-| Resource | Requirement |
-|---|---|
-| CPU | 8+ cores |
-| RAM | 16 GB |
-| GPU | NVIDIA with 8+ GB VRAM (RTX 3070 or better) |
+| RAM | 8 GB |
+| GPU | NVIDIA with 8+ GB VRAM (12 GB recommended) |
 | Disk | 30 GB total |
 
-Upscaling a 4K image with face enhancement at 4x scale uses ~6 GB VRAM peak. Without a GPU, the same operation takes 5-10 minutes on CPU vs. 10-30 seconds on GPU.
+GPU acceleration gives 3-13,000x speedup depending on the operation. Measured on an RTX 4070 vs Intel i7-7600U:
+
+| AI Tool | GPU Time | CPU Time | Speedup |
+|---|---|---|---|
+| noise-removal (quick) | 17ms | 228s | 13,400x |
+| blur-faces | 0.27s | 27s | 100x |
+| upscale 2x | 6.3s | >300s (timeout) | 47x+ |
+| enhance-faces (GFPGAN) | 2.3s | 28s | 12x |
+| remove-background | 5-10s | 21-41s | 3-8x |
+| OCR (best) | 70s | 243s | 3.5x |
+| restore-photo | 31s | 90s | 2.9x |
+| colorize | 10s | 13s | 1.3x |
+
+Peak VRAM usage reaches 7.5 GB during upscale with face enhancement. A 6 GB GPU works for most AI tools individually but will fail on upscale. 8-12 GB VRAM handles everything.
+
+```yaml
+deploy:
+  resources:
+    limits:
+      cpus: '4'
+      memory: 8G
+    reservations:
+      devices:
+        - driver: nvidia
+          count: all
+          capabilities: [gpu]
+```
+
+### Concurrent Users
+
+Benchmarked with parallel resize requests on a large image (Mac M2 Max, 10 Docker CPUs):
+
+| Concurrent Users | Avg Response Time | Errors |
+|---|---|---|
+| 1 | 0.28s | 0 |
+| 5 | 0.54s | 0 |
+| 10 | 1.08s | 0 |
+| 20 | 2.10s | 0 |
+
+The server scales linearly with no errors or crashes up to 20 concurrent requests.
+
+### Supported Image Formats
+
+| Format | Read | Write | Notes |
+|---|---|---|---|
+| JPEG | Yes | Yes | |
+| PNG | Yes | Yes | |
+| WebP | Yes | Yes | |
+| AVIF | Yes | Yes | Encode is CPU-intensive (~5s on 4 cores for a large image) |
+| GIF | Yes | Yes | Animated GIF supported |
+| TIFF | Yes | Yes | Multi-page supported |
+| SVG | Yes | No | Rasterized on input, sanitized for security |
+| HEIC | Yes | No | Decoded via heif-dec (~0.4s) |
+| HEIF | Yes | No | Very slow decode (~15s) |
+| DNG (RAW) | Yes (Linux) | No | Decoded via dcraw, not available on macOS |
+| PSD | Yes | No | Decoded via ImageMagick |
+| HDR | Yes | No | Tone-mapped on decode |
+| TGA | Yes | No | Decoded via ImageMagick |
+| ICO | Yes | Yes | Via favicon tool |
+| PDF | Yes | Yes | Via pdf-to-image / image-to-pdf tools |
+
+Not supported: BMP (V4/V5 headers), JPEG XL (JXL), EXR (missing decode delegate in Docker image).
+
+### Known Limitations
+
+- **Content-aware resize** crashes on large images (>5 MP) due to a limitation in the caire binary. Works fine with smaller images.
+- **HEIF decode** takes 13-23 seconds. HEIC (Apple's variant) is much faster at 0.3-0.9 seconds.
+- **OCR Japanese** fails on CPU due to a PaddlePaddle MKLDNN bug. Works on GPU.
+- **Upscale** times out on CPU for anything beyond small images. GPU required for practical use.
+- **CodeFormer** face enhancement is significantly slower than GFPGAN (53s vs 2s on GPU). GFPGAN is recommended for most use cases.
 
 ## Volumes
 

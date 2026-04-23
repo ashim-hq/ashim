@@ -229,7 +229,7 @@ curl -X POST http://localhost:1349/api/v1/pipeline/batch \
   -F 'pipeline=[{"toolId":"resize","settings":{"width":800}}]'
 ```
 
-Each step's output is the next step's input. Up to **20 steps** per pipeline.
+Each step's output is the next step's input. Unlimited steps per pipeline by default (configurable via `MAX_PIPELINE_STEPS`).
 
 ### Save and manage pipelines
 
