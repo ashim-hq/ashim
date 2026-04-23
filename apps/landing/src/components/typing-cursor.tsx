@@ -5,12 +5,15 @@ import { useCallback, useEffect, useState } from "react";
 
 const phrases = [
   "No signups. No accounts.",
+  "No uploads to the cloud. Ever.",
   "100% local processing.",
-  "Unlimited use. Forever free.",
+  "Forever free. No paywalls.",
+  "No limits. No hidden caps.",
   "Works fully offline.",
-  "Zero data leaves your network.",
+  "Unlimited batch processing.",
   "50+ image tools.",
   "14 AI models. Your hardware.",
+  "Lightning fast. Built on Sharp.",
   "Air-gapped ready.",
   "One Docker container.",
   "Open source. Always.",
