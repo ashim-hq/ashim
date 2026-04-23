@@ -44,6 +44,18 @@ const envSchema = z.object({
     .enum(["true", "false"])
     .default("true")
     .transform((v) => v === "true"),
+  ANALYTICS_ENABLED: z
+    .enum(["true", "false"])
+    .default("true")
+    .transform((v) => v === "true"),
+  ANALYTICS_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(1.0),
+  POSTHOG_API_KEY: z.string().default("phc_CVHjGivwWVzh76M5EjijTwP5LpiqWie3EbCzXU7w2Smy"),
+  POSTHOG_HOST: z.string().default("https://us.i.posthog.com"),
+  SENTRY_DSN: z
+    .string()
+    .default(
+      "https://2fd53fc3b3fdc59d02cac044a4f90b71@o4511263372738560.ingest.us.sentry.io/4511264620085248",
+    ),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -1,9 +1,12 @@
-import { Component, type ErrorInfo, lazy, type ReactNode, Suspense } from "react";
+import { APP_VERSION } from "@ashim/shared";
+import { Component, type ErrorInfo, lazy, type ReactNode, Suspense, useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
 import { ConnectionMonitor } from "./components/common/connection-monitor";
 import { KeyboardShortcutProvider } from "./components/common/keyboard-shortcut-provider";
 import { useAuth } from "./hooks/use-auth";
+import { identify, initAnalytics } from "./lib/analytics";
+import { useAnalyticsStore } from "./stores/analytics-store";
 
 // Lazy-load all pages so each page's JS (and its icons/deps) is only
 // downloaded when the user navigates there, shrinking the main bundle.
@@ -21,6 +24,9 @@ const HomePage = lazy(() => import("./pages/home-page").then((m) => ({ default: 
 const LoginPage = lazy(() => import("./pages/login-page").then((m) => ({ default: m.LoginPage })));
 const PrivacyPolicyPage = lazy(() =>
   import("./pages/privacy-policy-page").then((m) => ({ default: m.PrivacyPolicyPage })),
+);
+const AnalyticsConsentPage = lazy(() =>
+  import("./pages/analytics-consent-page").then((m) => ({ default: m.AnalyticsConsentPage })),
 );
 const ToolPage = lazy(() => import("./pages/tool-page").then((m) => ({ default: m.ToolPage })));
 
@@ -69,14 +75,43 @@ class ErrorBoundary extends Component<
 }
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { loading, authEnabled, isAuthenticated, mustChangePassword } = useAuth();
+  const {
+    loading,
+    authEnabled,
+    isAuthenticated,
+    mustChangePassword,
+    analyticsEnabled,
+    analyticsConsentShownAt,
+  } = useAuth();
+  const storeConsent = useAnalyticsStore((s) => s.consent);
+  const setStoreConsent = useAnalyticsStore((s) => s.setConsent);
   const location = useLocation();
+
+  // Hydrate the analytics store from session data on initial load.
+  // Only hydrate if the store is still in its initial state (user hasn't taken
+  // an explicit action like accepting/declining on the consent page).
+  useEffect(() => {
+    if (
+      !loading &&
+      analyticsEnabled !== undefined &&
+      storeConsent.analyticsConsentShownAt === null &&
+      storeConsent.analyticsEnabled === null
+    ) {
+      setStoreConsent({
+        analyticsEnabled: analyticsEnabled ?? null,
+        analyticsConsentShownAt: analyticsConsentShownAt ?? null,
+        analyticsConsentRemindAt: null,
+      });
+    }
+    // eslint-disable-next-line -- only hydrate on session load, not on store changes
+  }, [loading, analyticsEnabled, analyticsConsentShownAt, setStoreConsent]);
 
   // Don't guard the login or change-password pages
   if (
     location.pathname === "/login" ||
     location.pathname === "/change-password" ||
-    location.pathname === "/privacy"
+    location.pathname === "/privacy" ||
+    location.pathname === "/analytics-consent"
   ) {
     return <>{children}</>;
   }
@@ -101,6 +136,15 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to="/change-password" replace />;
   }
 
+  // Check both session state (useAuth) and real-time store state.
+  // After the consent page calls acceptAnalytics(), the store updates immediately
+  // but useAuth won't re-fetch until the next session check.
+  const effectiveEnabled = storeConsent.analyticsEnabled ?? analyticsEnabled;
+  const effectiveShownAt = storeConsent.analyticsConsentShownAt ?? analyticsConsentShownAt;
+  if (authEnabled && effectiveEnabled === null && effectiveShownAt === null) {
+    return <Navigate to="/analytics-consent" replace />;
+  }
+
   return <>{children}</>;
 }
 
@@ -114,6 +158,34 @@ function PageLoader() {
 }
 
 export function App() {
+  const analyticsConfig = useAnalyticsStore((s) => s.config);
+  const analyticsConfigLoaded = useAnalyticsStore((s) => s.configLoaded);
+  const fetchAnalyticsConfig = useAnalyticsStore((s) => s.fetchConfig);
+  const analyticsConsent = useAnalyticsStore((s) => s.consent);
+
+  useEffect(() => {
+    fetchAnalyticsConfig();
+  }, [fetchAnalyticsConfig]);
+
+  useEffect(() => {
+    if (analyticsConfigLoaded && analyticsConfig?.enabled) {
+      initAnalytics(analyticsConfig);
+    }
+  }, [analyticsConfigLoaded, analyticsConfig]);
+
+  useEffect(() => {
+    if (
+      !analyticsConfigLoaded ||
+      !analyticsConfig?.enabled ||
+      analyticsConsent.analyticsEnabled !== true
+    )
+      return;
+    identify(analyticsConfig.instanceId, {
+      $set: { version: APP_VERSION },
+      $set_once: { instance_id: analyticsConfig.instanceId },
+    });
+  }, [analyticsConfigLoaded, analyticsConfig, analyticsConsent.analyticsEnabled]);
+
   return (
     <ErrorBoundary>
       <ConnectionMonitor />
@@ -137,6 +209,7 @@ export function App() {
                 <Route path="/saturation" element={<Navigate to="/adjust-colors" replace />} />
                 <Route path="/color-channels" element={<Navigate to="/adjust-colors" replace />} />
                 <Route path="/color-effects" element={<Navigate to="/adjust-colors" replace />} />
+                <Route path="/analytics-consent" element={<AnalyticsConsentPage />} />
                 <Route path="/:toolId" element={<ToolPage />} />
                 <Route path="/" element={<HomePage />} />
               </Routes>

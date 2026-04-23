@@ -1,11 +1,14 @@
+import { randomUUID } from "node:crypto";
 import { isGpuAvailable } from "@ashim/ai";
 import { APP_VERSION } from "@ashim/shared";
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
+import { eq } from "drizzle-orm";
 import Fastify from "fastify";
 import { env } from "./config.js";
 import { db, schema } from "./db/index.js";
 import { runMigrations } from "./db/migrate.js";
+import { initAnalytics, shutdownAnalytics } from "./lib/analytics.js";
 import { startCleanupCron } from "./lib/cleanup.js";
 import { ensureAiDirs, recoverInterruptedInstalls } from "./lib/feature-status.js";
 import { shutdownWorkerPool } from "./lib/worker-pool.js";
@@ -13,6 +16,7 @@ import { requirePermission } from "./permissions.js";
 import { authMiddleware, authRoutes, ensureDefaultAdmin } from "./plugins/auth.js";
 import { registerStatic } from "./plugins/static.js";
 import { registerUpload } from "./plugins/upload.js";
+import { analyticsRoutes } from "./routes/analytics.js";
 import { apiKeyRoutes } from "./routes/api-keys.js";
 import { auditLogRoutes } from "./routes/audit-log.js";
 import { registerBatchRoutes } from "./routes/batch.js";
@@ -35,6 +39,20 @@ console.log("Database initialized");
 // Create default admin user if no users exist
 await ensureDefaultAdmin();
 
+function ensureInstanceId() {
+  const existing = db
+    .select()
+    .from(schema.settings)
+    .where(eq(schema.settings.key, "instance_id"))
+    .get();
+  if (!existing) {
+    db.insert(schema.settings).values({ key: "instance_id", value: randomUUID() }).run();
+  }
+}
+
+ensureInstanceId();
+initAnalytics();
+
 // Mark any jobs left in processing/queued from a previous unclean shutdown
 recoverStaleJobs();
 
@@ -55,6 +73,12 @@ app.setErrorHandler((error: Error & { statusCode?: number }, request, reply) => 
     { err: error, url: request.url, method: request.method },
     "Unhandled request error",
   );
+  try {
+    const Sentry = require("@sentry/node") as typeof import("@sentry/node");
+    Sentry.captureException(error);
+  } catch {
+    // Sentry not available
+  }
   const isProduction = process.env.NODE_ENV === "production";
   reply.status(statusCode).send({
     error: statusCode >= 500 ? "Internal server error" : error.message,
@@ -127,6 +151,9 @@ await apiKeyRoutes(app);
 
 // Settings routes
 await settingsRoutes(app);
+
+// Analytics config and consent routes
+await analyticsRoutes(app);
 
 // Feature management routes (AI feature bundle install/uninstall)
 await registerFeatureRoutes(app);
@@ -256,6 +283,13 @@ async function shutdown(signal: string) {
     console.log("Python dispatcher shut down");
   } catch {
     // AI package may not be available
+  }
+
+  try {
+    await shutdownAnalytics();
+    console.log("Analytics flushed");
+  } catch {
+    // analytics shutdown is best-effort
   }
 
   try {
