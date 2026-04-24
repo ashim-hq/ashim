@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/stores/connection-store", () => ({
   useConnectionStore: { getState: () => ({ setDisconnected: vi.fn() }) },
@@ -8,6 +8,14 @@ vi.mock("@/stores/connection-store", () => ({
 import { retryDynamicImport } from "@/lib/lazy-with-retry";
 
 describe("retryDynamicImport", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("resolves on first success", async () => {
     const mod = { default: () => null };
     const importFn = vi.fn().mockResolvedValue(mod);
@@ -23,7 +31,9 @@ describe("retryDynamicImport", () => {
       .mockRejectedValueOnce(new TypeError("Failed to fetch dynamically imported module"))
       .mockRejectedValueOnce(new TypeError("Failed to fetch dynamically imported module"))
       .mockResolvedValue(mod);
-    const result = await retryDynamicImport(importFn, 3, 0);
+    const promise = retryDynamicImport(importFn, 3, 100);
+    await vi.runAllTimersAsync();
+    const result = await promise;
     expect(result).toBe(mod);
     expect(importFn).toHaveBeenCalledTimes(3);
   });
@@ -31,9 +41,10 @@ describe("retryDynamicImport", () => {
   it("rejects after all retries exhausted", async () => {
     const err = new TypeError("Failed to fetch dynamically imported module");
     const importFn = vi.fn().mockRejectedValue(err);
-    await expect(retryDynamicImport(importFn, 3, 0)).rejects.toThrow(
-      "Failed to fetch dynamically imported module",
-    );
+    const promise = retryDynamicImport(importFn, 3, 100);
+    promise.catch(() => {});
+    await vi.runAllTimersAsync();
+    await expect(promise).rejects.toThrow("Failed to fetch dynamically imported module");
     expect(importFn).toHaveBeenCalledTimes(3);
   });
 
@@ -45,7 +56,9 @@ describe("retryDynamicImport", () => {
         new TypeError("Unable to preload CSS for /assets/tool-page-DDbXBANV.css"),
       )
       .mockResolvedValue(mod);
-    const result = await retryDynamicImport(importFn, 3, 0);
+    const promise = retryDynamicImport(importFn, 3, 100);
+    await vi.runAllTimersAsync();
+    const result = await promise;
     expect(result).toBe(mod);
     expect(importFn).toHaveBeenCalledTimes(2);
   });
@@ -53,7 +66,7 @@ describe("retryDynamicImport", () => {
   it("only retries chunk-related errors, not other errors", async () => {
     const err = new Error("Some other error");
     const importFn = vi.fn().mockRejectedValue(err);
-    await expect(retryDynamicImport(importFn, 3, 0)).rejects.toThrow("Some other error");
+    await expect(retryDynamicImport(importFn, 3, 100)).rejects.toThrow("Some other error");
     expect(importFn).toHaveBeenCalledTimes(1);
   });
 });
