@@ -139,7 +139,7 @@ export function HelpDialog({ open, onClose }: HelpDialogProps) {
 
           {/* Version */}
           <div className="text-xs text-muted-foreground pt-2 border-t border-border">
-            ashim v{APP_VERSION}
+            SnapOtter v{APP_VERSION}
           </div>
         </div>
       </div>

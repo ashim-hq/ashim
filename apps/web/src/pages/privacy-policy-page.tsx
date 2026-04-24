@@ -20,7 +20,7 @@ export function PrivacyPolicyPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-2">Overview</h2>
             <p>
-              ashim is a self-hosted, open-source image processing application. Your instance is
+              SnapOtter is a self-hosted, open-source image processing application. Your instance is
               operated and controlled entirely by whoever deployed it. This policy describes how the
               software itself handles your data.
             </p>
@@ -29,7 +29,7 @@ export function PrivacyPolicyPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-2">Local Processing</h2>
             <p>
-              All image processing happens entirely on the server where ashim is deployed. Your
+              All image processing happens entirely on the server where SnapOtter is deployed. Your
               images are never sent to external services or third-party APIs. When you upload an
               image for processing, it is handled in memory or in temporary storage on the host
               machine and is not retained after the operation completes.
@@ -39,8 +39,8 @@ export function PrivacyPolicyPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-2">Product Analytics</h2>
             <p>
-              ashim includes optional, anonymous product analytics. When you choose to participate,
-              the following is collected:
+              SnapOtter includes optional, anonymous product analytics. When you choose to
+              participate, the following is collected:
             </p>
             <ul className="list-disc pl-5 mt-2 space-y-1">
               <li>Which tools you use (e.g., "crop tool used")</li>
@@ -109,17 +109,17 @@ export function PrivacyPolicyPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-2">Open Source</h2>
             <p>
-              ashim is fully open source. You can audit the source code to verify these claims at
-              any time. Transparency is a core principle of this project.
+              SnapOtter is fully open source. You can audit the source code to verify these claims
+              at any time. Transparency is a core principle of this project.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-2">Your Control</h2>
             <p>
-              Because ashim is self-hosted, the instance operator has full control over all data.
-              You can delete your data at any time by removing files from the server or deleting the
-              database. No data exists outside of your infrastructure.
+              Because SnapOtter is self-hosted, the instance operator has full control over all
+              data. You can delete your data at any time by removing files from the server or
+              deleting the database. No data exists outside of your infrastructure.
             </p>
           </section>
         </div>

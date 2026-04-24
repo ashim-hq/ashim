@@ -303,7 +303,7 @@ function GeneralSection() {
       </SettingRow>
 
       {/* Version */}
-      <SettingRow label="App Version" description="Current version of ashim">
+      <SettingRow label="App Version" description="Current version of SnapOtter">
         <span className="text-sm font-mono text-muted-foreground">{APP_VERSION}</span>
       </SettingRow>
 
@@ -348,7 +348,7 @@ function SystemSection() {
       .catch(() => {
         // Fallback defaults if endpoint not ready
         setSettings({
-          appName: "ashim",
+          appName: "SnapOtter",
           fileUploadLimitMb: "100",
           defaultTheme: "system",
           defaultLocale: "en",
@@ -1314,7 +1314,7 @@ function ApiKeysSection() {
       <div>
         <h3 className="text-lg font-semibold text-foreground">API Keys</h3>
         <p className="text-sm text-muted-foreground mt-1">
-          Manage API keys for programmatic access to ashim.
+          Manage API keys for programmatic access to SnapOtter.
         </p>
       </div>
 
@@ -2456,7 +2456,7 @@ function AnalyticsSection() {
       <div>
         <h3 className="text-sm font-medium text-foreground">Product Analytics</h3>
         <p className="text-xs text-muted-foreground mt-1">
-          Share anonymous usage data to help improve ashim.
+          Share anonymous usage data to help improve SnapOtter.
         </p>
         <p className="text-xs text-muted-foreground">Your images never leave your machine.</p>
       </div>
@@ -2513,7 +2513,7 @@ function AboutSection() {
         <div className="flex items-center gap-3">
           <OtterLogo className="h-8 w-8 text-primary" />
           <div className="text-2xl font-bold text-foreground">
-            <span className="text-primary">ashim</span>
+            <span className="text-primary">SnapOtter</span>
           </div>
         </div>
         <p className="text-sm text-muted-foreground">

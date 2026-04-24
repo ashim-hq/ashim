@@ -78,7 +78,7 @@ export function Dropzone({
     >
       <div className={cn("flex flex-col items-center", compact ? "gap-2 p-4" : "gap-4 p-8")}>
         <div className="text-3xl font-bold text-muted-foreground/30">
-          <span className="text-primary/30">ashim</span>
+          <span className="text-primary/30">SnapOtter</span>
         </div>
         <button
           type="button"

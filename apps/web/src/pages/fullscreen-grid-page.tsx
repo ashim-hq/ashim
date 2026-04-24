@@ -85,7 +85,7 @@ export function FullscreenGridPage() {
             className="flex items-center gap-2 text-lg font-bold text-foreground shrink-0"
           >
             <OtterLogo className="h-6 w-6 text-primary" />
-            <span className="text-primary">ashim</span>
+            <span className="text-primary">SnapOtter</span>
           </Link>
 
           {/* Search */}
