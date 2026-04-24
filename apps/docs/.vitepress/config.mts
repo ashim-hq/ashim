@@ -5,14 +5,14 @@ export default defineConfig({
   title: "ashim",
   description:
     "Documentation for ashim - A Self Hosted Image Manipulator. 45+ tools, local AI, pipelines, REST API.",
-  base: "/ashim/",
+  base: "/",
   srcDir: ".",
   outDir: "./.vitepress/dist",
   ignoreDeadLinks: [/localhost/],
 
   head: [
     ["meta", { name: "theme-color", content: "#3b82f6" }],
-    ["link", { rel: "icon", type: "image/svg+xml", href: "/ashim/favicon.svg" }],
+    ["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
     ["link", { rel: "llms-txt", href: "/ashim/llms.txt" }],
   ],
 
