@@ -10,16 +10,16 @@ test.describe("Automate Page", () => {
    */
   async function gotoAutomate(page: import("@playwright/test").Page) {
     const heading = page.getByRole("heading", {
-      name: /automate/i,
+      name: /pipeline builder|automate/i,
     });
 
     for (let attempt = 0; attempt < 3; attempt++) {
       if (attempt === 0) {
-        await page.goto("/automate", { waitUntil: "networkidle" });
+        await page.goto("/automate", { waitUntil: "load" });
       } else {
         // On retry, wait then reload
         await page.waitForTimeout(500);
-        await page.goto("/automate", { waitUntil: "networkidle" });
+        await page.goto("/automate", { waitUntil: "load" });
       }
 
       try {
@@ -31,7 +31,7 @@ test.describe("Automate Page", () => {
     }
 
     // Final attempt - let it throw if it fails
-    await page.goto("/automate", { waitUntil: "networkidle" });
+    await page.goto("/automate", { waitUntil: "load" });
     await expect(heading).toBeVisible({ timeout: 10_000 });
   }
 
@@ -48,8 +48,6 @@ test.describe("Automate Page", () => {
     name: string,
     expectedCount: number,
   ) {
-    await page.getByRole("button", { name: /add step/i }).click();
-    await expect(page.getByText("Add a step")).toBeVisible();
     await page.getByPlaceholder("Search tools...").fill(name);
     await page
       .getByRole("button", { name: new RegExp(name, "i") })
@@ -74,12 +72,16 @@ test.describe("Automate Page", () => {
 
   test("automate page renders pipeline builder", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
-    await expect(page.getByText(/chain tools into a pipeline/i).first()).toBeVisible();
+    await expect(
+      page.getByText(/add tools from the palette|chain tools into a pipeline/i).first(),
+    ).toBeVisible();
   });
 
   test("shows empty state message when no steps", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
-    await expect(page.getByText(/add steps to build your pipeline/i)).toBeVisible();
+    await expect(
+      page.getByText(/add tools from the palette|add steps to build your pipeline/i),
+    ).toBeVisible();
   });
 
   test("shows dropzone when no file uploaded", async ({ loggedInPage: page }) => {
@@ -89,9 +91,9 @@ test.describe("Automate Page", () => {
     await expect(page.getByRole("button", { name: /upload from computer/i })).toBeVisible();
   });
 
-  test("has Add Step button", async ({ loggedInPage: page }) => {
+  test("has tool palette search", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
-    await expect(page.getByRole("button", { name: /add step/i })).toBeVisible();
+    await expect(page.getByPlaceholder("Search tools...")).toBeVisible();
   });
 
   test("has Process button (disabled when no steps or file)", async ({ loggedInPage: page }) => {
@@ -116,17 +118,18 @@ test.describe("Automate Page", () => {
 
   // --- Add Step ---
 
-  test("clicking Add Step opens tool picker", async ({ loggedInPage: page }) => {
+  test("tool palette is visible with search", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
-    await page.getByRole("button", { name: /add step/i }).click();
-    await expect(page.getByText("Add a step")).toBeVisible();
+    await expect(page.getByPlaceholder("Search tools...")).toBeVisible();
   });
 
   test("selecting a tool from picker adds a step", async ({ loggedInPage: page }) => {
     await gotoAutomate(page);
     await addToolStep(page, "Resize", 1);
     // Verify empty state is gone
-    await expect(page.getByText(/add steps to build your pipeline/i)).not.toBeVisible();
+    await expect(
+      page.getByText(/add tools from the palette|add steps to build your pipeline/i),
+    ).not.toBeVisible();
   });
 
   test("can add multiple steps", async ({ loggedInPage: page }) => {

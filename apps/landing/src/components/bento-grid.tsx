@@ -33,6 +33,7 @@ import {
   Pipette,
   QrCode,
   RotateCw,
+  Scaling,
   Scan,
   ScanFace,
   ScanLine,
@@ -230,6 +231,12 @@ const tools: { name: string; description: string; category: string; icon: Lucide
     category: "ai",
     icon: UserCheck,
   },
+  {
+    name: "Content-Aware Resize",
+    description: "Seam carving resize that preserves important content",
+    category: "ai",
+    icon: Scaling,
+  },
   // Watermark & Overlay
   {
     name: "Text Watermark",
@@ -382,7 +389,7 @@ export function BentoGrid() {
       <div className="mx-auto max-w-6xl">
         <FadeIn>
           <h2 className="font-[family-name:var(--font-nunito)] text-center text-3xl font-bold tracking-tight md:text-4xl">
-            40+ tools. Zero cloud dependency.
+            47 tools. Zero cloud dependency.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-center text-lg text-muted">
             Search to find exactly what you need. Every tool runs 100% locally.

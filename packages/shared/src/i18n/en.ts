@@ -193,7 +193,7 @@ export const en = {
     regenerateKey: "Regenerate",
     copyKey: "Copy Key",
     aboutDescription:
-      "SnapOtter is a self-hosted, privacy-first image processing suite with 30+ tools.",
+      "SnapOtter is a self-hosted, privacy-first image processing suite with 47 tools.",
     aboutLinks: "Links",
     github: "GitHub",
     documentation: "Documentation",

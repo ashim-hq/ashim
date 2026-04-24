@@ -149,6 +149,7 @@ RUN for i in 1 2 3; do apt-get -o Acquire::Retries=3 update && break || sleep $(
     tini \
     imagemagick \
     libraw-dev \
+    libopenexr-dev \
     potrace \
     curl \
     gosu \

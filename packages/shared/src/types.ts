@@ -18,8 +18,7 @@ export type ToolCategory =
   | "watermark"
   | "utilities"
   | "layout"
-  | "format"
-  | "automation";
+  | "format";
 
 export interface CategoryInfo {
   id: ToolCategory;

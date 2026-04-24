@@ -8,7 +8,7 @@ import { promisify } from "node:util";
 const execFileAsync = promisify(execFile);
 
 /** Formats that need external CLI tools (not decodable by Sharp). */
-const CLI_DECODED_FORMATS = new Set(["raw", "ico", "tga", "psd", "exr", "hdr"]);
+const CLI_DECODED_FORMATS = new Set(["raw", "ico", "tga", "psd", "exr", "hdr", "bmp", "jxl"]);
 
 export function needsCliDecode(format: string): boolean {
   return CLI_DECODED_FORMATS.has(format);
@@ -32,6 +32,10 @@ export async function decodeToSharpCompat(buffer: Buffer, format: string): Promi
       return decodeExr(buffer);
     case "hdr":
       return decodeHdr(buffer);
+    case "bmp":
+      return decodeBmp(buffer);
+    case "jxl":
+      return decodeJxl(buffer);
     default:
       return buffer;
   }
@@ -186,6 +190,42 @@ async function decodeHdr(buffer: Buffer): Promise<Buffer> {
       magickArgs(cmd, [inputPath, "-colorspace", "sRGB", `png:${outputPath}`]),
       { timeout: 120_000 },
     );
+    return await readFile(outputPath);
+  } finally {
+    await rm(inputPath, { force: true }).catch(() => {});
+    await rm(outputPath, { force: true }).catch(() => {});
+  }
+}
+
+async function decodeBmp(buffer: Buffer): Promise<Buffer> {
+  const cmd = await findMagickCmd();
+  const id = randomUUID();
+  const inputPath = join(tmpdir(), `bmp-in-${id}.bmp`);
+  const outputPath = join(tmpdir(), `bmp-out-${id}.png`);
+
+  try {
+    await writeFile(inputPath, buffer);
+    await execFileAsync(cmd, magickArgs(cmd, [inputPath, `png:${outputPath}`]), {
+      timeout: 120_000,
+    });
+    return await readFile(outputPath);
+  } finally {
+    await rm(inputPath, { force: true }).catch(() => {});
+    await rm(outputPath, { force: true }).catch(() => {});
+  }
+}
+
+async function decodeJxl(buffer: Buffer): Promise<Buffer> {
+  const cmd = await findMagickCmd();
+  const id = randomUUID();
+  const inputPath = join(tmpdir(), `jxl-in-${id}.jxl`);
+  const outputPath = join(tmpdir(), `jxl-out-${id}.png`);
+
+  try {
+    await writeFile(inputPath, buffer);
+    await execFileAsync(cmd, magickArgs(cmd, [inputPath, `png:${outputPath}`]), {
+      timeout: 120_000,
+    });
     return await readFile(outputPath);
   } finally {
     await rm(inputPath, { force: true }).catch(() => {});

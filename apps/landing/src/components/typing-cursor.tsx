@@ -11,7 +11,7 @@ const phrases = [
   "No limits. No hidden caps.",
   "Works fully offline.",
   "Unlimited batch processing.",
-  "40+ image tools.",
+  "47 image tools.",
   "14 AI models. Your hardware.",
   "Lightning fast. Built on Sharp.",
   "Air-gapped ready.",

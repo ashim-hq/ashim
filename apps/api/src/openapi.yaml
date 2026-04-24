@@ -3,7 +3,7 @@ info:
   title: SnapOtter API
   version: 1.15.9
   description: |
-    REST API for SnapOtter, a self-hosted image processing platform with 30+ tools.
+    REST API for SnapOtter, a self-hosted image processing platform with 47 tools.
 
     ## Authentication
 
@@ -344,10 +344,11 @@ paths:
                   type: string
                   description: |
                     JSON string with options:
-                    - `left` (integer, required) — Left offset in pixels
-                    - `top` (integer, required) — Top offset in pixels
-                    - `width` (integer, required) — Width of crop region in pixels
-                    - `height` (integer, required) — Height of crop region in pixels
+                    - `left` (number, required) — Left offset in pixels (min 0)
+                    - `top` (number, required) — Top offset in pixels (min 0)
+                    - `width` (number, required) — Width of crop region in pixels
+                    - `height` (number, required) — Height of crop region in pixels
+                    - `unit` (string, optional) — One of: px, percent
       responses:
         "200":
           description: Processed image
@@ -437,7 +438,7 @@ paths:
                   type: string
                   description: |
                     JSON string with options:
-                    - `format` (string, required) — One of: jpg, png, webp, avif, tiff, gif, heic
+                    - `format` (string, required) — One of: jpg, png, webp, avif, tiff, gif, heic, heif
                     - `quality` (number 1-100, optional) — Output quality
       responses:
         "200":
@@ -576,12 +577,17 @@ paths:
                   type: string
                   description: |
                     JSON string with options:
-                    - `borderWidth` (number 0-200, default 10) — Border thickness in pixels
+                    - `borderWidth` (number 0-2000, default 10) — Border thickness in pixels
                     - `borderColor` (hex string, default "#000000") — Border color
-                    - `cornerRadius` (number 0-500, default 0) — Corner rounding radius
                     - `padding` (number 0-200, default 0) — Inner padding in pixels
-                    - `shadowBlur` (number 0-50, default 0) — Drop shadow blur radius
-                    - `shadowColor` (hex string, default "#00000080") — Drop shadow color
+                    - `paddingColor` (hex string, default "#FFFFFF") — Padding fill color
+                    - `cornerRadius` (number 0-2000, default 0) — Corner rounding radius
+                    - `shadow` (boolean, default false) — Enable drop shadow
+                    - `shadowBlur` (number 1-200, default 15) — Drop shadow blur radius
+                    - `shadowOffsetX` (number -50 to 50, default 0) — Shadow horizontal offset
+                    - `shadowOffsetY` (number -50 to 50, default 5) — Shadow vertical offset
+                    - `shadowColor` (hex string, default "#000000") — Drop shadow color
+                    - `shadowOpacity` (number 0-100, default 40) — Shadow opacity percentage
       responses:
         "200":
           description: Processed image
@@ -1903,7 +1909,7 @@ paths:
                   description: |
                     JSON string with options:
                     - `text` (string 1-500, required) — Watermark text
-                    - `fontSize` (number 8-200, default 48) — Font size in pixels
+                    - `fontSize` (number 8-1000, default 48) — Font size in pixels
                     - `color` (hex string, default "#000000") — Text color
                     - `opacity` (number 0-100, default 50) — Opacity percentage
                     - `position` (string, default "center") — One of: center, top-left, top-right, bottom-left, bottom-right, tiled
@@ -2048,10 +2054,23 @@ paths:
                   type: string
                   description: |
                     JSON string with options:
-                    - `width` (number 1-4096, optional) — Target width in pixels
-                    - `height` (number 1-4096, optional) — Target height in pixels
-                    - `extractFrame` (number, optional) — Extract specific frame index
-                    - `optimize` (boolean, default false) — Optimize GIF file size
+                    - `mode` (string, default "resize") — One of: resize, optimize, speed, reverse, extract, rotate
+                    - `width` (number 1-16384, optional) — Target width in pixels (resize mode)
+                    - `height` (number 1-16384, optional) — Target height in pixels (resize mode)
+                    - `percentage` (number 1-500, optional) — Scale by percentage (resize mode)
+                    - `colors` (number 2-256, default 256) — Color palette size (optimize mode)
+                    - `dither` (number 0-1, default 1.0) — Dither amount (optimize mode)
+                    - `effort` (number 1-10, default 7) — Compression effort (optimize mode)
+                    - `speedFactor` (number 0.1-10, default 1.0) — Speed multiplier (speed mode)
+                    - `extractMode` (string, default "single") — One of: single, range, all (extract mode)
+                    - `frameNumber` (number, default 0) — Frame index to extract (extract/single mode)
+                    - `frameStart` (number, default 0) — Start frame index (extract/range mode)
+                    - `frameEnd` (number, optional) — End frame index (extract/range mode)
+                    - `extractFormat` (string, default "png") — One of: png, webp (extract mode)
+                    - `angle` (number, optional) — Rotation angle, one of: 90, 180, 270 (rotate mode)
+                    - `flipH` (boolean, default false) — Flip horizontally (rotate mode)
+                    - `flipV` (boolean, default false) — Flip vertically (rotate mode)
+                    - `loop` (number 0-100, default 0) — Loop count, 0 = infinite
       responses:
         "200":
           description: Processed image
@@ -2148,11 +2167,11 @@ paths:
                   type: string
                   description: |
                     JSON string with options:
-                    - `mode` (string) — "subject" (default), "face", or "trim"
-                    - `strategy` (string) — "attention" (default) or "entropy" (subject mode)
-                    - `width` (integer) — Target width in pixels (default 1080)
-                    - `height` (integer) — Target height in pixels (default 1080)
-                    - `padding` (integer 0-50) — Padding percentage around focus area
+                    - `mode` (string, default "subject") — One of: subject, face, trim, attention (alias for subject), content (alias for trim)
+                    - `strategy` (string, default "attention") — One of: attention, entropy (subject mode)
+                    - `width` (integer, optional) — Target width in pixels
+                    - `height` (integer, optional) — Target height in pixels
+                    - `padding` (integer 0-50, default 0) — Padding percentage around focus area
                     - `facePreset` (string) — "closeup", "head-shoulders", "upper-body", "half-body" (face mode)
                     - `sensitivity` (number 0-1) — Face detection sensitivity (face mode)
                     - `threshold` (integer 0-255) — Trim tolerance (trim mode)
@@ -2205,9 +2224,9 @@ paths:
                     JSON string with options:
                     - `colorMode` (string, default "bw") - One of: bw, color
                     - `threshold` (number 0-255, default 128) - B&W binarization threshold
-                    - `colorPrecision` (number 1-8, default 6) - Color bits per channel
-                    - `layerDifference` (number 1-64, default 6) - Color gradient step
-                    - `filterSpeckle` (number 1-128, default 4) - Noise filter size
+                    - `colorPrecision` (number 1-16, default 6) - Color bits per channel
+                    - `layerDifference` (number 1-128, default 6) - Color gradient step
+                    - `filterSpeckle` (number 1-256, default 4) - Noise filter size
                     - `pathMode` (string, default "spline") - One of: none, polygon, spline
                     - `cornerThreshold` (number 0-180, default 60) - Corner detection angle
                     - `invert` (boolean, default false) - Invert colors before tracing
@@ -2254,9 +2273,9 @@ paths:
                   type: string
                   description: |
                     JSON string with options:
-                    - `width` (number 1-16384, optional) — Output width in pixels
-                    - `height` (number 1-16384, optional) — Output height in pixels
-                    - `dpi` (number 36-1200, default 300) — Render density for SVG rasterization
+                    - `width` (number 1-65536, optional) — Output width in pixels
+                    - `height` (number 1-65536, optional) — Output height in pixels
+                    - `dpi` (number 36-2400, default 300) — Render density for SVG rasterization
                     - `quality` (number 1-100, default 90) — Output quality for lossy formats
                     - `backgroundColor` (hex string, default "#00000000") — Background color
                     - `outputFormat` (string, default "png") — One of: png, jpg, webp, avif, tiff, gif, heif
@@ -2353,7 +2372,7 @@ paths:
                     JSON string with options:
                     - `pageSize` (string, default "A4") — One of: A4, Letter, A3, A5
                     - `orientation` (string, default "portrait") — One of: portrait, landscape
-                    - `margin` (number 0-100, default 20) — Page margin in points
+                    - `margin` (number 0-500, default 20) — Page margin in points
       responses:
         "200":
           description: Generated PDF (downloadUrl points to .pdf file)
@@ -2398,7 +2417,7 @@ paths:
                   description: |
                     JSON string with options:
                     - `format` (string, default "png") — Output format: png, jpg, webp, avif, tiff, gif, heic, heif
-                    - `dpi` (number 36-1200, default 150) — Resolution in dots per inch
+                    - `dpi` (number 36-2400, default 150) — Resolution in dots per inch
                     - `quality` (number 1-100, default 85) — Output quality
                     - `colorMode` (string, default "color") — One of: color, grayscale, bw
                     - `pages` (string, default "all") — Page selection, e.g. "all", "1-3", "1,3,5"
@@ -2557,8 +2576,12 @@ paths:
                   type: string
                   description: |
                     JSON string with options:
-                    - `columns` (number 1-10, default 2) — Number of columns
-                    - `rows` (number 1-10, default 2) — Number of rows
+                    - `columns` (number 1-100, default 3) — Number of columns
+                    - `rows` (number 1-100, default 3) — Number of rows
+                    - `tileWidth` (number, min 10, optional) — Fixed tile width in pixels
+                    - `tileHeight` (number, min 10, optional) — Fixed tile height in pixels
+                    - `outputFormat` (string, default "original") — One of: original, png, jpg, webp, avif
+                    - `quality` (number 1-100, default 90) — Output quality
       responses:
         "200":
           description: ZIP archive with results
@@ -2605,7 +2628,7 @@ paths:
                   type: string
                   description: |
                     JSON string with options:
-                    - `pattern` (string 1-200, default "image-{{index}}") — Naming pattern template
+                    - `pattern` (string 1-1000, default "image-{{index}}") — Naming pattern template
                     - `startIndex` (number, default 1) — Starting index number
       responses:
         "200":
@@ -2835,6 +2858,20 @@ paths:
                   type: string
                   format: binary
                   description: Mask image (white areas will be erased)
+                format:
+                  type: string
+                  enum: [png, jpg, jpeg, webp, tiff, gif, avif, heic, heif]
+                  default: png
+                  description: Output format
+                quality:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  default: 95
+                  description: Output quality
+                clientJobId:
+                  type: string
+                  description: Client-provided job ID for SSE progress tracking
       responses:
         "200":
           description: Processed image
@@ -2880,9 +2917,14 @@ paths:
                   type: string
                   description: |
                     JSON string with options:
-                    - `layout` (string, default "2x2") — One of: 2x2, 3x3, 1x3, 2x1, 3x1, 1x2
-                    - `gap` (number 0-50, default 4) — Gap between images in pixels
-                    - `backgroundColor` (hex string, default "#FFFFFF") — Background fill color
+                    - `templateId` (string, required) — Template ID defining the grid layout
+                    - `cells` (array, optional) — Per-cell configuration overrides
+                    - `gap` (number 0-500, default 8) — Gap between images in pixels
+                    - `cornerRadius` (number 0-500, default 0) — Corner rounding radius
+                    - `backgroundColor` (string, default "#FFFFFF") — Background fill color
+                    - `aspectRatio` (string, default "free") — Aspect ratio constraint
+                    - `outputFormat` (string, default "png") — One of: png, jpeg, webp, avif
+                    - `quality` (number 1-100, default 90) — Output quality
       responses:
         "200":
           description: Processed image
@@ -2929,14 +2971,14 @@ paths:
                   description: |
                     JSON string with options:
                     - `direction` (string, default "horizontal") — One of: horizontal, vertical, grid
-                    - `gridColumns` (integer 2-10, default 2) — Columns when direction is grid
+                    - `gridColumns` (integer 2-100, default 2) — Columns when direction is grid
                     - `resizeMode` (string, default "fit") — One of: fit, original, stretch, crop
                     - `alignment` (string, default "center") — One of: start, center, end
-                    - `gap` (number 0-200, default 0) — Gap between images in pixels
-                    - `border` (number 0-50, default 0) — Border width in pixels
-                    - `cornerRadius` (number 0-50, default 0) — Corner radius in pixels
-                    - `backgroundColor` (string, default "#FFFFFF") — Hex color for background and gap fill
-                    - `format` (string, default "png") — One of: png, jpeg, webp
+                    - `gap` (number 0-1000, default 0) — Gap between images in pixels
+                    - `border` (number 0-500, default 0) — Border width in pixels
+                    - `cornerRadius` (number 0-500, default 0) — Corner radius in pixels
+                    - `backgroundColor` (hex string, default "#FFFFFF") — Hex color for background and gap fill
+                    - `format` (string, default "png") — One of: png, jpeg, webp, avif
                     - `quality` (number 1-100, default 90) — Output quality
       responses:
         "200":
@@ -2982,7 +3024,15 @@ paths:
                   description: |
                     JSON string with options:
                     - `model` (string, optional) — AI model name
+                    - `backgroundType` (string, optional) — One of: transparent, color, gradient, blur, image
                     - `backgroundColor` (string, optional) — Hex color to replace removed background with
+                    - `gradientColor1` (string, optional) — First gradient color
+                    - `gradientColor2` (string, optional) — Second gradient color
+                    - `gradientAngle` (number, optional) — Gradient angle in degrees
+                    - `blurEnabled` (boolean, optional) — Enable background blur effect
+                    - `blurIntensity` (number 0-100, optional) — Blur strength
+                    - `shadowEnabled` (boolean, optional) — Enable drop shadow
+                    - `shadowOpacity` (number 0-100, optional) — Shadow opacity
       responses:
         "200":
           description: Processed image
@@ -3090,6 +3140,11 @@ paths:
                   description: |
                     JSON string with options:
                     - `scale` (number, default 2) — Upscale factor
+                    - `model` (string, default "auto") — AI model name
+                    - `faceEnhance` (boolean, default false) — Enable face enhancement
+                    - `denoise` (number, default 0) — Denoise strength
+                    - `format` (string, default "png") — Output format
+                    - `quality` (number, default 95) — Output quality (1-100)
       responses:
         "200":
           description: Processed image
@@ -3133,7 +3188,7 @@ paths:
                   type: string
                   description: |
                     JSON string with options:
-                    - `blurRadius` (number, default 30) — Blur strength radius
+                    - `blurRadius` (number 1-100, default 30) — Blur strength radius
                     - `sensitivity` (number 0-1, default 0.5) — Face detection sensitivity
       responses:
         "200":
@@ -3178,8 +3233,10 @@ paths:
                   type: string
                   description: |
                     JSON string with options:
-                    - `engine` (string, default "tesseract") — One of: tesseract, paddleocr
-                    - `language` (string, default "en") — One of: en, de, fr, es, zh, ja, ko
+                    - `quality` (string, default "balanced") — One of: fast, balanced, best
+                    - `language` (string, default "auto") — One of: auto, en, de, fr, es, zh, ja, ko
+                    - `enhance` (boolean, default true) — Pre-process image for better recognition
+                    - `engine` (string, optional) — One of: tesseract, paddleocr (backward compat)
       responses:
         "200":
           description: Extracted text
@@ -3332,6 +3389,11 @@ paths:
                   type: string
                   format: binary
                   description: Image file containing barcode or QR code
+                settings:
+                  type: string
+                  description: |
+                    JSON string with options:
+                    - `tryHarder` (boolean, default true) — Enable more aggressive barcode detection
       responses:
         "200":
           description: Decoded barcode data
@@ -3378,6 +3440,11 @@ paths:
                     type: string
                     format: binary
                   description: Multiple image files to check for duplicates
+                settings:
+                  type: string
+                  description: |
+                    JSON string with options:
+                    - `threshold` (number 0-20, default 8) — Hamming distance threshold for duplicate detection
       responses:
         "200":
           description: Duplicate groups
@@ -3432,7 +3499,7 @@ paths:
                 size:
                   type: integer
                   minimum: 100
-                  maximum: 2000
+                  maximum: 10000
                   default: 400
                   description: Image size in pixels
                 errorCorrection:
@@ -3542,6 +3609,8 @@ paths:
                   type: string
                   description: |
                     JSON string with options:
+                    - `title` (string) — Image title
+                    - `author` (string) — Author name
                     - `artist` (string) — Artist or author name
                     - `copyright` (string) — Copyright notice
                     - `imageDescription` (string) — Image description

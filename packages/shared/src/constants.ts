@@ -233,6 +233,14 @@ export const TOOLS: Tool[] = [
     icon: "UserCheck",
     route: "/passport-photo",
   },
+  {
+    id: "content-aware-resize",
+    name: "Content-Aware Resize",
+    description: "Seam carving resize that preserves important content with face protection",
+    category: "ai",
+    icon: "Scaling",
+    route: "/content-aware-resize",
+  },
   // Watermark & Overlay
   {
     id: "watermark-text",
