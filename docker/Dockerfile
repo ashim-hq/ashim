@@ -148,7 +148,6 @@ RUN for i in 1 2 3; do apt-get -o Acquire::Retries=3 update && break || sleep $(
     apt-get install -y --no-install-recommends \
     tini \
     imagemagick \
-    libmagickcore-6.q16-7-extra \
     libraw-dev \
     libopenexr-dev \
     potrace \
@@ -163,6 +162,11 @@ RUN for i in 1 2 3; do apt-get -o Acquire::Retries=3 update && break || sleep $(
     libgl1 libglib2.0-0 \
     libegl1 libwayland-egl1 libwayland-client0 libwayland-cursor0 \
     libxkbcommon-x11-0 libxkbcommon0 libxcursor1 \
+    && if apt-cache show libmagickcore-6.q16-7-extra >/dev/null 2>&1; then \
+         apt-get install -y --no-install-recommends libmagickcore-6.q16-7-extra; \
+       elif apt-cache show libmagickcore-6.q16-6-extra >/dev/null 2>&1; then \
+         apt-get install -y --no-install-recommends libmagickcore-6.q16-6-extra; \
+       fi \
     && if apt-cache show libheif-plugin-x265 >/dev/null 2>&1; then \
          apt-get install -y --no-install-recommends libheif-plugin-x265; \
        fi \
