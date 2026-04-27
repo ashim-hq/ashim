@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("sharp", () => {
   const mockSharp = vi.fn(() => ({
     png: vi.fn().mockReturnThis(),
+    resize: vi.fn().mockReturnThis(),
     toBuffer: vi.fn().mockResolvedValue(Buffer.from("mock-png-data")),
     metadata: vi.fn().mockResolvedValue({ width: 800, height: 600 }),
   }));
@@ -42,6 +43,7 @@ beforeEach(() => {
     () =>
       ({
         png: vi.fn().mockReturnThis(),
+        resize: vi.fn().mockReturnThis(),
         toBuffer: vi.fn().mockResolvedValue(Buffer.from("mock-png-data")),
         metadata: vi.fn().mockResolvedValue({ width: 800, height: 600 }),
       }) as unknown as ReturnType<typeof sharp>,
@@ -189,6 +191,7 @@ describe("removeBackground", () => {
         () =>
           ({
             png: vi.fn().mockReturnThis(),
+            resize: vi.fn().mockReturnThis(),
             toBuffer: vi.fn().mockRejectedValue(new Error("Invalid image")),
             metadata: vi.fn().mockResolvedValue({ width: 800, height: 600 }),
           }) as unknown as ReturnType<typeof sharp>,
@@ -225,6 +228,7 @@ describe("removeBackground", () => {
         () =>
           ({
             png: vi.fn().mockReturnThis(),
+            resize: vi.fn().mockReturnThis(),
             toBuffer: vi.fn().mockResolvedValue(Buffer.from("mock-png-data")),
             metadata: vi.fn().mockResolvedValue({ width: 6000, height: 4000 }),
           }) as unknown as ReturnType<typeof sharp>,
