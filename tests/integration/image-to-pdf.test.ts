@@ -377,4 +377,32 @@ describe("image-to-pdf", () => {
     const json = JSON.parse(res.body);
     expect(json.pages).toBe(1);
   });
+
+  // ── Target file size ──────────────────────────────────────────────
+
+  it("respects target file size and returns compression info", async () => {
+    const { body, contentType } = createMultipartPayload([
+      { name: "file", filename: "test.png", contentType: "image/png", content: PNG },
+      {
+        name: "settings",
+        content: JSON.stringify({ targetSize: { value: 5, unit: "MB" } }),
+      },
+    ]);
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/tools/image-to-pdf",
+      headers: { authorization: `Bearer ${adminToken}`, "content-type": contentType },
+      body,
+    });
+
+    expect(res.statusCode).toBe(200);
+    const json = JSON.parse(res.body);
+    expect(json.compression).toBeDefined();
+    expect(json.compression.targetRequested).toBe(5 * 1024 * 1024);
+    expect(json.compression.targetMet).toBe(true);
+    expect(json.compression.jpegQuality).toBeGreaterThanOrEqual(10);
+    expect(json.compression.jpegQuality).toBeLessThanOrEqual(95);
+    expect(json.processedSize).toBeLessThanOrEqual(5 * 1024 * 1024);
+  });
 });
