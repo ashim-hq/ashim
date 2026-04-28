@@ -5,6 +5,7 @@ vi.mock("sharp", () => {
   const mockSharp = vi.fn(() => ({
     png: vi.fn().mockReturnThis(),
     toBuffer: vi.fn().mockResolvedValue(Buffer.from("mock-png-data")),
+    metadata: vi.fn().mockResolvedValue({ width: 800, height: 600 }),
   }));
   return { default: mockSharp };
 });
@@ -46,6 +47,7 @@ beforeEach(() => {
       ({
         png: vi.fn().mockReturnThis(),
         toBuffer: vi.fn().mockResolvedValue(Buffer.from("mock-png-data")),
+        metadata: vi.fn().mockResolvedValue({ width: 800, height: 600 }),
       }) as unknown as ReturnType<typeof sharp>,
   );
 });

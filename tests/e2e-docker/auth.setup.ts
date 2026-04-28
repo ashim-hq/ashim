@@ -1,3 +1,4 @@
+import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test as setup } from "@playwright/test";
 
@@ -25,5 +26,6 @@ setup("authenticate", async ({ page }) => {
 
   // At this point we should be on the home page
   await expect(page).toHaveURL("/");
+  mkdirSync(path.dirname(authFile), { recursive: true });
   await page.context().storageState({ path: authFile });
 });
