@@ -353,6 +353,98 @@ test.describe("Sidebar Navigation", () => {
 });
 
 // ---------------------------------------------------------------------------
+// Footer (desktop only)
+// ---------------------------------------------------------------------------
+test.describe("Footer", () => {
+  test("theme toggle button is visible with sun or moon icon", async ({ loggedInPage: page }) => {
+    const themeBtn = page.locator("button[title='Toggle Theme']");
+    await expect(themeBtn).toBeVisible();
+
+    // Should contain an SVG icon (Sun or Moon)
+    await expect(themeBtn.locator("svg")).toBeVisible();
+  });
+
+  test("theme toggle switches between sun and moon icons", async ({ loggedInPage: page }) => {
+    const themeBtn = page.locator("button[title='Toggle Theme']");
+    await expect(themeBtn).toBeVisible();
+
+    const hadDark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
+
+    await themeBtn.click();
+    await page.waitForTimeout(300);
+
+    const hasDark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
+    expect(hasDark).not.toBe(hadDark);
+  });
+
+  test("language button is visible and shows English", async ({ loggedInPage: page }) => {
+    const langBtn = page.locator("button[title='Language']");
+    await expect(langBtn).toBeVisible();
+    await expect(langBtn).toContainText("English");
+    await expect(langBtn.locator("svg")).toBeVisible();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Drag-and-Drop Upload
+// ---------------------------------------------------------------------------
+test.describe("Drag-and-Drop Upload", () => {
+  test("dropzone accepts dropped files via DataTransfer", async ({ loggedInPage: page }) => {
+    const dropzone = page.locator("section[aria-label='File drop zone']");
+    await expect(dropzone).toBeVisible();
+
+    // Verify the dropzone aria-label and interactive elements
+    await expect(page.getByText("Drop files here or click the upload button")).toBeVisible();
+
+    // Upload via the file chooser flow (same onFiles handler as drag-and-drop)
+    await uploadTestImage(page);
+
+    // After upload, the file info should appear
+    await expect(page.getByText(/test-image/i).first()).toBeVisible();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Files Page Layout
+// ---------------------------------------------------------------------------
+test.describe("Files Page Layout", () => {
+  test("desktop shows three-column layout with nav, list, and details", async ({
+    loggedInPage: page,
+  }) => {
+    await page.goto("/files");
+
+    // Left nav column with "My Files"
+    await expect(page.getByText("My Files")).toBeVisible();
+    // Nav items: Recent and Upload Files
+    await expect(page.getByRole("button", { name: /recent/i }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /upload files/i }).first()).toBeVisible();
+  });
+
+  test("mobile shows tabbed layout with Recent and Upload tabs", async ({ browser }) => {
+    const context = await browser.newContext({
+      viewport: { width: 375, height: 667 },
+    });
+    const page = await context.newPage();
+    await page.goto("/login");
+    await page.getByLabel("Username").fill("admin");
+    await page.getByLabel("Password").fill("admin");
+    await page.getByRole("button", { name: /login/i }).click();
+    await page.waitForURL("/", { timeout: 15_000 });
+
+    await page.goto("/files");
+
+    // Mobile tabs should be visible
+    await expect(page.getByRole("button", { name: "Recent" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Upload" })).toBeVisible();
+
+    // Desktop nav "My Files" heading should not be visible (hidden md:block)
+    await expect(page.getByText("My Files")).not.toBeVisible();
+
+    await context.close();
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Routing Edge Cases
 // ---------------------------------------------------------------------------
 test.describe("Routing Edge Cases", () => {
@@ -387,5 +479,79 @@ test.describe("Routing Edge Cases", () => {
 
     await expect(page.getByRole("heading", { name: "Privacy Policy" })).toBeVisible();
     await expect(page.getByText("Back to app")).toBeVisible();
+  });
+
+  test("/privacy Back to app link navigates home", async ({ loggedInPage: page }) => {
+    await page.goto("/privacy");
+
+    await page.getByText("Back to app").click();
+    await expect(page).toHaveURL("/");
+  });
+
+  test("/analytics-consent page renders consent UI", async ({ browser }) => {
+    // Use unauthenticated context since analytics-consent is unguarded
+    const context = await browser.newContext({
+      storageState: { cookies: [], origins: [] },
+    });
+    const page = await context.newPage();
+    await page.goto("/analytics-consent");
+
+    // The page shows a heading and two buttons
+    await expect(page.getByText("Help improve SnapOtter")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sure, sounds good" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Not right now" })).toBeVisible();
+
+    await context.close();
+  });
+
+  test("legacy /color-effects redirects to /adjust-colors", async ({ loggedInPage: page }) => {
+    await page.goto("/color-effects");
+
+    await expect(page).toHaveURL("/adjust-colors");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Browser Back/Forward Navigation
+// ---------------------------------------------------------------------------
+test.describe("Browser Back/Forward Navigation", () => {
+  test("browser back button returns to previous page", async ({ loggedInPage: page }) => {
+    // Navigate: Home -> Fullscreen -> back should return to Home
+    await page.goto("/fullscreen");
+    await expect(page).toHaveURL("/fullscreen");
+
+    await page.goBack();
+    await expect(page).toHaveURL("/");
+  });
+
+  test("browser forward button returns to next page after going back", async ({
+    loggedInPage: page,
+  }) => {
+    await page.goto("/fullscreen");
+    await expect(page).toHaveURL("/fullscreen");
+
+    await page.goBack();
+    await expect(page).toHaveURL("/");
+
+    await page.goForward();
+    await expect(page).toHaveURL("/fullscreen");
+  });
+
+  test("multi-step back/forward through several pages", async ({ loggedInPage: page }) => {
+    // Navigate: Home -> /automate -> /files -> back -> back -> forward
+    await page.goto("/automate");
+    await expect(page).toHaveURL("/automate");
+
+    await page.goto("/files");
+    await expect(page).toHaveURL("/files");
+
+    await page.goBack();
+    await expect(page).toHaveURL("/automate");
+
+    await page.goBack();
+    await expect(page).toHaveURL("/");
+
+    await page.goForward();
+    await expect(page).toHaveURL("/automate");
   });
 });

@@ -147,6 +147,38 @@ test.describe("Responsive - Tablet (768x1024)", () => {
 
     await context.close();
   });
+
+  test("files page is accessible at tablet width", async ({ loggedInPage: page }) => {
+    await page.goto("/files");
+
+    await expect(page.getByText("My Files")).toBeVisible();
+    await expect(page.getByRole("button", { name: /recent/i }).first()).toBeVisible();
+
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+  });
+
+  test("no horizontal overflow on files page", async ({ loggedInPage: page }) => {
+    await page.goto("/files");
+
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+  });
+
+  test("settings dialog fits within tablet viewport", async ({ loggedInPage: page }) => {
+    const sidebar = page.locator("aside");
+    // On tablet, sidebar may or may not be visible; use it if visible, otherwise use menu
+    if (await sidebar.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await sidebar.getByText("Settings").click();
+    }
+    await expect(page.getByRole("heading", { name: "General" })).toBeVisible({ timeout: 10_000 });
+
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -313,6 +345,59 @@ test.describe("Responsive - Mobile (375x667)", () => {
     await page.locator(".fixed").filter({ hasText: "Help" }).getByText("Help").click();
 
     await expect(page.getByRole("heading", { name: "Help" })).toBeVisible();
+
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+  });
+
+  test("files page shows mobile tabs instead of desktop nav", async ({ loggedInPage: page }) => {
+    await page.goto("/files");
+
+    // Mobile tabs: "Recent" and "Upload"
+    await expect(page.getByRole("button", { name: "Recent" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Upload" })).toBeVisible();
+
+    // Desktop nav "My Files" heading should not be visible
+    await expect(page.getByText("My Files")).not.toBeVisible();
+  });
+
+  test("no horizontal overflow on files page", async ({ loggedInPage: page }) => {
+    await page.goto("/files");
+
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+  });
+
+  test("dropzone is accessible and clickable on mobile", async ({ loggedInPage: page }) => {
+    // The dropzone should be visible and have the upload button
+    const dropzone = page.locator("section[aria-label='File drop zone']");
+    await expect(dropzone).toBeVisible();
+    await expect(page.getByText("Upload from computer")).toBeVisible();
+  });
+
+  test("privacy policy page renders on mobile without overflow", async ({ loggedInPage: page }) => {
+    await page.goto("/privacy");
+
+    await expect(page.getByRole("heading", { name: "Privacy Policy" })).toBeVisible();
+
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+  });
+
+  test("footer theme and language buttons are hidden on mobile", async ({ loggedInPage: page }) => {
+    // Footer is rendered only on desktop (!isMobile)
+    await expect(page.locator("button[title='Toggle Theme']")).not.toBeVisible();
+    await expect(page.locator("button[title='Language']")).not.toBeVisible();
+  });
+
+  test("settings dialog fits within mobile viewport", async ({ loggedInPage: page }) => {
+    const bottomNav = page.locator("nav.fixed");
+    await bottomNav.getByText("Settings").click();
+
+    await expect(page.getByRole("heading", { name: "General" })).toBeVisible();
 
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
     const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);

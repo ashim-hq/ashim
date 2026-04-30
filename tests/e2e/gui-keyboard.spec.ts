@@ -131,4 +131,69 @@ test.describe("Keyboard Shortcuts - Tool Navigation", () => {
 
     await expect(page).toHaveURL("/convert");
   });
+
+  test("Cmd/Ctrl+Alt+5 navigates to Remove Background", async ({ loggedInPage: page }) => {
+    await page.keyboard.press(`${MOD}+Alt+5`);
+
+    await expect(page).toHaveURL("/remove-background");
+  });
+
+  test("Cmd/Ctrl+Alt+6 navigates to Watermark Text", async ({ loggedInPage: page }) => {
+    await page.keyboard.press(`${MOD}+Alt+6`);
+
+    await expect(page).toHaveURL("/watermark-text");
+  });
+
+  test("Cmd/Ctrl+Alt+7 navigates to Strip Metadata", async ({ loggedInPage: page }) => {
+    await page.keyboard.press(`${MOD}+Alt+7`);
+
+    await expect(page).toHaveURL("/strip-metadata");
+  });
+
+  test("Cmd/Ctrl+Alt+8 navigates to Image Info", async ({ loggedInPage: page }) => {
+    await page.keyboard.press(`${MOD}+Alt+8`);
+
+    await expect(page).toHaveURL("/info");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Keyboard shortcut suppression in different input types
+// ---------------------------------------------------------------------------
+test.describe("Keyboard Shortcuts - Input Suppression", () => {
+  test("Cmd/Ctrl+Shift+D does not toggle theme when focused on search input", async ({
+    loggedInPage: page,
+  }) => {
+    // Navigate to fullscreen which reliably shows the search input
+    await page.goto("/fullscreen");
+    const searchInput = page.getByPlaceholder(/search/i);
+    await expect(searchInput).toBeVisible();
+    await searchInput.click();
+    await searchInput.fill("");
+
+    const hadDark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
+
+    await page.keyboard.press(`${MOD}+Shift+d`);
+    await page.waitForTimeout(300);
+
+    const hasDark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
+
+    // Theme should NOT have changed since we were in an input
+    expect(hasDark).toBe(hadDark);
+  });
+
+  test("Cmd/Ctrl+Alt+1 does not navigate when focused on search input", async ({
+    loggedInPage: page,
+  }) => {
+    await page.goto("/fullscreen");
+    const searchInput = page.getByPlaceholder(/search/i);
+    await expect(searchInput).toBeVisible();
+    await searchInput.click();
+
+    await page.keyboard.press(`${MOD}+Alt+1`);
+    await page.waitForTimeout(300);
+
+    // Should still be on fullscreen since shortcut was suppressed
+    await expect(page).toHaveURL("/fullscreen");
+  });
 });
