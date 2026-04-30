@@ -1035,6 +1035,59 @@ describe("bridge - dispatcher lifecycle via runPythonWithProgress", () => {
     // The important thing is no crash -- the line is collected for pending requests
   });
 
+  it("does not count exit code 0 as a crash (normal MAX_REQUESTS restart)", async () => {
+    const mockDispatcher = createMockProcess();
+    const mockPerReq = createMockProcess();
+    let callCount = 0;
+
+    vi.mocked(spawn).mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) return mockDispatcher.process;
+      return mockPerReq.process;
+    });
+
+    const promise = runPythonWithProgress("test.py", []);
+
+    // Dispatcher exits with code 0 (normal MAX_REQUESTS shutdown)
+    mockDispatcher.emitEvent("close", 0, null);
+
+    await new Promise((r) => setTimeout(r, 10));
+
+    mockPerReq.stdout.emit("data", Buffer.from('{"ok": true}\n'));
+    mockPerReq.emitEvent("close", 0, null);
+    await promise;
+
+    const status = getDispatcherStatus();
+    expect(status.consecutiveCrashes).toBe(0);
+    expect(status.failed).toBe(false);
+  });
+
+  it("still counts non-zero exit codes as crashes", async () => {
+    const mockDispatcher = createMockProcess();
+    const mockPerReq = createMockProcess();
+    let callCount = 0;
+
+    vi.mocked(spawn).mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) return mockDispatcher.process;
+      return mockPerReq.process;
+    });
+
+    const promise = runPythonWithProgress("test.py", []);
+
+    // Dispatcher exits with code 1 (real crash)
+    mockDispatcher.emitEvent("close", 1, null);
+
+    await new Promise((r) => setTimeout(r, 10));
+
+    mockPerReq.stdout.emit("data", Buffer.from('{"ok": true}\n'));
+    mockPerReq.emitEvent("close", 0, null);
+    await promise;
+
+    const status = getDispatcherStatus();
+    expect(status.consecutiveCrashes).toBeGreaterThanOrEqual(1);
+  });
+
   it("per-request fallback retries with python3 when venv python fails with ENOENT", async () => {
     const mockDispatcher = createMockProcess();
     const mockVenvPython = createMockProcess();

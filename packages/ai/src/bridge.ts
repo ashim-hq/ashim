@@ -216,12 +216,14 @@ function startDispatcher(): ChildProcess | null {
       dispatcherReady = false;
     });
 
-    child.on("close", () => {
+    child.on("close", (code) => {
       for (const [id, req] of pendingRequests.entries()) {
         req.reject(new Error("Python dispatcher exited unexpectedly"));
         pendingRequests.delete(id);
       }
-      recordCrash();
+      if (code !== 0) {
+        recordCrash();
+      }
       dispatcher = null;
       dispatcherReady = false;
     });
