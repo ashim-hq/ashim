@@ -153,6 +153,18 @@ describe("editMetadata", () => {
     expect(buf.length).toBeGreaterThan(0);
   });
 
+  it("removes a Photo (IFD2) field via fieldsToRemove", async () => {
+    const img = sharp(jpgWithExif);
+    // DateTimeOriginal is in the Photo (IFD2) section
+    const result = await editMetadata(img, {
+      fieldsToRemove: ["DateTimeOriginal"],
+    });
+    const exif = await getExif(result);
+    expect(exif?.Photo?.DateTimeOriginal).toBeUndefined();
+    // Other IFD0 fields should be preserved
+    expect(exif?.Image?.Artist).toBe("Test Artist");
+  });
+
   // -- Combined edit + remove ------------------------------------------------
 
   it("handles both edits and removals together", async () => {
@@ -196,6 +208,39 @@ describe("editMetadata", () => {
     const result = await editMetadata(img, {
       fieldsToRemove: ["Artist"],
       artist: "FallbackWriter",
+    });
+    const buf = await result.toBuffer();
+    expect(buf.length).toBeGreaterThan(0);
+  });
+
+  it("survives corrupt EXIF during removal (catch branch)", async () => {
+    // Corrupt the byte order marker in the EXIF so exif-reader throws,
+    // but sharp still sees the EXIF segment as present.
+    const rawBuf = Buffer.from(jpgWithExif);
+    // Find the 'Exif' header in the raw JPEG
+    let exifStart = -1;
+    for (let i = 0; i < rawBuf.length - 4; i++) {
+      if (
+        rawBuf[i] === 0x45 &&
+        rawBuf[i + 1] === 0x78 &&
+        rawBuf[i + 2] === 0x69 &&
+        rawBuf[i + 3] === 0x66
+      ) {
+        exifStart = i;
+        break;
+      }
+    }
+    expect(exifStart).toBeGreaterThanOrEqual(0);
+    // Corrupt the byte order marker (offset +6 after 'Exif\0\0')
+    const corruptBuf = Buffer.from(rawBuf);
+    corruptBuf[exifStart + 6] = 0xde;
+    corruptBuf[exifStart + 7] = 0xad;
+
+    const img = sharp(corruptBuf);
+    // fieldsToRemove triggers the removal path which tries to parse EXIF
+    const result = await editMetadata(img, {
+      fieldsToRemove: ["Software"],
+      artist: "Survivor",
     });
     const buf = await result.toBuffer();
     expect(buf.length).toBeGreaterThan(0);
