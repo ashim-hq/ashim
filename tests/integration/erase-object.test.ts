@@ -35,7 +35,7 @@ afterAll(async () => {
 describe("erase-object", () => {
   // ── Processing (sidecar-dependent) ────────────────────────────────
 
-  it("responds to the route with image and mask (200 or 501)", async () => {
+  it("responds to the route with image and mask (202 or 501)", async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.png", contentType: "image/png", content: PNG },
       { name: "mask", filename: "mask.png", contentType: "image/png", content: MASK },
@@ -48,10 +48,10 @@ describe("erase-object", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
-  it("processes with default format and quality (200 or 501)", async () => {
+  it("processes with default format and quality (202 or 501)", async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.png", contentType: "image/png", content: PNG },
       { name: "mask", filename: "mask.png", contentType: "image/png", content: MASK },
@@ -64,16 +64,15 @@ describe("erase-object", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
-    if (res.statusCode === 200) {
-      const json = JSON.parse(res.body);
-      expect(json.jobId).toBeDefined();
-      expect(json.downloadUrl).toBeDefined();
-      expect(json.processedSize).toBeGreaterThan(0);
+    expect([202, 501]).toContain(res.statusCode);
+    if (res.statusCode === 202) {
+      const result = JSON.parse(res.body);
+      expect(result.jobId).toBeDefined();
+      expect(result.async).toBe(true);
     }
   }, 60_000);
 
-  it("accepts explicit format=jpg and quality=80 (200 or 501)", async () => {
+  it("accepts explicit format=jpg and quality=80 (202 or 501)", async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.png", contentType: "image/png", content: PNG },
       { name: "mask", filename: "mask.png", contentType: "image/png", content: MASK },
@@ -88,10 +87,10 @@ describe("erase-object", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
-  it("accepts format=webp (200 or 501)", async () => {
+  it("accepts format=webp (202 or 501)", async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.png", contentType: "image/png", content: PNG },
       { name: "mask", filename: "mask.png", contentType: "image/png", content: MASK },
@@ -105,10 +104,10 @@ describe("erase-object", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
-  it("handles HEIC image input (200 or 501)", async () => {
+  it("handles HEIC image input (202 or 501)", async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
       { name: "mask", filename: "mask.png", contentType: "image/png", content: MASK },
@@ -121,7 +120,7 @@ describe("erase-object", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
   it("handles 1x1 pixel image input (200, 422, or 501)", async () => {
@@ -137,7 +136,7 @@ describe("erase-object", () => {
       body,
     });
 
-    expect([200, 422, 501]).toContain(res.statusCode);
+    expect([202, 422, 501]).toContain(res.statusCode);
   }, 60_000);
 
   // ── Validation (always testable) ──────────────────────────────────
@@ -232,7 +231,7 @@ describe("erase-object", () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it("accepts format=avif (200 or 501)", async () => {
+  it("accepts format=avif (202 or 501)", async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.png", contentType: "image/png", content: PNG },
       { name: "mask", filename: "mask.png", contentType: "image/png", content: MASK },
@@ -246,6 +245,6 @@ describe("erase-object", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 });

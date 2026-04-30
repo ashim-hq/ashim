@@ -50,7 +50,7 @@ describe("Restore Photo", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
   it("accepts default settings", async () => {
@@ -69,12 +69,12 @@ describe("Restore Photo", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
 
-    if (res.statusCode === 200) {
+    if (res.statusCode === 202) {
       const result = JSON.parse(res.body);
-      expect(result.downloadUrl).toBeDefined();
-      expect(result.processedSize).toBeGreaterThan(0);
+      expect(result.jobId).toBeDefined();
+      expect(result.async).toBe(true);
     }
 
     if (res.statusCode === 501) {
@@ -108,7 +108,7 @@ describe("Restore Photo", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
   it("accepts heavy mode with colorize enabled", async () => {
@@ -134,7 +134,7 @@ describe("Restore Photo", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
   it("accepts light mode with features disabled", async () => {
@@ -161,7 +161,7 @@ describe("Restore Photo", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
   it("processes JPEG input", async () => {
@@ -180,7 +180,7 @@ describe("Restore Photo", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
   it("handles HEIC input", async () => {
@@ -199,7 +199,7 @@ describe("Restore Photo", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
   it("handles 1x1 pixel input", async () => {
@@ -218,7 +218,7 @@ describe("Restore Photo", () => {
       body,
     });
 
-    expect([200, 422, 501]).toContain(res.statusCode);
+    expect([202, 422, 501]).toContain(res.statusCode);
   }, 60_000);
 
   // ── Validation (always testable) ─────────────────────────────────

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
-import { basename, join } from "node:path";
+import { join } from "node:path";
 import { blurFaces } from "@snapotter/ai";
 import { getBundleForTool, TOOL_BUNDLE_MAP } from "@snapotter/shared";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
@@ -10,6 +10,7 @@ import { autoOrient } from "../../lib/auto-orient.js";
 import { formatZodErrors } from "../../lib/errors.js";
 import { isToolInstalled } from "../../lib/feature-status.js";
 import { validateImageBuffer } from "../../lib/file-validation.js";
+import { sanitizeFilename } from "../../lib/filename.js";
 import { decodeToSharpCompat, needsCliDecode } from "../../lib/format-decoders.js";
 import { decodeHeic, ensureSharpCompat } from "../../lib/heic-converter.js";
 import { resolveOutputFormat } from "../../lib/output-format.js";
@@ -51,11 +52,14 @@ export function registerBlurFaces(app: FastifyInstance) {
             chunks.push(chunk);
           }
           fileBuffer = Buffer.concat(chunks);
-          filename = basename(part.filename ?? "image");
+          filename = sanitizeFilename(part.filename ?? "image");
         } else if (part.fieldname === "settings") {
           settingsRaw = part.value as string;
         } else if (part.fieldname === "clientJobId") {
-          clientJobId = part.value as string;
+          const raw = part.value as string;
+          if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(raw)) {
+            clientJobId = raw;
+          }
         }
       }
     } catch (err) {
@@ -74,21 +78,23 @@ export function registerBlurFaces(app: FastifyInstance) {
       return reply.status(400).send({ error: `Invalid image: ${validation.reason}` });
     }
 
+    let settings: z.infer<typeof settingsSchema>;
     try {
-      let settings: z.infer<typeof settingsSchema>;
-      try {
-        const parsed = settingsRaw ? JSON.parse(settingsRaw) : {};
-        const result = settingsSchema.safeParse(parsed);
-        if (!result.success) {
-          return reply
-            .status(400)
-            .send({ error: "Invalid settings", details: formatZodErrors(result.error.issues) });
-        }
-        settings = result.data;
-      } catch {
-        return reply.status(400).send({ error: "Settings must be valid JSON" });
+      const parsed = settingsRaw ? JSON.parse(settingsRaw) : {};
+      const result = settingsSchema.safeParse(parsed);
+      if (!result.success) {
+        return reply
+          .status(400)
+          .send({ error: "Invalid settings", details: formatZodErrors(result.error.issues) });
       }
+      settings = result.data;
+    } catch {
+      return reply.status(400).send({ error: "Settings must be valid JSON" });
+    }
 
+    const { blurRadius, sensitivity } = settings;
+
+    try {
       if (validation.format === "heif") {
         fileBuffer = await decodeHeic(fileBuffer);
       }
@@ -98,39 +104,52 @@ export function registerBlurFaces(app: FastifyInstance) {
         fileBuffer = await decodeToSharpCompat(fileBuffer, validation.format);
       }
 
-      const { blurRadius, sensitivity } = settings;
-      request.log.info(
-        {
-          toolId: "blur-faces",
-          imageSize: fileBuffer.length,
-          blurRadius,
-          sensitivity,
-        },
-        "Starting face blur",
-      );
-
       fileBuffer = await autoOrient(fileBuffer);
+    } catch (err) {
+      request.log.error({ err, toolId: "blur-faces" }, "Input decoding failed");
+      return reply.status(422).send({
+        error: "Face blur failed",
+        details: err instanceof Error ? err.message : "Unknown error",
+      });
+    }
 
-      const jobId = randomUUID();
-      const workspacePath = await createWorkspace(jobId);
-
-      // Save input
+    const originalSize = fileBuffer.length;
+    const jobId = randomUUID();
+    const progressJobId = clientJobId || jobId;
+    let workspacePath: string;
+    try {
+      workspacePath = await createWorkspace(jobId);
       const inputPath = join(workspacePath, "input", filename);
       await writeFile(inputPath, fileBuffer);
+    } catch (err) {
+      request.log.error({ err, toolId: "blur-faces" }, "Workspace creation failed");
+      return reply.status(422).send({
+        error: "Face blur failed",
+        details: err instanceof Error ? err.message : "Unknown error",
+      });
+    }
 
-      // Process
-      const jobIdForProgress = clientJobId;
-      const onProgress = jobIdForProgress
-        ? (percent: number, stage: string) => {
-            updateSingleFileProgress({
-              jobId: jobIdForProgress,
-              phase: "processing",
-              stage,
-              percent,
-            });
-          }
-        : undefined;
+    const log = request.log;
+    log.info(
+      { toolId: "blur-faces", imageSize: originalSize, blurRadius, sensitivity },
+      "Starting face blur",
+    );
 
+    // Reply immediately so the HTTP connection closes within proxy timeout limits.
+    // The result will be delivered via the SSE progress channel.
+    reply.status(202).send({ jobId: progressJobId, async: true });
+
+    const onProgress = (percent: number, stage: string) => {
+      updateSingleFileProgress({
+        jobId: progressJobId,
+        phase: "processing",
+        stage,
+        percent,
+      });
+    };
+
+    // Fire-and-forget: processing happens after the response is sent
+    (async () => {
       const result = await blurFaces(
         fileBuffer,
         join(workspacePath, "output"),
@@ -155,32 +174,34 @@ export function registerBlurFaces(app: FastifyInstance) {
       const outputPath = join(workspacePath, "output", outputFilename);
       await writeFile(outputPath, outputBuffer);
 
-      if (clientJobId) {
-        updateSingleFileProgress({
-          jobId: clientJobId,
-          phase: "complete",
-          percent: 100,
-        });
-      }
+      const downloadUrl = `/api/v1/download/${jobId}/${encodeURIComponent(outputFilename)}`;
+      updateSingleFileProgress({
+        jobId: progressJobId,
+        phase: "complete",
+        percent: 100,
+        result: {
+          jobId,
+          downloadUrl,
+          originalSize,
+          processedSize: outputBuffer.length,
+          facesDetected: result.facesDetected,
+          faces: result.faces,
+          ...(result.facesDetected === 0 && {
+            warning: "No faces detected in this image. Try increasing detection sensitivity.",
+          }),
+        },
+      });
 
-      return reply.send({
-        jobId,
-        downloadUrl: `/api/v1/download/${jobId}/${encodeURIComponent(outputFilename)}`,
-        originalSize: fileBuffer.length,
-        processedSize: outputBuffer.length,
-        facesDetected: result.facesDetected,
-        faces: result.faces,
-        ...(result.facesDetected === 0 && {
-          warning: "No faces detected in this image. Try increasing detection sensitivity.",
-        }),
+      log.info({ toolId: "blur-faces", jobId, downloadUrl }, "Face blur complete");
+    })().catch((err) => {
+      log.error({ err, toolId: "blur-faces" }, "Face blur failed");
+      updateSingleFileProgress({
+        jobId: progressJobId,
+        phase: "failed",
+        percent: 0,
+        error: err instanceof Error ? err.message : "Face blur failed",
       });
-    } catch (err) {
-      request.log.error({ err, toolId: "blur-faces" }, "Face blur failed");
-      return reply.status(422).send({
-        error: "Face blur failed",
-        details: err instanceof Error ? err.message : "Unknown error",
-      });
-    }
+    });
   });
 
   // Register in the pipeline/batch registry so this tool can be used

@@ -33,7 +33,7 @@ afterAll(async () => {
 describe("colorize", () => {
   // ── Processing (sidecar-dependent) ────────────────────────────────
 
-  it("responds to the route (200 or 501)", async () => {
+  it("responds to the route (202 or 501)", async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.png", contentType: "image/png", content: PNG },
       { name: "settings", content: JSON.stringify({}) },
@@ -46,10 +46,10 @@ describe("colorize", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
-  it("processes with default settings (200 or 501)", async () => {
+  it("processes with default settings (202 or 501)", async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.png", contentType: "image/png", content: PNG },
     ]);
@@ -61,16 +61,15 @@ describe("colorize", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
-    if (res.statusCode === 200) {
-      const json = JSON.parse(res.body);
-      expect(json.jobId).toBeDefined();
-      expect(json.downloadUrl).toBeDefined();
-      expect(json.method).toBeDefined();
+    expect([202, 501]).toContain(res.statusCode);
+    if (res.statusCode === 202) {
+      const result = JSON.parse(res.body);
+      expect(result.jobId).toBeDefined();
+      expect(result.async).toBe(true);
     }
   }, 60_000);
 
-  it("accepts explicit intensity and model=auto (200 or 501)", async () => {
+  it("accepts explicit intensity and model=auto (202 or 501)", async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.png", contentType: "image/png", content: PNG },
       {
@@ -86,10 +85,10 @@ describe("colorize", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
-  it("accepts model=ddcolor (200 or 501)", async () => {
+  it("accepts model=ddcolor (202 or 501)", async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.png", contentType: "image/png", content: PNG },
       {
@@ -105,10 +104,10 @@ describe("colorize", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
-  it("accepts model=opencv (200 or 501)", async () => {
+  it("accepts model=opencv (202 or 501)", async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.png", contentType: "image/png", content: PNG },
       {
@@ -124,10 +123,10 @@ describe("colorize", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
-  it("accepts minimum intensity of 0 (200 or 501)", async () => {
+  it("accepts minimum intensity of 0 (202 or 501)", async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.png", contentType: "image/png", content: PNG },
       {
@@ -143,10 +142,10 @@ describe("colorize", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
-  it("handles HEIC input (200 or 501)", async () => {
+  it("handles HEIC input (202 or 501)", async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
       { name: "settings", content: JSON.stringify({}) },
@@ -159,7 +158,7 @@ describe("colorize", () => {
       body,
     });
 
-    expect([200, 501]).toContain(res.statusCode);
+    expect([202, 501]).toContain(res.statusCode);
   }, 60_000);
 
   it("handles 1x1 pixel input (200, 422, or 501)", async () => {
@@ -175,7 +174,7 @@ describe("colorize", () => {
       body,
     });
 
-    expect([200, 422, 501]).toContain(res.statusCode);
+    expect([202, 422, 501]).toContain(res.statusCode);
   }, 60_000);
 
   // ── Validation (always testable) ──────────────────────────────────
