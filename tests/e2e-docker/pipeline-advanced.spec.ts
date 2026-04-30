@@ -375,7 +375,7 @@ test.describe("Deep pipelines (6+ steps)", () => {
           steps: [
             { toolId: "strip-metadata", settings: {} },
             { toolId: "rotate", settings: { angle: 90 } },
-            { toolId: "resize", settings: { width: 800, fit: "contain" } },
+            { toolId: "resize", settings: { width: 400, fit: "contain" } },
             { toolId: "adjust-colors", settings: { brightness: 5, contrast: 10, saturation: -5 } },
             { toolId: "sharpening", settings: { sigma: 1.0 } },
             {
@@ -434,7 +434,7 @@ test.describe("Workflow: e-commerce product pipeline", () => {
         file: { name: "sample.jpg", mimeType: "image/jpeg", buffer: JPG_SAMPLE },
         pipeline: JSON.stringify({
           steps: [
-            { toolId: "crop", settings: { left: 50, top: 50, width: 400, height: 400 } },
+            { toolId: "crop", settings: { left: 50, top: 50, width: 400, height: 350 } },
             { toolId: "resize", settings: { width: 800, height: 800, fit: "contain" } },
             { toolId: "image-enhancement", settings: { preset: "vivid" } },
             {

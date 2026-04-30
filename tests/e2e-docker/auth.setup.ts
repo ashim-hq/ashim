@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test as setup } from "@playwright/test";
 
-const authFile = path.join(__dirname, "..", "..", "test-results", ".auth", "analytics-user.json");
+const authFile = path.join(__dirname, "..", "..", ".playwright", ".auth", "analytics-user.json");
 
 setup("authenticate", async ({ page }) => {
   await page.goto("/login");

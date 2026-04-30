@@ -12,6 +12,7 @@ tmp/
 .env.cloudflare
 .env.*
 .DS_Store
+.playwright/
 .playwright-mcp/
 .vite/
 apps/api/data/

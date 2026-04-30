@@ -273,8 +273,8 @@ test.describe("Pipeline Builder - Save/Load", () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const { pipelines } = await listRes.json();
-      for (const p of pipelines.filter((p: { name: string }) =>
-        p.name.startsWith("GUI E2E Pipeline"),
+      for (const p of pipelines.filter(
+        (p: { name: string }) => p.name.startsWith("GUI E2E Pipeline") || p.name.startsWith("E2E "),
       )) {
         await fetch(`${apiUrl}/api/v1/pipeline/${p.id}`, {
           method: "DELETE",

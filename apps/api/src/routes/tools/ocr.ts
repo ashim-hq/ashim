@@ -142,6 +142,17 @@ export function registerOcr(app: FastifyInstance) {
             onProgress,
           );
 
+          // If a higher-quality tier returns empty text but didn't crash,
+          // fall back to the next tier rather than returning nothing.
+          if (!result.text && tier !== fallbackChain[fallbackChain.length - 1]) {
+            request.log.warn(
+              { toolId: "ocr", quality: tier, engine: result.engine },
+              `OCR ${tier} returned empty text, falling back to next tier`,
+            );
+            if (onProgress) onProgress(15, "Retrying...");
+            continue;
+          }
+
           if (clientJobId) {
             updateSingleFileProgress({
               jobId: clientJobId,

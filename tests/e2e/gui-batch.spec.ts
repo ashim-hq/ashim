@@ -343,7 +343,7 @@ test.describe("Batch processing", () => {
     await expect(page.getByText("Files (2)")).toBeVisible();
 
     // Click undo (resets all processed state for all entries in the store)
-    const undoBtn = page.getByRole("button", { name: /undo|reset/i });
+    const undoBtn = page.getByRole("button", { name: /^undo$|^reset$/i });
     if (await undoBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
       await undoBtn.click();
       await page.waitForTimeout(500);

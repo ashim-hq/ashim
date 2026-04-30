@@ -30,6 +30,7 @@ import {
 import { validateImageBuffer } from "../lib/file-validation.js";
 import { sanitizeFilename } from "../lib/filename.js";
 import { ensureSharpCompat } from "../lib/heic-converter.js";
+import { isSvgBuffer, sanitizeSvg } from "../lib/svg-sanitize.js";
 import { hasEffectivePermission } from "../permissions.js";
 import { getAuthUser, requireAuth } from "../plugins/auth.js";
 
@@ -185,11 +186,14 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
+      // Sanitize SVG uploads to prevent XXE, SSRF, and script injection
+      const safeBuffer = isSvgBuffer(buffer) ? sanitizeSvg(buffer) : buffer;
+
       const safeName = sanitizeFilename(part.filename ?? "upload");
       const mimeType = formatToMime(validation.format);
 
       // Persist to disk
-      const storedName = await saveFile(buffer, safeName);
+      const storedName = await saveFile(safeBuffer, safeName);
 
       // Create DB record
       const id = randomUUID();
@@ -200,7 +204,7 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
           originalName: safeName,
           storedName,
           mimeType,
-          size: buffer.length,
+          size: safeBuffer.length,
           width: validation.width,
           height: validation.height,
           version: 1,
@@ -537,8 +541,11 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
 
     const mimeType = formatToMime(validation.format) || extToMime(ext);
 
+    // Sanitize SVG results to prevent XXE, SSRF, and script injection
+    const safeResultBuffer = isSvgBuffer(fileBuffer) ? sanitizeSvg(fileBuffer) : fileBuffer;
+
     // Persist to disk
-    const storedName = await saveFile(fileBuffer, resultName);
+    const storedName = await saveFile(safeResultBuffer, resultName);
 
     // Create DB record
     const id = randomUUID();
@@ -549,7 +556,7 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
         originalName: resultName,
         storedName,
         mimeType,
-        size: fileBuffer.length,
+        size: safeResultBuffer.length,
         width: validation.width,
         height: validation.height,
         version: nextVersion,

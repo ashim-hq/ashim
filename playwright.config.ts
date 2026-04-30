@@ -1,7 +1,7 @@
 import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 
-const authFile = path.join(__dirname, "test-results", ".auth", "user.json");
+const authFile = path.join(__dirname, ".playwright", ".auth", "user.json");
 const testDbPath = path.join(__dirname, "test-results", ".e2e-db", "snapotter.db");
 
 const TEST_WEB_PORT = 2349;

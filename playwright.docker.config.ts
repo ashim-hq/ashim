@@ -1,7 +1,7 @@
 import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 
-const authFile = path.join(__dirname, "test-results", ".auth", "analytics-user.json");
+const authFile = path.join(__dirname, ".playwright", ".auth", "analytics-user.json");
 
 // Point raw-fetch tests (api.spec, security.spec, people.spec, rbac.spec) at
 // the Docker container instead of the dev-server default (port 13490).
