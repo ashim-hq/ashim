@@ -47,7 +47,7 @@ RUN --mount=type=cache,id=turbo-cache,target=/app/.turbo \
 # on Apple Silicon when cross-compiling for linux/amd64.
 # caire imports gioui.org/app which requires CGO on Linux, so we use a
 # proper C cross-compiler instead of CGO_ENABLED=0.
-FROM --platform=$BUILDPLATFORM golang:1.23-bookworm AS caire-builder
+FROM --platform=$BUILDPLATFORM golang:1.26-bookworm AS caire-builder
 
 ARG TARGETOS=linux
 ARG TARGETARCH
