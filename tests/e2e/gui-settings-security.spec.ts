@@ -47,6 +47,30 @@ test.describe("GUI Settings - Security Tab", () => {
 
     await expect(currentPwInput).toHaveAttribute("type", "text");
   });
+
+  test("short password shows validation error", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /security/i }).click();
+
+    await page.getByPlaceholder("Current Password").fill("admin");
+    await page.getByPlaceholder("New Password").first().fill("ab");
+    await page.getByPlaceholder("Confirm New Password").fill("ab");
+
+    await page.getByRole("button", { name: /change password/i }).click();
+
+    // Should show validation error about minimum length
+    await expect(page.getByText(/at least 4 characters/i)).toBeVisible({ timeout: 5_000 });
+  });
+
+  test("security section shows login attempt limit reference", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /security/i }).click();
+
+    await expect(page.getByText(/login attempt limits/i)).toBeVisible();
+    await expect(
+      page.getByText("Login attempt limits can be configured in System Settings."),
+    ).toBeVisible();
+  });
 });
 
 test.describe("GUI Settings - API Keys Tab", () => {

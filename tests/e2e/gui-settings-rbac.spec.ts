@@ -112,7 +112,7 @@ async function deleteUser(adminToken: string, username: string): Promise<void> {
 //   about          - none
 
 base.describe("RBAC Settings Visibility - Admin", () => {
-  base.use({ storageState: "test-results/.auth/user.json" });
+  base.use({ storageState: ".playwright/.auth/user.json" });
 
   base.test("admin sees all settings tabs including admin-only ones", async ({ page }) => {
     await page.goto("/");
@@ -133,6 +133,37 @@ base.describe("RBAC Settings Visibility - Admin", () => {
     await expect(page.getByRole("button", { name: /^roles$/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /audit log/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /ai features/i })).toBeVisible();
+  });
+
+  base.test("admin can navigate to People tab and see user table", async ({ page }) => {
+    await page.goto("/");
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /people/i }).click();
+
+    await expect(page.getByText(/\d+ users?/)).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText("admin").first()).toBeVisible();
+  });
+
+  base.test("admin can navigate to Audit Log tab and see entries", async ({ page }) => {
+    await page.goto("/");
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /audit log/i }).click();
+
+    await expect(page.locator("h3").filter({ hasText: "Audit Log" })).toBeVisible();
+    // Filter dropdown should be present
+    await expect(
+      page.locator("select").filter({ has: page.locator("option[value='']") }),
+    ).toBeVisible();
+  });
+
+  base.test("admin sees all 12 nav items", async ({ page }) => {
+    await page.goto("/");
+    await page.locator("aside").getByText("Settings").click();
+
+    // Count the navigation buttons in the settings dialog sidebar
+    const navButtons = page.locator(".w-48 button");
+    const count = await navButtons.count();
+    expect(count).toBe(12);
   });
 });
 
@@ -182,6 +213,33 @@ base.describe("RBAC Settings Visibility - Editor", () => {
       await expect(page.getByRole("button", { name: /ai features/i })).not.toBeVisible();
     },
   );
+
+  base.test("editor sees exactly 6 nav items", async ({ page }) => {
+    await login(page, EDITOR_USER, EDITOR_PASS);
+    await page.locator("aside").getByText("Settings").click();
+    await expect(page.getByRole("button", { name: /general/i })).toBeVisible();
+
+    const navButtons = page.locator(".w-48 button");
+    const count = await navButtons.count();
+    expect(count).toBe(6);
+  });
+
+  base.test("editor can access Security tab and see change password form", async ({ page }) => {
+    await login(page, EDITOR_USER, EDITOR_PASS);
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /security/i }).click();
+
+    await expect(page.getByText("Change Password").first()).toBeVisible();
+    await expect(page.getByPlaceholder("Current Password")).toBeVisible();
+  });
+
+  base.test("editor can access API Keys tab and generate a key", async ({ page }) => {
+    await login(page, EDITOR_USER, EDITOR_PASS);
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /api keys/i }).click();
+
+    await expect(page.getByRole("button", { name: /generate api key/i })).toBeVisible();
+  });
 });
 
 base.describe("RBAC Settings Visibility - User", () => {
@@ -225,4 +283,32 @@ base.describe("RBAC Settings Visibility - User", () => {
       await expect(page.getByRole("button", { name: /ai features/i })).not.toBeVisible();
     },
   );
+
+  base.test("user sees exactly 6 nav items", async ({ page }) => {
+    await login(page, USER_USER, USER_PASS);
+    await page.locator("aside").getByText("Settings").click();
+    await expect(page.getByRole("button", { name: /general/i })).toBeVisible();
+
+    const navButtons = page.locator(".w-48 button");
+    const count = await navButtons.count();
+    expect(count).toBe(6);
+  });
+
+  base.test("user can access About tab and see version", async ({ page }) => {
+    await login(page, USER_USER, USER_PASS);
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /about/i }).click();
+
+    await expect(page.locator("h3").filter({ hasText: "About" })).toBeVisible();
+    await expect(page.getByText("Version:")).toBeVisible();
+  });
+
+  base.test("user General tab shows correct username and role", async ({ page }) => {
+    await login(page, USER_USER, USER_PASS);
+    await page.locator("aside").getByText("Settings").click();
+
+    // General is the default tab; should show the user's username and role
+    await expect(page.getByText(USER_USER)).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText("user").first()).toBeVisible();
+  });
 });

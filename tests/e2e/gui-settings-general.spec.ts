@@ -201,4 +201,219 @@ test.describe("GUI Settings - About Tab", () => {
     await expect(page.getByRole("link", { name: /github repository/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /documentation/i })).toBeVisible();
   });
+
+  test("shows API Reference (Swagger) link", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /about/i }).click();
+
+    await expect(page.getByRole("link", { name: /api reference/i })).toBeVisible();
+  });
+
+  test("version displays a semver string", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /about/i }).click();
+
+    // Version text should match semver format (e.g., 1.2.3)
+    const versionEl = page.locator(".font-mono").filter({ hasText: /^\d+\.\d+\.\d+/ });
+    await expect(versionEl).toBeVisible();
+  });
+
+  test("about section has the Links heading", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /about/i }).click();
+
+    await expect(page.getByText("Links")).toBeVisible();
+  });
+});
+
+test.describe("GUI Settings - AI Features Tab", () => {
+  test("displays AI Features heading and description", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /ai features/i }).click();
+
+    await expect(page.locator("h3").filter({ hasText: "AI Features" })).toBeVisible();
+    await expect(page.getByText("Manage AI model bundles")).toBeVisible();
+  });
+
+  test("shows Install All button", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /ai features/i }).click();
+
+    await expect(page.getByRole("button", { name: /install all/i })).toBeVisible();
+  });
+
+  test("lists feature bundles with install status", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /ai features/i }).click();
+
+    // Each bundle card is rendered within a bordered div
+    const bundleCards = page.locator(".rounded-lg.border.border-border.p-4");
+
+    // At least one bundle should be present
+    const count = await bundleCards.count();
+    expect(count).toBeGreaterThan(0);
+
+    // Each card should have a name and a status indicator (Installed or Not installed or Install button)
+    const firstCard = bundleCards.first();
+    const hasStatus =
+      (await firstCard
+        .getByText("Installed")
+        .isVisible()
+        .catch(() => false)) ||
+      (await firstCard
+        .getByText("Not installed")
+        .isVisible()
+        .catch(() => false)) ||
+      (await firstCard
+        .getByRole("button", { name: /install/i })
+        .isVisible()
+        .catch(() => false));
+    expect(hasStatus).toBe(true);
+  });
+
+  test("bundles show estimated size", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /ai features/i }).click();
+
+    // Each bundle should display an estimated size like (~XXX MB)
+    await expect(page.getByText(/~\d+/).first()).toBeVisible();
+  });
+});
+
+test.describe("GUI Settings - Tools Tab (deep)", () => {
+  test("all tools are listed with enable/disable toggles", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /tools/i }).click();
+
+    await expect(page.locator("h3").filter({ hasText: "Tools" }).first()).toBeVisible();
+    // Wait for tools to finish loading (disabled counter appears when loaded)
+    await expect(page.getByText(/\d+ tools? disabled/)).toBeVisible({ timeout: 5_000 });
+
+    // Each tool row has an enable/disable toggle (w-11 h-6 rounded-full)
+    const toolToggles = page.locator("button.w-11.h-6");
+    const count = await toolToggles.count();
+    // Should have many tools (SnapOtter has 47)
+    expect(count).toBeGreaterThan(10);
+  });
+
+  test("toggling a tool changes the disabled counter", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /tools/i }).click();
+
+    // Read initial disabled count
+    const counterText = page.getByText(/\d+ tools? disabled/);
+    await expect(counterText).toBeVisible({ timeout: 5_000 });
+    const initialText = await counterText.textContent();
+    const initialCount = parseInt(initialText?.match(/(\d+)/)?.[1] || "0", 10);
+
+    // Click the first tool toggle to change its state
+    const firstToggle = page.locator("button.w-11.h-6").first();
+    await firstToggle.click();
+
+    // The counter should change by 1 (either +1 or -1)
+    const updatedText = await counterText.textContent();
+    const updatedCount = parseInt(updatedText?.match(/(\d+)/)?.[1] || "0", 10);
+    expect(Math.abs(updatedCount - initialCount)).toBe(1);
+
+    // Revert the toggle to not affect other tests
+    await firstToggle.click();
+  });
+
+  test("search filters tools in settings dialog", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /tools/i }).click();
+
+    // Wait for the tools to load
+    await expect(page.getByText(/\d+ tools? disabled/)).toBeVisible({ timeout: 5_000 });
+
+    // The Settings dialog content area has the search input
+    const dialogContent = page.locator(".flex-1.overflow-y-auto");
+    const searchInput = dialogContent.getByPlaceholder("Search tools...");
+    await expect(searchInput).toBeVisible();
+
+    // Search for a tool name that likely exists
+    await searchInput.fill("Resize");
+
+    // Should show a filtered subset; the "Resize" tool should be visible
+    await expect(dialogContent.getByText("Resize").first()).toBeVisible();
+
+    // Search for something that does not exist
+    await searchInput.fill("zzzznonexistenttool");
+    await expect(dialogContent.getByText("No tools match your search.")).toBeVisible();
+
+    // Clear search restores all tools
+    await searchInput.fill("");
+    const toolToggles = page.locator("button.w-11.h-6");
+    const count = await toolToggles.count();
+    expect(count).toBeGreaterThan(10);
+  });
+});
+
+test.describe("GUI Settings - Product Analytics Tab (deep)", () => {
+  test("displays description about anonymous data and image privacy", async ({
+    loggedInPage: page,
+  }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /product analytics/i }).click();
+
+    await expect(page.getByText(/share anonymous usage data/i)).toBeVisible();
+    await expect(page.getByText(/images never leave your machine/i)).toBeVisible();
+  });
+
+  test("shows either consent toggle or admin-disabled message", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /product analytics/i }).click();
+
+    // Either the toggle button is present, or the admin-disabled message is shown
+    const toggle = page.locator("button.rounded-full");
+    const disabledMsg = page.getByText(/has been disabled by the server administrator/i);
+
+    const toggleVisible = await toggle.isVisible().catch(() => false);
+    const disabledVisible = await disabledMsg.isVisible().catch(() => false);
+
+    // One of the two states must be true
+    expect(toggleVisible || disabledVisible).toBe(true);
+  });
+});
+
+test.describe("GUI Settings - Save and Persistence", () => {
+  test("System Settings save persists after dialog close and reopen", async ({
+    loggedInPage: page,
+  }) => {
+    // Navigate to System Settings tab
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /system settings/i }).click();
+    await expect(page.getByText("App Name")).toBeVisible({ timeout: 5_000 });
+
+    // Wait for the input to load
+    const appNameInput = page.locator("input[type='text']").first();
+    await expect(appNameInput).toBeVisible();
+    const originalName = await appNameInput.inputValue();
+    const testName = originalName === "SnapOtter" ? "TestApp" : "SnapOtter";
+
+    // Change the App Name
+    await appNameInput.fill(testName);
+
+    // Save
+    await page.getByRole("button", { name: /save settings/i }).click();
+    await expect(page.getByText("Settings saved.")).toBeVisible({ timeout: 5_000 });
+
+    // Close the dialog
+    await page.keyboard.press("Escape");
+    await expect(page.locator("h2").filter({ hasText: "Settings" })).not.toBeVisible();
+
+    // Reopen the dialog and go to System Settings
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /system settings/i }).click();
+    await expect(page.getByText("App Name")).toBeVisible();
+
+    // Verify the setting persisted
+    const persistedName = await page.locator("input[type='text']").first().inputValue();
+    expect(persistedName).toBe(testName);
+
+    // Restore original name
+    await page.locator("input[type='text']").first().fill(originalName);
+    await page.getByRole("button", { name: /save settings/i }).click();
+    await expect(page.getByText("Settings saved.")).toBeVisible({ timeout: 5_000 });
+  });
 });

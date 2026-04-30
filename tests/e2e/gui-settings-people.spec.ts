@@ -203,6 +203,83 @@ test.describe("GUI Settings - People Tab", () => {
       timeout: 5_000,
     });
   });
+
+  test("deleting a non-admin user removes them from the table", async ({ loggedInPage: page }) => {
+    const username = `guidelete-${UID}`;
+    const adminToken = await getAdminToken();
+
+    try {
+      // Create user via API first
+      await fetch(`${API}/api/auth/register`, {
+        method: "POST",
+        headers: authJson(adminToken),
+        body: JSON.stringify({ username, password: "TestPass123!", role: "user" }),
+      });
+
+      await page.locator("aside").getByText("Settings").click();
+      await page.getByRole("button", { name: /people/i }).click();
+      await page.waitForTimeout(500);
+
+      // Verify the user appears
+      await expect(page.getByText(username)).toBeVisible({ timeout: 5_000 });
+
+      // Open the actions menu for the test user (last Actions button)
+      await page.getByTitle("Actions").last().click();
+
+      // Accept the confirm dialog and click Delete User
+      page.on("dialog", (d) => d.accept());
+      await page.getByText("Delete User").click();
+
+      // User should be removed from the list
+      await expect(page.getByText(username)).not.toBeVisible({ timeout: 5_000 });
+    } finally {
+      await cleanupUsersByPrefix(adminToken, "guidelete-");
+    }
+  });
+
+  test("cannot demote your own admin role via Edit Role / Team", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /people/i }).click();
+    await page.waitForTimeout(500);
+
+    // The admin row should have an Actions button
+    await page.getByTitle("Actions").first().click();
+    await page.getByText("Edit Role / Team").click();
+
+    // The edit form should appear with current role
+    await expect(page.getByText(/edit admin/i)).toBeVisible();
+
+    // Change admin role to user
+    const roleSelect = page.locator("form select").first();
+    await roleSelect.selectOption("user");
+
+    // Click Save
+    await page.getByRole("button", { name: /^save$/i }).click();
+
+    // Should show an error about not being able to remove own admin role
+    await expect(page.getByText(/cannot remove your own admin role|failed/i).first()).toBeVisible({
+      timeout: 5_000,
+    });
+  });
+
+  test("Reset Password opens the reset form for a user", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /people/i }).click();
+    await page.waitForTimeout(500);
+
+    // Open the actions menu on the first user row
+    await page.getByTitle("Actions").first().click();
+    await page.getByText("Reset Password").click();
+
+    // The reset form should appear
+    await expect(page.getByText(/reset password for/i)).toBeVisible();
+    await expect(page.getByPlaceholder(/new password/i)).toBeVisible();
+    await expect(page.getByRole("button", { name: /reset password/i })).toBeVisible();
+
+    // Cancel closes the form
+    await page.getByRole("button", { name: /cancel/i }).click();
+    await expect(page.getByText(/reset password for/i)).not.toBeVisible();
+  });
 });
 
 test.describe("GUI Settings - Teams Tab", () => {

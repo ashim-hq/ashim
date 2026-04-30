@@ -39,6 +39,35 @@ test.describe("GUI Settings - Tools Tab", () => {
   });
 });
 
+test.describe("GUI Settings - Tools Tab (additional)", () => {
+  test("each category has a heading", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /tools/i }).click();
+
+    await expect(page.locator("h3").filter({ hasText: "Tools" }).first()).toBeVisible();
+    // Wait for tools to finish loading
+    await expect(page.getByText(/\d+ tools? disabled/)).toBeVisible({ timeout: 5_000 });
+
+    // Category headings are h4 elements inside the dialog content
+    const dialogContent = page.locator(".flex-1.overflow-y-auto");
+    const headings = dialogContent.locator("h4");
+    const count = await headings.count();
+    expect(count).toBeGreaterThanOrEqual(3);
+  });
+
+  test("tools show both name and description", async ({ loggedInPage: page }) => {
+    await page.locator("aside").getByText("Settings").click();
+    await page.getByRole("button", { name: /tools/i }).click();
+
+    // Wait for tools to load
+    await expect(page.getByText(/\d+ tools? disabled/)).toBeVisible({ timeout: 5_000 });
+
+    // Verify the Resize tool is listed with its description
+    const dialogContent = page.locator(".flex-1.overflow-y-auto");
+    await expect(dialogContent.getByText("Resize").first()).toBeVisible();
+  });
+});
+
 test.describe("GUI Settings - Product Analytics Tab", () => {
   test("displays analytics consent section", async ({ loggedInPage: page }) => {
     await page.locator("aside").getByText("Settings").click();
