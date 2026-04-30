@@ -111,7 +111,7 @@ RUN set -e; \
 # Pin tags to specific major.minor for reproducible builds.
 # ============================================
 FROM node:22-bookworm AS base-linux-arm64
-FROM nvidia/cuda:12.6.3-cudnn-runtime-ubuntu24.04 AS base-linux-amd64
+FROM nvidia/cuda:13.2.1-cudnn-runtime-ubuntu24.04 AS base-linux-amd64
 
 # Node.js donor: provides Node binaries for the CUDA amd64 image without
 # relying on NodeSource apt repos or Ubuntu mirrors (which are flaky on CI).
