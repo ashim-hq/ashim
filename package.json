@@ -1,6 +1,6 @@
 {
   "name": "snapotter",
-  "version": "1.15.11",
+  "version": "1.16.0",
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "scripts": {
