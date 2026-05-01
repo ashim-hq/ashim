@@ -84,6 +84,16 @@ const app = Fastify({
   routerOptions: { maxParamLength: 500 },
 });
 
+app.removeContentTypeParser("application/json");
+app.addContentTypeParser("application/json", { parseAs: "string" }, (_request, body, done) => {
+  try {
+    const str = typeof body === "string" ? body : (body as Buffer).toString();
+    done(null, str.length > 0 ? JSON.parse(str) : {});
+  } catch (err) {
+    done(err as Error, undefined);
+  }
+});
+
 app.setErrorHandler((error: Error & { statusCode?: number }, request, reply) => {
   const statusCode = error.statusCode ?? 500;
   request.log.error(

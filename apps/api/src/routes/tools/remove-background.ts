@@ -237,7 +237,7 @@ export function registerRemoveBackground(app: FastifyInstance) {
             const chunks: Buffer[] = [];
             for await (const chunk of part.file) chunks.push(chunk);
             bgImageBuffer = Buffer.concat(chunks);
-            bgFilename = part.filename ?? "background";
+            bgFilename = sanitizeFilename(part.filename ?? "background");
           } else if (part.type === "field" && part.fieldname === "settings") {
             settingsRaw = part.value as string;
           }

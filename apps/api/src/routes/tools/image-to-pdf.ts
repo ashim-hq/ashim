@@ -1,12 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
-import { basename, join } from "node:path";
+import { join } from "node:path";
 import type { FastifyInstance } from "fastify";
 import PDFDocument from "pdfkit";
 import sharp from "sharp";
 import { z } from "zod";
 import { autoOrient } from "../../lib/auto-orient.js";
 import { formatZodErrors } from "../../lib/errors.js";
+import { sanitizeFilename } from "../../lib/filename.js";
 import { ensureSharpCompat } from "../../lib/heic-converter.js";
 import { createWorkspace } from "../../lib/workspace.js";
 
@@ -109,7 +110,7 @@ export function registerImageToPdf(app: FastifyInstance) {
           if (buf.length > 0) {
             files.push({
               buffer: buf,
-              filename: basename(part.filename ?? `image-${files.length}`),
+              filename: sanitizeFilename(part.filename ?? `image-${files.length}`),
             });
           }
         } else if (part.fieldname === "settings") {

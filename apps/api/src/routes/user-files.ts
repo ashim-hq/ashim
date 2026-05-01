@@ -124,7 +124,8 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
       }
 
       if (search) {
-        conditions.push(like(schema.userFiles.originalName, `%${search}%`));
+        const escaped = search.replace(/[%_\\]/g, "\\$&");
+        conditions.push(like(schema.userFiles.originalName, `%${escaped}%`));
       }
 
       const rows = db
@@ -335,7 +336,9 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
 
       const stream = createReadStream(filePath);
       stream.on("error", () => {
-        reply.status(404).send({ error: "File not found on disk" });
+        if (!reply.raw.headersSent) {
+          reply.status(404).send({ error: "File not found on disk" });
+        }
       });
 
       return reply
@@ -356,11 +359,14 @@ export async function userFileRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     "/api/v1/files/:id/thumbnail",
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+      const user = requireAuth(request, reply);
+      if (!user) return;
+
       const { id } = request.params;
 
       const file = db.select().from(schema.userFiles).where(eq(schema.userFiles.id, id)).get();
 
-      if (!file) {
+      if (!file || (file.userId !== user.id && !hasEffectivePermission(user, "files:all"))) {
         return reply.status(404).send({ error: "File not found" });
       }
 
