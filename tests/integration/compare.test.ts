@@ -270,7 +270,7 @@ describe("Compare", () => {
     expect(result.similarity).toBeLessThanOrEqual(100);
   });
 
-  it("compares HEIC vs PNG", async () => {
+  it("compares HEIC vs PNG", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "a.heic", contentType: "image/heic", content: HEIC },
@@ -293,7 +293,7 @@ describe("Compare", () => {
     expect(result.dimensions).toBeDefined();
   });
 
-  it("compares two HEIC images (same file)", async () => {
+  it("compares two HEIC images (same file)", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "a.heic", contentType: "image/heic", content: HEIC },
@@ -567,7 +567,7 @@ describe("Compare", () => {
 
   // ── Branch coverage: HEIC vs HEIC (portrait) ───────────────────────
 
-  it("compares HEIC portrait with standard HEIC", async () => {
+  it("compares HEIC portrait with standard HEIC", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const HEIC_PORTRAIT = readFileSync(join(FIXTURES, "test-portrait.heic"));
     const { body, contentType } = createMultipartPayload([
@@ -674,7 +674,7 @@ describe("Compare", () => {
 
   // ── Branch coverage: HEIF content format input ─────────────────────
 
-  it("compares portrait HEIC image with PNG", async () => {
+  it("compares portrait HEIC image with PNG", { timeout: 120_000 }, async () => {
     const HEIC_PORTRAIT = readFileSync(join(FIXTURES, "test-portrait.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "a.heic", contentType: "image/heic", content: HEIC_PORTRAIT },

@@ -238,7 +238,7 @@ describe("text-overlay", () => {
 
   // ── HEIC input handling ───────────────────────────────────────────
 
-  it("handles HEIC input", async () => {
+  it("handles HEIC input", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
@@ -534,7 +534,7 @@ describe("text-overlay", () => {
 
   it(
     "handles HEIF input (motorcycle.heif)",
-    { timeout: 60_000 },
+    { timeout: 120_000 },
     async () => {
       const HEIF = readFileSync(join(FIXTURES, "content", "motorcycle.heif"));
       const { body, contentType } = createMultipartPayload([

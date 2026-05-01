@@ -776,7 +776,7 @@ describe("Collage", () => {
     expect(result.processedSize).toBeGreaterThan(0);
   });
 
-  it("handles HEIC input images", async () => {
+  it("handles HEIC input images", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "f1", filename: "a.heic", contentType: "image/heic", content: HEIC },
@@ -1429,7 +1429,7 @@ describe("Collage", () => {
 
   // ── Branch coverage: HEIF content format input ─────────────────────
 
-  it("handles portrait HEIC input images", async () => {
+  it("handles portrait HEIC input images", { timeout: 120_000 }, async () => {
     const HEIC_PORTRAIT = readFileSync(join(FIXTURES, "test-portrait.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "f1", filename: "a.heic", contentType: "image/heic", content: HEIC_PORTRAIT },

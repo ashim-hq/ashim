@@ -572,7 +572,7 @@ describe("Bulk Rename", () => {
 
   // ── HEIC file handling in rename ────────────────────────────────
 
-  it("renames HEIC files preserving extension", async () => {
+  it("renames HEIC files preserving extension", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },

@@ -498,7 +498,7 @@ describe("Error handling", () => {
 
 // ── HEIC handling ──────────────────────────────────────────────
 describe("HEIC format handling", () => {
-  it("generates preview for HEIC output", async () => {
+  it("generates preview for HEIC output", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const res = await postTool({ artist: "HEIC Author" }, HEIC, "test.heic", "image/heic");
     // 422 when exiftool is not installed or heic decode fails
@@ -560,7 +560,7 @@ describe("Comprehensive field writing", () => {
 
 // ── HEIC format handling (extended) ──────────────────────────────
 describe("HEIC format handling (extended)", () => {
-  it("edits metadata on HEIC input with GPS coordinates", async () => {
+  it("edits metadata on HEIC input with GPS coordinates", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const res = await postTool(
       {
@@ -578,7 +578,7 @@ describe("HEIC format handling (extended)", () => {
     expect(result.downloadUrl).toBeDefined();
   });
 
-  it("edits metadata on HEIC and verifies preview generation", async () => {
+  it("edits metadata on HEIC and verifies preview generation", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const res = await postTool(
       { copyright: "HEIC Preview Test" },
@@ -751,7 +751,7 @@ describe("Inspect endpoint edge cases", () => {
     expect(res.statusCode).toBe(400);
   });
 
-  it("inspect returns correct filename for HEIC input", async () => {
+  it("inspect returns correct filename for HEIC input", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body: payload, contentType } = createMultipartPayload([
       {

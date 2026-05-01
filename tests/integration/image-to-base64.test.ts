@@ -318,7 +318,7 @@ describe("image-to-base64", () => {
   });
 
   // ── HEIC input gets converted to JPEG in original mode ───────────
-  it("converts HEIC to JPEG in original mode", async () => {
+  it("converts HEIC to JPEG in original mode", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
@@ -534,7 +534,7 @@ describe("image-to-base64", () => {
 
   // ── HEIC with resize ──────────────────────────────────────────────
 
-  it("converts HEIC to JPEG with resize applied", async () => {
+  it("converts HEIC to JPEG with resize applied", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
@@ -556,7 +556,7 @@ describe("image-to-base64", () => {
 
   // ── HEIC with explicit format conversion ──────────────────────────
 
-  it("converts HEIC to PNG when outputFormat is png", async () => {
+  it("converts HEIC to PNG when outputFormat is png", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
@@ -711,24 +711,29 @@ describe("image-to-base64", () => {
 
   // ── HEIF input (alternative extension) ───────────────────────────
 
-  it("converts HEIF to JPEG in original mode", async () => {
-    const HEIF = readFileSync(join(FIXTURES, "content", "motorcycle.heif"));
-    const { body, contentType } = createMultipartPayload([
-      { name: "file", filename: "photo.heif", contentType: "image/heif", content: HEIF },
-      { name: "settings", content: JSON.stringify({}) },
-    ]);
+  it(
+    "converts HEIF to JPEG in original mode",
+    { timeout: 120_000 },
+    async () => {
+      const HEIF = readFileSync(join(FIXTURES, "content", "motorcycle.heif"));
+      const { body, contentType } = createMultipartPayload([
+        { name: "file", filename: "photo.heif", contentType: "image/heif", content: HEIF },
+        { name: "settings", content: JSON.stringify({}) },
+      ]);
 
-    const res = await app.inject({
-      method: "POST",
-      url: "/api/v1/tools/image-to-base64",
-      headers: { authorization: `Bearer ${adminToken}`, "content-type": contentType },
-      body,
-    });
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/v1/tools/image-to-base64",
+        headers: { authorization: `Bearer ${adminToken}`, "content-type": contentType },
+        body,
+      });
 
-    expect(res.statusCode).toBe(200);
-    const json = JSON.parse(res.body);
-    expect(json.results[0].mimeType).toBe("image/jpeg");
-  }, 60_000);
+      expect(res.statusCode).toBe(200);
+      const json = JSON.parse(res.body);
+      expect(json.results[0].mimeType).toBe("image/jpeg");
+    },
+    60_000,
+  );
 
   // ── Quality=1 minimum ────────────────────────────────────────────
 

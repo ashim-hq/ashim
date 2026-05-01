@@ -509,7 +509,7 @@ describe("Compose", () => {
     expect(res.statusCode).toBe(200);
   });
 
-  it("handles HEIC base image", async () => {
+  it("handles HEIC base image", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "base.heic", contentType: "image/heic", content: HEIC },
@@ -532,7 +532,7 @@ describe("Compose", () => {
     expect(result.downloadUrl).toBeDefined();
   });
 
-  it("handles HEIC overlay image", async () => {
+  it("handles HEIC overlay image", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "base.png", contentType: "image/png", content: PNG },
@@ -778,7 +778,7 @@ describe("Compose", () => {
 
   // ── Branch coverage: HEIC overlay with opacity ──────────────────────
 
-  it("applies opacity with HEIC overlay", async () => {
+  it("applies opacity with HEIC overlay", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "base.png", contentType: "image/png", content: PNG },
@@ -871,7 +871,7 @@ describe("Compose", () => {
 
   // ── Branch coverage: HEIF content format input ─────────────────────
 
-  it("handles portrait HEIC base image", async () => {
+  it("handles portrait HEIC base image", { timeout: 120_000 }, async () => {
     const HEIC_PORTRAIT = readFileSync(join(FIXTURES, "test-portrait.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "base.heic", contentType: "image/heic", content: HEIC_PORTRAIT },

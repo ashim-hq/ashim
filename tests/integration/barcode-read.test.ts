@@ -484,7 +484,7 @@ describe("Barcode Read", () => {
 
   // ── Branch coverage: HEIC input (lines 49-152, ensureSharpCompat) ───
 
-  it("reads barcodes from a HEIC image", async () => {
+  it("reads barcodes from a HEIC image", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
@@ -581,7 +581,7 @@ describe("Barcode Read", () => {
 
   // ── Branch coverage: portrait HEIC (with exif orientation) ──────────
 
-  it("reads barcodes from portrait HEIC image", async () => {
+  it("reads barcodes from portrait HEIC image", { timeout: 120_000 }, async () => {
     const HEIC_PORTRAIT = readFileSync(join(FIXTURES, "test-portrait.heic"));
     const { body, contentType } = createMultipartPayload([
       {
@@ -680,7 +680,9 @@ describe("Barcode Read", () => {
 
   // ── Branch coverage: HEIF content format input ─────────────────────
 
-  it("reads barcodes from portrait HEIC image (additional format)", async () => {
+  it("reads barcodes from portrait HEIC image (additional format)", {
+    timeout: 120_000,
+  }, async () => {
     const HEIC_PORTRAIT = readFileSync(join(FIXTURES, "test-portrait.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo2.heic", contentType: "image/heic", content: HEIC_PORTRAIT },

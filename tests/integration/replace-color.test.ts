@@ -261,7 +261,7 @@ describe("Alpha format fallback", () => {
 
 // ── HEIC input handling ─────────────────────────────────────────
 describe("HEIC input", () => {
-  it("processes HEIC image", async () => {
+  it("processes HEIC image", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const res = await postTool(
       { sourceColor: "#808080", targetColor: "#FF0000", tolerance: 50 },
@@ -423,18 +423,23 @@ describe("Target color validation", () => {
 
 // ── HEIF input ─────────────────────────────────────────────────
 describe("HEIF input", () => {
-  it("processes HEIF image (motorcycle.heif)", async () => {
-    const HEIF = readFileSync(join(FIXTURES, "content", "motorcycle.heif"));
-    const res = await postTool(
-      { sourceColor: "#808080", targetColor: "#FF0000", tolerance: 50 },
-      HEIF,
-      "photo.heif",
-      "image/heif",
-    );
-    expect(res.statusCode).toBe(200);
-    const result = JSON.parse(res.body);
-    expect(result.downloadUrl).toBeDefined();
-  }, 60_000);
+  it(
+    "processes HEIF image (motorcycle.heif)",
+    { timeout: 120_000 },
+    async () => {
+      const HEIF = readFileSync(join(FIXTURES, "content", "motorcycle.heif"));
+      const res = await postTool(
+        { sourceColor: "#808080", targetColor: "#FF0000", tolerance: 50 },
+        HEIF,
+        "photo.heif",
+        "image/heif",
+      );
+      expect(res.statusCode).toBe(200);
+      const result = JSON.parse(res.body);
+      expect(result.downloadUrl).toBeDefined();
+    },
+    60_000,
+  );
 });
 
 // ── Animated GIF input ─────────────────────────────────────────

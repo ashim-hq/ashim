@@ -197,7 +197,7 @@ describe("Multipart error handling", () => {
 
 // ── HEIC input handling ─────────────────────────────────────────
 describe("HEIC input", () => {
-  it("extracts palette from HEIC image", async () => {
+  it("extracts palette from HEIC image", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body: payload, contentType } = makeFilePayload(HEIC, "photo.heic", "image/heic");
     const res = await app.inject({

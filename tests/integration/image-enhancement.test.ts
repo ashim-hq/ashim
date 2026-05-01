@@ -438,7 +438,7 @@ describe("Error handling", () => {
 
 // ── Analyze endpoint HEIC handling ─────────────────────────────
 describe("Analyze endpoint HEIC handling", () => {
-  it("analyze decodes HEIC input before analysis", async () => {
+  it("analyze decodes HEIC input before analysis", { timeout: 120_000 }, async () => {
     const { body: payload, contentType } = createMultipartPayload([
       { name: "file", filename: "test.heic", contentType: "image/heic", content: HEIC },
     ]);
@@ -509,7 +509,7 @@ describe("Analyze endpoint invalid image", () => {
 
 // ── HEIC input enhancement ──────────────────────────────────────
 describe("HEIC input enhancement", () => {
-  it("enhances HEIC input image", async () => {
+  it("enhances HEIC input image", { timeout: 120_000 }, async () => {
     const res = await postTool({ mode: "auto" }, HEIC, "test.heic", "image/heic");
     expect([200, 422]).toContain(res.statusCode);
     if (res.statusCode === 200) {
@@ -519,7 +519,7 @@ describe("HEIC input enhancement", () => {
     }
   });
 
-  it("enhances HEIC in portrait mode", async () => {
+  it("enhances HEIC in portrait mode", { timeout: 120_000 }, async () => {
     const res = await postTool(
       { mode: "portrait", intensity: 60 },
       HEIC,

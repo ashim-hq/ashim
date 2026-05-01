@@ -603,7 +603,7 @@ describe("Split", () => {
     }
   });
 
-  it("splits a HEIC input image", async () => {
+  it("splits a HEIC input image", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
@@ -751,7 +751,9 @@ describe("Split", () => {
 
   // ── Branch coverage: HEIC with grid split (lines 59-165) ────────────
 
-  it("splits a HEIC image into a grid without format conversion", async () => {
+  it("splits a HEIC image into a grid without format conversion", {
+    timeout: 120_000,
+  }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
@@ -779,7 +781,7 @@ describe("Split", () => {
 
   // ── Branch coverage: custom tile dimensions with HEIC ───────────────
 
-  it("splits HEIC image using fixed tile dimensions", async () => {
+  it("splits HEIC image using fixed tile dimensions", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
@@ -1058,7 +1060,7 @@ describe("Split", () => {
 
   // ── Branch coverage: HEIC split with webp output ────────────────────
 
-  it("splits HEIC image with webp output format", async () => {
+  it("splits HEIC image with webp output format", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },

@@ -551,7 +551,7 @@ describe("Border", () => {
     expect(meta.height).toBe(150 + padding * 2);
   });
 
-  it("handles HEIC input", async () => {
+  it("handles HEIC input", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },

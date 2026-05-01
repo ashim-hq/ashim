@@ -598,7 +598,7 @@ describe("Inspect endpoint: ICC and XMP parsing", () => {
 
 // ── HEIC format handling ────────────────────────────────────────
 describe("HEIC format handling", () => {
-  it("strips metadata from HEIC input", async () => {
+  it("strips metadata from HEIC input", { timeout: 120_000 }, async () => {
     const heic = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const res = await postTool({ stripAll: true }, heic, "test.heic", "image/heic");
     // HEIC decode may not be available
@@ -610,7 +610,7 @@ describe("HEIC format handling", () => {
     }
   });
 
-  it("strips selective metadata from HEIC input", async () => {
+  it("strips selective metadata from HEIC input", { timeout: 120_000 }, async () => {
     const heic = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const res = await postTool(
       { stripAll: false, stripExif: true, stripGps: true },

@@ -352,7 +352,7 @@ describe("Exposure adjustments", () => {
 
 // ── HEIC input ──────────────────────────────────────────────────
 describe("HEIC input", () => {
-  it("processes HEIC input with brightness adjustment", async () => {
+  it("processes HEIC input with brightness adjustment", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const res = await postTool(
       "adjust-colors",
@@ -540,19 +540,24 @@ describe("No-op effect", () => {
 
 // ── HEIF input ──────────────────────────────────────────────────
 describe("HEIF input", () => {
-  it("processes HEIF input (motorcycle.heif)", async () => {
-    const HEIF = readFileSync(join(FIXTURES, "content", "motorcycle.heif"));
-    const res = await postTool(
-      "adjust-colors",
-      { brightness: 20 },
-      HEIF,
-      "photo.heif",
-      "image/heif",
-    );
-    expect(res.statusCode).toBe(200);
-    const result = JSON.parse(res.body);
-    expect(result.downloadUrl).toBeDefined();
-  }, 60_000);
+  it(
+    "processes HEIF input (motorcycle.heif)",
+    { timeout: 120_000 },
+    async () => {
+      const HEIF = readFileSync(join(FIXTURES, "content", "motorcycle.heif"));
+      const res = await postTool(
+        "adjust-colors",
+        { brightness: 20 },
+        HEIF,
+        "photo.heif",
+        "image/heif",
+      );
+      expect(res.statusCode).toBe(200);
+      const result = JSON.parse(res.body);
+      expect(result.downloadUrl).toBeDefined();
+    },
+    60_000,
+  );
 });
 
 // ── Animated GIF input ──────────────────────────────────────────

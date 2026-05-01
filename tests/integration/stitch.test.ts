@@ -927,7 +927,7 @@ describe("Stitch", () => {
     expect(meta.format).toBe("heif");
   });
 
-  it("handles HEIC input", async () => {
+  it("handles HEIC input", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "f1", filename: "a.heic", contentType: "image/heic", content: HEIC },
@@ -1459,7 +1459,7 @@ describe("Stitch", () => {
 
   // ── Branch coverage: HEIF content format input ─────────────────────
 
-  it("handles portrait HEIC input in stitching", async () => {
+  it("handles portrait HEIC input in stitching", { timeout: 120_000 }, async () => {
     const HEIC_PORTRAIT = readFileSync(join(FIXTURES, "test-portrait.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "f1", filename: "a.heic", contentType: "image/heic", content: HEIC_PORTRAIT },

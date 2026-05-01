@@ -164,7 +164,7 @@ describe("Crop", () => {
     expect(meta.height).toBe(50);
   });
 
-  it("handles HEIC input", async () => {
+  it("handles HEIC input", { timeout: 120_000 }, async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
       {

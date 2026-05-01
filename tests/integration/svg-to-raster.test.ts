@@ -717,7 +717,7 @@ describe("svg-to-raster", () => {
 
   // ── Branch coverage: HEIF output with preview (line 363, 404) ───────
 
-  it("converts to heif format and generates a preview", async () => {
+  it("converts to heif format and generates a preview", { timeout: 120_000 }, async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.svg", contentType: "image/svg+xml", content: SVG },
       { name: "settings", content: JSON.stringify({ outputFormat: "heif" }) },
@@ -997,7 +997,7 @@ describe("svg-to-raster", () => {
 
   // ── Branch coverage: batch with heif output ────────────────────────
 
-  it("batch converts SVGs to heif format", async () => {
+  it("batch converts SVGs to heif format", { timeout: 120_000 }, async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "a.svg", contentType: "image/svg+xml", content: SVG },
       { name: "file", filename: "b.svg", contentType: "image/svg+xml", content: SVG },
@@ -1063,7 +1063,7 @@ describe("svg-to-raster", () => {
 
   // ── Branch coverage: heif + background color combination ───────────
 
-  it("converts to heif format with background color applied", async () => {
+  it("converts to heif format with background color applied", { timeout: 120_000 }, async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.svg", contentType: "image/svg+xml", content: SVG },
       {

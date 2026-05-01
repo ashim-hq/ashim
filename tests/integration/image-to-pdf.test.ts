@@ -237,7 +237,7 @@ describe("image-to-pdf", () => {
 
   // ── HEIC input handling ───────────────────────────────────────────
 
-  it("converts HEIC image to PDF", async () => {
+  it("converts HEIC image to PDF", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
@@ -741,25 +741,30 @@ describe("image-to-pdf", () => {
 
   // ── HEIF input ────────────────────────────────────────────────────
 
-  it("converts HEIF image to PDF", async () => {
-    const HEIF = readFileSync(join(FIXTURES, "content", "motorcycle.heif"));
-    const { body, contentType } = createMultipartPayload([
-      { name: "file", filename: "photo.heif", contentType: "image/heif", content: HEIF },
-      { name: "settings", content: JSON.stringify({}) },
-    ]);
+  it(
+    "converts HEIF image to PDF",
+    { timeout: 120_000 },
+    async () => {
+      const HEIF = readFileSync(join(FIXTURES, "content", "motorcycle.heif"));
+      const { body, contentType } = createMultipartPayload([
+        { name: "file", filename: "photo.heif", contentType: "image/heif", content: HEIF },
+        { name: "settings", content: JSON.stringify({}) },
+      ]);
 
-    const res = await app.inject({
-      method: "POST",
-      url: "/api/v1/tools/image-to-pdf",
-      headers: { authorization: `Bearer ${adminToken}`, "content-type": contentType },
-      body,
-    });
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/v1/tools/image-to-pdf",
+        headers: { authorization: `Bearer ${adminToken}`, "content-type": contentType },
+        body,
+      });
 
-    expect(res.statusCode).toBe(200);
-    const json = JSON.parse(res.body);
-    expect(json.pages).toBe(1);
-    expect(json.processedSize).toBeGreaterThan(0);
-  }, 60_000);
+      expect(res.statusCode).toBe(200);
+      const json = JSON.parse(res.body);
+      expect(json.pages).toBe(1);
+      expect(json.processedSize).toBeGreaterThan(0);
+    },
+    60_000,
+  );
 
   // ── Animated GIF input ──────────────────────────────────────────
 

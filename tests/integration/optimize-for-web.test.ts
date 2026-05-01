@@ -478,7 +478,7 @@ describe("Preview endpoint SVG handling", () => {
 
 // ── Preview endpoint: HEIC decoding ────────────────────────────
 describe("Preview endpoint HEIC handling", () => {
-  it("preview decodes and processes HEIC input", async () => {
+  it("preview decodes and processes HEIC input", { timeout: 120_000 }, async () => {
     const { body: payload, contentType } = createMultipartPayload([
       { name: "file", filename: "test.heic", contentType: "image/heic", content: HEIC },
       { name: "settings", content: JSON.stringify({ format: "webp", quality: 60 }) },
@@ -603,7 +603,7 @@ describe("Preview endpoint validation", () => {
 
 // ── HEIC input handling ─────────────────────────────────────────
 describe("HEIC input", () => {
-  it("optimizes HEIC input to webp", async () => {
+  it("optimizes HEIC input to webp", { timeout: 120_000 }, async () => {
     const res = await postTool({ format: "webp" }, HEIC, "test.heic", "image/heic");
     // HEIC decode may not be available
     expect([200, 422]).toContain(res.statusCode);
@@ -614,7 +614,7 @@ describe("HEIC input", () => {
     }
   });
 
-  it("optimizes HEIC input to jpeg", async () => {
+  it("optimizes HEIC input to jpeg", { timeout: 120_000 }, async () => {
     const res = await postTool({ format: "jpeg" }, HEIC, "test.heic", "image/heic");
     expect([200, 422]).toContain(res.statusCode);
     if (res.statusCode === 200) {

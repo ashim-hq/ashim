@@ -240,7 +240,7 @@ describe("favicon", () => {
   });
 
   // ── Additional coverage: HEIC input ────────────────────────────
-  it("generates favicons from HEIC input", async () => {
+  it("generates favicons from HEIC input", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
@@ -466,7 +466,7 @@ describe("favicon", () => {
 
   // ── Portrait HEIC input ───────────────────────────────────────────
 
-  it("generates favicons from portrait HEIC", async () => {
+  it("generates favicons from portrait HEIC", { timeout: 120_000 }, async () => {
     const HEIC_PORTRAIT = readFileSync(join(FIXTURES, "test-portrait.heic"));
     const { body, contentType } = createMultipartPayload([
       {

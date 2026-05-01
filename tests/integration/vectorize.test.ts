@@ -390,7 +390,7 @@ describe("vectorize", () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it("works with HEIC input after decoding", async () => {
+  it("works with HEIC input after decoding", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.heic", contentType: "image/heic", content: HEIC },

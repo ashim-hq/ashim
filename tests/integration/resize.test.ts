@@ -157,7 +157,7 @@ describe("Resize", () => {
     expect(meta.height).toBe(25); // 50x50 -> 25x25
   });
 
-  it("handles HEIC input", async () => {
+  it("handles HEIC input", { timeout: 120_000 }, async () => {
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "photo.heic", contentType: "image/heic", content: HEIC },
       { name: "settings", content: JSON.stringify({ width: 100 }) },

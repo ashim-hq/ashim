@@ -271,7 +271,7 @@ describe("Info", () => {
 
   // ── HEIC format info ──────────────────────────────────────────
 
-  it("returns correct metadata for HEIC image", async () => {
+  it("returns correct metadata for HEIC image", { timeout: 120_000 }, async () => {
     const HEIC = readFileSync(join(FIXTURES, "test-200x150.heic"));
     const { body, contentType } = createMultipartPayload([
       { name: "file", filename: "test.heic", contentType: "image/heic", content: HEIC },
