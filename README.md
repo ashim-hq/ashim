@@ -80,4 +80,4 @@ Join our [Discord](https://discord.gg/hr3s7HPUsr) for help, discussion, and comm
 This project is dual-licensed under the [AGPLv3](LICENSE) and a commercial license.
 
 - **AGPLv3 (free):** You may use, modify, and distribute this software under the AGPLv3. If you run a modified version as a network service, you must make your source code available under the AGPLv3. This applies to personal use, open-source projects, and any use that complies with AGPLv3 terms.
-- **Commercial license (paid):** For use in proprietary software or SaaS products where AGPLv3 source-disclosure is not suitable, a commercial license is available. [Contact us](mailto:snapotter.hq@gmail.com) for pricing and terms.
+- **Commercial license (paid):** For use in proprietary software or SaaS products where AGPLv3 source-disclosure is not suitable, a commercial license is available. [Contact us](mailto:contact@snapotter.com) for pricing and terms.
