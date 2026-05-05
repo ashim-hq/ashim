@@ -47,6 +47,7 @@ export function AppLayout({ children, showToolPanel = true, onFiles }: AppLayout
         <Sidebar
           onSettingsClick={() => setSettingsOpen(true)}
           onHelpClick={() => setHelpOpen(true)}
+          customLogo={customLogo}
         />
       )}
 

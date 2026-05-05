@@ -259,6 +259,125 @@ describe("POST /api/v1/settings/logo", () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// Settings state verification (customLogo flag)
+// ═══════════════════════════════════════════════════════════════════════════
+describe("customLogo setting reflects actual state", () => {
+  it("sets customLogo to true after successful upload", async () => {
+    const png = await makeTestPng();
+    const { body, contentType } = createMultipartPayload([
+      { name: "file", filename: "logo.png", contentType: "image/png", content: png },
+    ]);
+
+    const uploadRes = await app.inject({
+      method: "POST",
+      url: "/api/v1/settings/logo",
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+        "content-type": contentType,
+      },
+      payload: body,
+    });
+    expect(uploadRes.statusCode).toBe(200);
+
+    const settingsRes = await app.inject({
+      method: "GET",
+      url: "/api/v1/settings",
+      headers: { authorization: `Bearer ${adminToken}` },
+    });
+    const { settings } = JSON.parse(settingsRes.body);
+    expect(settings.customLogo).toBe("true");
+  });
+
+  it("does not set customLogo to true when upload is rejected (oversized)", async () => {
+    // First ensure no logo exists
+    await app.inject({
+      method: "DELETE",
+      url: "/api/v1/settings/logo",
+      headers: { authorization: `Bearer ${adminToken}` },
+    });
+
+    const largePng = await sharp({
+      create: { width: 500, height: 500, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 1 } },
+    })
+      .png({ compressionLevel: 0 })
+      .toBuffer();
+
+    const { body, contentType } = createMultipartPayload([
+      { name: "file", filename: "big.png", contentType: "image/png", content: largePng },
+    ]);
+
+    const uploadRes = await app.inject({
+      method: "POST",
+      url: "/api/v1/settings/logo",
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+        "content-type": contentType,
+      },
+      payload: body,
+    });
+    expect(uploadRes.statusCode).toBe(400);
+
+    const settingsRes = await app.inject({
+      method: "GET",
+      url: "/api/v1/settings",
+      headers: { authorization: `Bearer ${adminToken}` },
+    });
+    const { settings } = JSON.parse(settingsRes.body);
+    expect(settings.customLogo).not.toBe("true");
+  });
+
+  it("sets customLogo to false after deletion", async () => {
+    // Upload first
+    const png = await makeTestPng();
+    const { body, contentType } = createMultipartPayload([
+      { name: "file", filename: "logo.png", contentType: "image/png", content: png },
+    ]);
+
+    await app.inject({
+      method: "POST",
+      url: "/api/v1/settings/logo",
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+        "content-type": contentType,
+      },
+      payload: body,
+    });
+
+    // Delete
+    await app.inject({
+      method: "DELETE",
+      url: "/api/v1/settings/logo",
+      headers: { authorization: `Bearer ${adminToken}` },
+    });
+
+    const settingsRes = await app.inject({
+      method: "GET",
+      url: "/api/v1/settings",
+      headers: { authorization: `Bearer ${adminToken}` },
+    });
+    const { settings } = JSON.parse(settingsRes.body);
+    expect(settings.customLogo).toBe("false");
+  });
+
+  it("returns 400 with clear error when no file is attached", async () => {
+    const { body, contentType } = createMultipartPayload([]);
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/settings/logo",
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+        "content-type": contentType,
+      },
+      payload: body,
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body).error).toMatch(/no file/i);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // GET /api/v1/settings/logo
 // ═══════════════════════════════════════════════════════════════════════════
 describe("GET /api/v1/settings/logo", () => {

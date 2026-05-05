@@ -387,11 +387,16 @@ function SystemSection() {
     const formData = new FormData();
     formData.append("file", file);
     try {
-      await fetch("/api/v1/settings/logo", {
+      const res = await fetch("/api/v1/settings/logo", {
         method: "POST",
         headers: formatHeaders(),
         body: formData,
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setSaveMsg(body?.error || "Failed to upload logo.");
+        return;
+      }
       setSettings((prev) => ({ ...prev, customLogo: "true" }));
     } catch {
       setSaveMsg("Failed to upload logo.");
