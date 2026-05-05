@@ -1,3 +1,5 @@
+import { execFileSync } from "node:child_process";
+import path from "node:path";
 import { expect, test, uploadTestImage, waitForProcessing } from "./helpers";
 
 // ---------------------------------------------------------------------------
@@ -194,6 +196,34 @@ test.describe("GUI Essential Tools", () => {
       await waitForProcessing(page);
 
       await expect(page.getByTestId("crop-download")).toBeVisible({ timeout: 15_000 });
+    });
+
+    test("tall portrait image fits within viewport without overflow", async ({
+      loggedInPage: page,
+    }) => {
+      await page.goto("/crop");
+
+      // Create a tall portrait image (200x2000) to trigger overflow
+      const portraitPath = path.join(process.cwd(), "test-results", "test-portrait-tall.png");
+      const script = [
+        "const sharp = require('sharp');",
+        `sharp({create:{width:200,height:2000,channels:4,background:{r:0,g:128,b:255,alpha:1}}}).png().toFile('${portraitPath.replace(/'/g, "\\'")}')`,
+      ].join(" ");
+      execFileSync("node", ["-e", script], { cwd: process.cwd(), timeout: 5000 });
+
+      const fileChooserPromise = page.waitForEvent("filechooser");
+      await page.locator("[class*='border-dashed']").first().click();
+      const fileChooser = await fileChooserPromise;
+      await fileChooser.setFiles(portraitPath);
+      await page.waitForTimeout(1000);
+
+      const img = page.locator(".ReactCrop img");
+      await expect(img).toBeVisible();
+
+      const viewport = page.viewportSize()!;
+      const box = await img.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
     });
   });
 
