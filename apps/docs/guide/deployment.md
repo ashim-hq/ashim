@@ -28,11 +28,7 @@ services:
       - DEFAULT_PASSWORD=admin     # First-run admin password (you'll be forced to change it)
 
       # --- Database + Queue ---
-      # Requests are served by a role that can only read and write rows. The
-      # owner connects only during boot, to migrate and to grant. Set
-      # POSTGRES_APP_PASSWORD and POSTGRES_PASSWORD for any non-local deployment.
-      - DATABASE_URL=postgres://${POSTGRES_APP_USER:-snapotter_app}:${POSTGRES_APP_PASSWORD:-snapotter_app}@postgres:5432/${POSTGRES_DB:-snapotter}
-      - DATABASE_MIGRATION_URL=postgres://${POSTGRES_USER:-snapotter}:${POSTGRES_PASSWORD:-snapotter}@postgres:5432/${POSTGRES_DB:-snapotter}
+      - DATABASE_URL=postgres://snapotter:snapotter@postgres:5432/snapotter
       - REDIS_URL=redis://redis:6379
 
       # --- Limits (set 0 for unlimited) ---
@@ -70,17 +66,14 @@ services:
     image: postgres:17-alpine
     container_name: SnapOtter-postgres
     environment:
-      # These describe the owner. The app's own role (POSTGRES_APP_USER,
-      # POSTGRES_APP_PASSWORD) is created by SnapOtter at boot, so Postgres is
-      # not told about it here.
-      POSTGRES_USER: ${POSTGRES_USER:-snapotter}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-snapotter}     # Change this for non-local deployments
-      POSTGRES_DB: ${POSTGRES_DB:-snapotter}
+      POSTGRES_USER: snapotter
+      POSTGRES_PASSWORD: snapotter     # Change this for non-local deployments
+      POSTGRES_DB: snapotter
     volumes:
       - SnapOtter-pgdata:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-snapotter} -d ${POSTGRES_DB:-snapotter}"]
+      test: ["CMD-SHELL", "pg_isready -U snapotter -d snapotter"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -113,6 +106,8 @@ docker compose up -d
 
 The app is then available at `http://localhost:1349`.
 
+The stack above connects as the database owner. From SnapOtter 2.3.0 you can serve requests on a role that only reads and writes rows; see [Least-privilege roles](./database#least-privilege-roles).
+
 > **Docker Hub rate limits?** Replace `snapotter/snapotter:latest` with `ghcr.io/snapotter-hq/snapotter:latest` to pull from GitHub Container Registry instead. Both registries receive the same image on every release.
 
 ## Quick Start (NVIDIA CUDA) {#quick-start-nvidia-cuda}
@@ -135,10 +130,7 @@ services:
       - AUTH_ENABLED=true
       - DEFAULT_USERNAME=admin
       - DEFAULT_PASSWORD=admin
-      # Runtime role (rows only) and the boot-only owner connection. See the CPU
-      # example above.
-      - DATABASE_URL=postgres://${POSTGRES_APP_USER:-snapotter_app}:${POSTGRES_APP_PASSWORD:-snapotter_app}@postgres:5432/${POSTGRES_DB:-snapotter}
-      - DATABASE_MIGRATION_URL=postgres://${POSTGRES_USER:-snapotter}:${POSTGRES_PASSWORD:-snapotter}@postgres:5432/${POSTGRES_DB:-snapotter}
+      - DATABASE_URL=postgres://snapotter:snapotter@postgres:5432/snapotter
       - REDIS_URL=redis://redis:6379
     depends_on:
       postgres:
@@ -170,17 +162,14 @@ services:
     image: postgres:17-alpine
     container_name: SnapOtter-postgres
     environment:
-      # These describe the owner. The app's own role (POSTGRES_APP_USER,
-      # POSTGRES_APP_PASSWORD) is created by SnapOtter at boot, so Postgres is
-      # not told about it here.
-      POSTGRES_USER: ${POSTGRES_USER:-snapotter}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-snapotter}     # Change this for non-local deployments
-      POSTGRES_DB: ${POSTGRES_DB:-snapotter}
+      POSTGRES_USER: snapotter
+      POSTGRES_PASSWORD: snapotter     # Change this for non-local deployments
+      POSTGRES_DB: snapotter
     volumes:
       - SnapOtter-pgdata:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-snapotter} -d ${POSTGRES_DB:-snapotter}"]
+      test: ["CMD-SHELL", "pg_isready -U snapotter -d snapotter"]
       interval: 10s
       timeout: 5s
       retries: 12

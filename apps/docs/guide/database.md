@@ -171,7 +171,9 @@ Two roles, two jobs. `DATABASE_URL` serves requests and holds `SELECT`, `INSERT`
 
 `DATABASE_MIGRATION_URL` is the privileged one. It runs migrations and grants the runtime role during boot, then closes before a single request is served.
 
-Compose and the all-in-one image are wired this way already, existing installs included. On boot SnapOtter creates the runtime role if it is missing, grants it, migrates, then sweeps the grants onto tables that were there before. Upgrading needs no manual SQL.
+The split ships in SnapOtter 2.3.0. From that release the in-repo Compose files and the all-in-one image are wired this way, existing installs included: on boot SnapOtter creates the runtime role if it is missing, grants it, migrates, then sweeps the grants onto tables that were there before. Upgrading needs no manual SQL.
+
+The 2.2.0 image reads only the runtime connection string and never creates the second role, so hand it the split and it never comes up: the app log shows password authentication failing for that role, and the Postgres log says the role does not exist. The Compose examples in this documentation stay single-role for that reason: they have to work on whatever the latest tag currently is.
 
 Leaving `DATABASE_MIGRATION_URL` empty runs single-role, with `DATABASE_URL` doing both jobs exactly as it did before the split. That is a supported configuration, not a deprecated one. It is the right answer on managed Postgres, where creating roles is often not yours to do.
 
