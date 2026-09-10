@@ -7,6 +7,12 @@ import { expect, loadTestImage, selectTool, test } from "./helpers";
 // an opaque copy of the entire image on top of the original, and dragging it
 // with the move tool revealed the "duplicate" underneath. A stroke object must
 // carry only the pixels the brush touched and stay transparent everywhere else.
+//
+// The fixture is a flat, fully opaque rgb(255,100,50) 200x150 image, so the
+// blur leaves colours untouched and alpha is what tells a brushed pixel from an
+// untouched one.
+
+const ORANGE = { r: 255, g: 100, b: 50, a: 255 };
 
 type Rgba = { r: number; g: number; b: number; a: number };
 
@@ -33,6 +39,21 @@ function countImageObjects(page: Page): Promise<number> {
     if (!konva?.stages?.length) return 0;
     return konva.stages[0].find("Image").filter((node) => node.id()).length;
   });
+}
+
+// The brush captures the document on mouse down, so the source image must have
+// its bitmap before the first click.
+async function waitForSourceImage(page: Page): Promise<void> {
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() => {
+          const stage = (window as unknown as StageView).Konva?.stages[0];
+          return Boolean(stage?.find("Image").some((node) => !node.id() && node.image()));
+        }),
+      { timeout: 10_000 },
+    )
+    .toBe(true);
 }
 
 // Read one document pixel from the newest image object's own bitmap.
@@ -77,16 +98,15 @@ async function screenPointForDocumentPixel(page: Page, docX: number, docY: numbe
 }
 
 test.describe("Editor pixel brushes (issue #829)", () => {
+  test.beforeEach(async ({ editorPage: page }) => {
+    await loadTestImage(page);
+    await waitForSourceImage(page);
+    await selectTool(page, "blur-brush");
+  });
+
   test("a blur brush click adds only the brushed pixels, not a copy of the whole image", async ({
     editorPage: page,
   }) => {
-    // The fixture is a flat, fully opaque rgb(255,100,50) 200x150 image, so the
-    // blur leaves colours untouched and alpha is what tells a brushed pixel
-    // from an untouched one.
-    await loadTestImage(page);
-    await page.waitForTimeout(500);
-
-    await selectTool(page, "blur-brush");
     const center = await screenPointForDocumentPixel(page, 100, 75);
     await page.mouse.click(center.x, center.y);
 
@@ -96,10 +116,39 @@ test.describe("Editor pixel brushes (issue #829)", () => {
     // Under the click the stroke carries the (blurred) image pixel, opaque.
     await expect
       .poll(() => readStrokeObjectPixel(page, 100, 75), { timeout: 10_000 })
-      .toEqual({ r: 255, g: 100, b: 50, a: 255 });
+      .toEqual(ORANGE);
 
     // Far from the click the stroke object must be transparent. Before the fix
     // it was an opaque copy of the entire document.
+    const corner = await readStrokeObjectPixel(page, 2, 2);
+    expect(corner).not.toBeNull();
+    expect(corner?.a).toBe(0);
+
+    // The default brush is 10px wide, so the dab's bounding square runs to
+    // (105,80). That pixel sits outside the brush circle and must stay
+    // transparent too: copying the whole square would leave it opaque.
+    const outsideCircle = await readStrokeObjectPixel(page, 105, 80);
+    expect(outsideCircle?.a).toBe(0);
+  });
+
+  test("a blur brush drag keeps the image pixels along the whole stroke", async ({
+    editorPage: page,
+  }) => {
+    const start = await screenPointForDocumentPixel(page, 60, 75);
+    const end = await screenPointForDocumentPixel(page, 140, 75);
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down();
+    await page.mouse.move(end.x, end.y, { steps: 8 });
+    await page.mouse.up();
+
+    await expect.poll(() => countImageObjects(page), { timeout: 10_000 }).toBe(1);
+
+    // Later dabs read from the working buffer. Reading from the stroke canvas
+    // instead would blend transparent black into the far end of the stroke.
+    await expect
+      .poll(() => readStrokeObjectPixel(page, 140, 75), { timeout: 10_000 })
+      .toEqual(ORANGE);
+
     const corner = await readStrokeObjectPixel(page, 2, 2);
     expect(corner).not.toBeNull();
     expect(corner?.a).toBe(0);

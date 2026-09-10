@@ -12,8 +12,8 @@ const PIXEL_BRUSH_TOOLS = new Set<ToolType>(["blur-brush", "sharpen-brush", "smu
 interface StrokeState {
   objectId: string;
   canvas: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
-  working: CanvasRenderingContext2D;
+  strokeCtx: CanvasRenderingContext2D;
+  workingCtx: CanvasRenderingContext2D;
   sourceSnapshot: ImageData;
   lastX: number;
   lastY: number;
@@ -44,12 +44,14 @@ export function usePixelBrushTool(stageRef: React.RefObject<Konva.Stage | null>)
 
       // Snapshot the document pixels at document resolution. The capture doubles as
       // the working buffer: the brush reads from it and writes each pass back into it.
-      const working = captureDocumentCanvas(stage, canvasSize.width, canvasSize.height).getContext(
-        "2d",
-      );
-      if (!working) return;
+      const workingCtx = captureDocumentCanvas(
+        stage,
+        canvasSize.width,
+        canvasSize.height,
+      ).getContext("2d");
+      if (!workingCtx) return;
 
-      const sourceSnapshot = working.getImageData(0, 0, canvasSize.width, canvasSize.height);
+      const sourceSnapshot = workingCtx.getImageData(0, 0, canvasSize.width, canvasSize.height);
 
       // The stroke object starts fully transparent and only ever receives the pixels
       // the brush touches. Seeding it with the whole snapshot stacked an opaque copy
@@ -57,10 +59,10 @@ export function usePixelBrushTool(stageRef: React.RefObject<Konva.Stage | null>)
       const canvas = document.createElement("canvas");
       canvas.width = canvasSize.width;
       canvas.height = canvasSize.height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
+      const strokeCtx = canvas.getContext("2d", { willReadFrequently: true });
+      if (!strokeCtx) return;
 
-      applyPixelBrush(working, ctx, sourceSnapshot, x, y, canvasSize);
+      applyPixelBrush(workingCtx, strokeCtx, sourceSnapshot, x, y, canvasSize);
 
       const id = generateId();
       const dataUrl = canvas.toDataURL();
@@ -84,8 +86,8 @@ export function usePixelBrushTool(stageRef: React.RefObject<Konva.Stage | null>)
       strokeRef.current = {
         objectId: id,
         canvas,
-        ctx,
-        working,
+        strokeCtx,
+        workingCtx,
         sourceSnapshot,
         lastX: x,
         lastY: y,
@@ -108,12 +110,12 @@ export function usePixelBrushTool(stageRef: React.RefObject<Konva.Stage | null>)
     const x = Math.floor((pointer.x - panOffset.x) / zoom);
     const y = Math.floor((pointer.y - panOffset.y) / zoom);
 
-    const { ctx, working, sourceSnapshot, canvas, objectId } = strokeRef.current;
+    const { strokeCtx, workingCtx, sourceSnapshot, canvas, objectId } = strokeRef.current;
 
-    applyPixelBrush(working, ctx, sourceSnapshot, x, y, canvasSize);
+    applyPixelBrush(workingCtx, strokeCtx, sourceSnapshot, x, y, canvasSize);
 
     // Update source snapshot for smudge continuity
-    const updatedData = working.getImageData(0, 0, canvasSize.width, canvasSize.height);
+    const updatedData = workingCtx.getImageData(0, 0, canvasSize.width, canvasSize.height);
     strokeRef.current.sourceSnapshot = updatedData;
     strokeRef.current.lastX = x;
     strokeRef.current.lastY = y;
@@ -143,8 +145,8 @@ export function usePixelBrushTool(stageRef: React.RefObject<Konva.Stage | null>)
 }
 
 function applyPixelBrush(
-  working: CanvasRenderingContext2D,
-  stroke: CanvasRenderingContext2D,
+  workingCtx: CanvasRenderingContext2D,
+  strokeCtx: CanvasRenderingContext2D,
   source: ImageData,
   centerX: number,
   centerY: number,
@@ -163,7 +165,7 @@ function applyPixelBrush(
 
   if (w <= 0 || h <= 0) return;
 
-  const imageData = working.getImageData(left, top, w, h);
+  const imageData = workingCtx.getImageData(left, top, w, h);
 
   if (activeTool === "blur-brush") {
     applyBoxBlur(
@@ -203,8 +205,8 @@ function applyPixelBrush(
     );
   }
 
-  working.putImageData(imageData, left, top);
-  copyBrushCircle(imageData, stroke, left, top, centerX, centerY, halfSize);
+  workingCtx.putImageData(imageData, left, top);
+  copyBrushCircle(imageData, strokeCtx, left, top, centerX, centerY, halfSize);
 }
 
 // Lift the brushed circle out of the working buffer onto the stroke canvas. Every
@@ -212,24 +214,27 @@ function applyPixelBrush(
 // pass of the same stroke already touched it.
 function copyBrushCircle(
   region: ImageData,
-  stroke: CanvasRenderingContext2D,
+  strokeCtx: CanvasRenderingContext2D,
   left: number,
   top: number,
   centerX: number,
   centerY: number,
   halfSize: number,
 ): void {
-  const patch = stroke.getImageData(left, top, region.width, region.height);
+  const patch = strokeCtx.getImageData(left, top, region.width, region.height);
   for (let py = 0; py < region.height; py++) {
     for (let px = 0; px < region.width; px++) {
       const dx = left + px - centerX;
       const dy = top + py - centerY;
       if (dx * dx + dy * dy > halfSize * halfSize) continue;
       const idx = (py * region.width + px) * 4;
-      patch.data.set(region.data.subarray(idx, idx + 4), idx);
+      patch.data[idx] = region.data[idx];
+      patch.data[idx + 1] = region.data[idx + 1];
+      patch.data[idx + 2] = region.data[idx + 2];
+      patch.data[idx + 3] = region.data[idx + 3];
     }
   }
-  stroke.putImageData(patch, left, top);
+  strokeCtx.putImageData(patch, left, top);
 }
 
 function applyBoxBlur(
