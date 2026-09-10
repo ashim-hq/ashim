@@ -13,6 +13,7 @@ interface StrokeState {
   objectId: string;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
+  working: CanvasRenderingContext2D;
   sourceSnapshot: ImageData;
   lastX: number;
   lastY: number;
@@ -41,24 +42,25 @@ export function usePixelBrushTool(stageRef: React.RefObject<Konva.Stage | null>)
       const y = Math.floor((pointer.y - panOffset.y) / zoom);
       if (x < 0 || x >= canvasSize.width || y < 0 || y >= canvasSize.height) return;
 
-      // Snapshot the document pixels at document resolution.
-      const stageCanvas = captureDocumentCanvas(stage, canvasSize.width, canvasSize.height);
+      // Snapshot the document pixels at document resolution. The capture doubles as
+      // the working buffer: the brush reads from it and writes each pass back into it.
+      const working = captureDocumentCanvas(stage, canvasSize.width, canvasSize.height).getContext(
+        "2d",
+      );
+      if (!working) return;
 
-      const stageCtx = stageCanvas.getContext("2d");
-      if (!stageCtx) return;
+      const sourceSnapshot = working.getImageData(0, 0, canvasSize.width, canvasSize.height);
 
-      const sourceSnapshot = stageCtx.getImageData(0, 0, canvasSize.width, canvasSize.height);
-
-      // Create output canvas
+      // The stroke object starts fully transparent and only ever receives the pixels
+      // the brush touches. Seeding it with the whole snapshot stacked an opaque copy
+      // of the entire document on top of the image (#829).
       const canvas = document.createElement("canvas");
       canvas.width = canvasSize.width;
       canvas.height = canvasSize.height;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      ctx.putImageData(sourceSnapshot, 0, 0);
-
-      applyPixelBrush(ctx, sourceSnapshot, x, y, canvasSize);
+      applyPixelBrush(working, ctx, sourceSnapshot, x, y, canvasSize);
 
       const id = generateId();
       const dataUrl = canvas.toDataURL();
@@ -79,7 +81,15 @@ export function usePixelBrushTool(stageRef: React.RefObject<Konva.Stage | null>)
       };
 
       useEditorStore.getState().addObject(obj);
-      strokeRef.current = { objectId: id, canvas, ctx, sourceSnapshot, lastX: x, lastY: y };
+      strokeRef.current = {
+        objectId: id,
+        canvas,
+        ctx,
+        working,
+        sourceSnapshot,
+        lastX: x,
+        lastY: y,
+      };
     },
     [stageRef],
   );
@@ -98,12 +108,12 @@ export function usePixelBrushTool(stageRef: React.RefObject<Konva.Stage | null>)
     const x = Math.floor((pointer.x - panOffset.x) / zoom);
     const y = Math.floor((pointer.y - panOffset.y) / zoom);
 
-    const { ctx, sourceSnapshot, canvas, objectId } = strokeRef.current;
+    const { ctx, working, sourceSnapshot, canvas, objectId } = strokeRef.current;
 
-    applyPixelBrush(ctx, sourceSnapshot, x, y, canvasSize);
+    applyPixelBrush(working, ctx, sourceSnapshot, x, y, canvasSize);
 
     // Update source snapshot for smudge continuity
-    const updatedData = ctx.getImageData(0, 0, canvasSize.width, canvasSize.height);
+    const updatedData = working.getImageData(0, 0, canvasSize.width, canvasSize.height);
     strokeRef.current.sourceSnapshot = updatedData;
     strokeRef.current.lastX = x;
     strokeRef.current.lastY = y;
@@ -133,7 +143,8 @@ export function usePixelBrushTool(stageRef: React.RefObject<Konva.Stage | null>)
 }
 
 function applyPixelBrush(
-  ctx: CanvasRenderingContext2D,
+  working: CanvasRenderingContext2D,
+  stroke: CanvasRenderingContext2D,
   source: ImageData,
   centerX: number,
   centerY: number,
@@ -152,10 +163,20 @@ function applyPixelBrush(
 
   if (w <= 0 || h <= 0) return;
 
-  const imageData = ctx.getImageData(left, top, w, h);
+  const imageData = working.getImageData(left, top, w, h);
 
   if (activeTool === "blur-brush") {
-    applyBoxBlur(imageData, source, left, top, canvasSize.width, halfSize, strength);
+    applyBoxBlur(
+      imageData,
+      source,
+      left,
+      top,
+      centerX,
+      centerY,
+      canvasSize.width,
+      halfSize,
+      strength,
+    );
   } else if (activeTool === "sharpen-brush") {
     applySharpen(
       imageData,
@@ -182,7 +203,33 @@ function applyPixelBrush(
     );
   }
 
-  ctx.putImageData(imageData, left, top);
+  working.putImageData(imageData, left, top);
+  copyBrushCircle(imageData, stroke, left, top, centerX, centerY, halfSize);
+}
+
+// Lift the brushed circle out of the working buffer onto the stroke canvas. Every
+// other pixel of the stroke keeps whatever it had: transparent unless an earlier
+// pass of the same stroke already touched it.
+function copyBrushCircle(
+  region: ImageData,
+  stroke: CanvasRenderingContext2D,
+  left: number,
+  top: number,
+  centerX: number,
+  centerY: number,
+  halfSize: number,
+): void {
+  const patch = stroke.getImageData(left, top, region.width, region.height);
+  for (let py = 0; py < region.height; py++) {
+    for (let px = 0; px < region.width; px++) {
+      const dx = left + px - centerX;
+      const dy = top + py - centerY;
+      if (dx * dx + dy * dy > halfSize * halfSize) continue;
+      const idx = (py * region.width + px) * 4;
+      patch.data.set(region.data.subarray(idx, idx + 4), idx);
+    }
+  }
+  stroke.putImageData(patch, left, top);
 }
 
 function applyBoxBlur(
@@ -190,6 +237,8 @@ function applyBoxBlur(
   source: ImageData,
   startX: number,
   startY: number,
+  centerX: number,
+  centerY: number,
   sourceWidth: number,
   halfSize: number,
   strength: number,
@@ -198,8 +247,10 @@ function applyBoxBlur(
 
   for (let py = 0; py < imageData.height; py++) {
     for (let px = 0; px < imageData.width; px++) {
-      const dx = startX + px - (startX + imageData.width / 2);
-      const dy = startY + py - (startY + imageData.height / 2);
+      // Same brush mask as sharpen and smudge (and as copyBrushCircle): centred on
+      // the click, not on the clipped region.
+      const dx = startX + px - centerX;
+      const dy = startY + py - centerY;
       if (dx * dx + dy * dy > halfSize * halfSize) continue;
 
       let sumR = 0;
